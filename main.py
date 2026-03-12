@@ -5726,7 +5726,7 @@ def startScreen():
 
     minorOrder = [i for i in minorOrder if getCountryType(i) != None]
 
-    loadedFlags = [pygame.image.load(os.path.join('flags', f'{getCountryType(i)}_flag.png')).convert()
+    loadedFlags = [pygame.image.load(os.path.join('flags', f'{getCountryType(i).lower()}_flag.png')).convert()
                    for i in majorOrder if getCountryType(i) != None]
     majorFlags = [pygame.transform.scale(i, (uiSize * 6, int(i.get_height() / i.get_width() * uiSize * 6)))
                   for i in loadedFlags]
@@ -5735,7 +5735,7 @@ def startScreen():
                    for i in majorOrder]
     icons = [pygame.transform.scale(i, (uiSize * 6, uiSize * 6)) for i in loadedIcons]
 
-    loadedFlags = [pygame.image.load(os.path.join('flags', f'{getCountryType(i)}_flag.png')).convert()
+    loadedFlags = [pygame.image.load(os.path.join('flags', f'{getCountryType(i).lower()}_flag.png')).convert()
                    for i in minorOrder if getCountryType(i) != None]
     minorFlags = [pygame.transform.scale(i, (int(i.get_width() / i.get_height() * uiSize * 1.5), uiSize * 1.5))
                   for i in loadedFlags]
