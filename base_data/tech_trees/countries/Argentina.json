@@ -1,0 +1,871 @@
+{
+  "Class Struggle": [
+    1600,
+    3,
+    50,
+    [
+      "Workers Rights"
+    ],
+    "True",
+    [
+      "self.ideology[0] -= 0.25"
+    ],
+    30,
+    "Gain 25 left.",
+    "No additional requirements.",
+    false
+  ],
+  "Communism": [
+    1625,
+    7,
+    50,
+    [
+      "End The Status Quo"
+    ],
+    "not self.hasChangedCountry",
+    [
+      "self.revolution('communist')"
+    ],
+    30,
+    "Change flag and color of country.",
+    "Has not changed country flag and color previously.",
+    false
+  ],
+  "Conscription": [
+    1400,
+    3,
+    100,
+    [
+      "Militarism"
+    ],
+    "not self.militarySize == 4",
+    [
+      "self.militarySize += 1"
+    ],
+    60,
+    "Gain 1 military size.",
+    "Less than 1% military size.",
+    false
+  ],
+  "Construction I": [
+    400,
+    2,
+    50,
+    [
+      "Investment"
+    ],
+    "True",
+    [
+      "self.buildSpeed -= 0.1"
+    ],
+    60,
+    "Gain 10% build speed.",
+    "No additional requirements.",
+    false
+  ],
+  "Construction II": [
+    400,
+    3,
+    50,
+    [
+      "Construction I"
+    ],
+    "True",
+    [
+      "self.buildSpeed -= 0.1"
+    ],
+    60,
+    "Gain 10% build speed.",
+    "No additional requirements.",
+    false
+  ],
+  "Defense I": [
+    600,
+    2,
+    50,
+    [
+      "Modernization"
+    ],
+    "True",
+    [
+      "self.defenseMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division defense.",
+    "No additional requirements.",
+    false
+  ],
+  "Defense II": [
+    600,
+    3,
+    50,
+    [
+      "Defense I"
+    ],
+    "True",
+    [
+      "self.defenseMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division defense.",
+    "No additional requirements.",
+    false
+  ],
+  "Defense of the Nation": [
+    1300,
+    1,
+    50,
+    [
+      "Military Effort"
+    ],
+    "True",
+    [
+      "self.money += 10_000_000"
+    ],
+    60,
+    "Gain $10m.",
+    "No additional requirements.",
+    false
+  ],
+  "End The Status Quo": [
+    1925,
+    6,
+    10,
+    [
+      "Ideology Focus"
+    ],
+    "True",
+    [
+      "self.baseStability -= 5"
+    ],
+    15,
+    "Loose 5 stability.",
+    "No additional requirements.",
+    false
+  ],
+  "Enshrine Democracy": [
+    1800,
+    5,
+    50,
+    [
+      "Suffrage For All"
+    ],
+    "True",
+    [
+      "self.ideology[0] -= 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 liberal.",
+    "No additional requirements.",
+    false
+  ],
+  "Fascism": [
+    2250,
+    5,
+    50,
+    [
+      "Us Above All"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25",
+      "self.ideology[0] += 0.25"
+    ],
+    30,
+    "Gain 25 nationalist.",
+    "No additional requirements.",
+    false
+  ],
+  "Gain Autonomy": [
+    2850,
+    3,
+    100,
+    [
+      "Geopolitics"
+    ],
+    "not self.puppetTo == None",
+    [
+      "self.puppetTo = None"
+    ],
+    60,
+    "Gain independence.",
+    "Puppet to a country.",
+    false
+  ],
+  "Geopolitics": [
+    2750,
+    2,
+    50,
+    [
+      "Policy Focus"
+    ],
+    "True",
+    [
+      "self.politicalMultiplier += 0.1"
+    ],
+    30,
+    "Gain 10% political power gain.",
+    "No additional requirements.",
+    false
+  ],
+  "Ideology Focus": [
+    1925,
+    1,
+    50,
+    [
+      "Political Effort"
+    ],
+    "True",
+    [
+      "self.politicalMultiplier += 0.1"
+    ],
+    30,
+    "Gain 10% political power gain.",
+    "No additional requirements.",
+    false
+  ],
+  "Industrial Effort": [
+    200,
+    0,
+    50,
+    [],
+    "True",
+    [
+      "self.money += 10_000_000"
+    ],
+    30,
+    "Gain $10m.",
+    "No additional requirements.",
+    false
+  ],
+  "Infrastructure I": [
+    0,
+    1,
+    50,
+    [
+      "Industrial Effort"
+    ],
+    "True",
+    [
+      "self.addFactory()"
+    ],
+    30,
+    "Creates a factory.",
+    "No additional requirements.",
+    false
+  ],
+  "Infrastructure II": [
+    0,
+    2,
+    50,
+    [
+      "Infrastructure I"
+    ],
+    "True",
+    [
+      "self.addFactory()",
+      "self.addFactory()"
+    ],
+    30,
+    "Creates 2 factories.",
+    "No additional requirements.",
+    false
+  ],
+  "Infrastructure III": [
+    0,
+    3,
+    50,
+    [
+      "Infrastructure II"
+    ],
+    "True",
+    [
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.addFactory()"
+    ],
+    30,
+    "Creates 3 factories.",
+    "No additional requirements.",
+    false
+  ],
+  "Investment": [
+    300,
+    1,
+    50,
+    [
+      "Industrial Effort"
+    ],
+    "True",
+    [
+      "self.money += 20_000_000"
+    ],
+    30,
+    "Gain $20m.",
+    "No additional requirements.",
+    false
+  ],
+  "Liberalism": [
+    1825,
+    7,
+    50,
+    [
+      "End The Status Quo"
+    ],
+    "not self.hasChangedCountry",
+    [
+      "self.revolution('liberal')"
+    ],
+    30,
+    "Change flag and color of country.",
+    "Has not changed country flag and color previously.",
+    false
+  ],
+  "Life, Liberty, Property": [
+    1800,
+    3,
+    50,
+    [
+      "Progressivism"
+    ],
+    "True",
+    [
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 libertarian.",
+    "No additional requirements.",
+    false
+  ],
+  "Militarism": [
+    1400,
+    2,
+    100,
+    [
+      "Defense of the Nation"
+    ],
+    "not self.militarySize == 4",
+    [
+      "self.militarySize += 1"
+    ],
+    60,
+    "Gain 1 military size.",
+    "Less than 1% military size.",
+    false
+  ],
+  "Military Effort": [
+    1000,
+    0,
+    50,
+    [],
+    "True",
+    [
+      "self.money += 10_000_000"
+    ],
+    60,
+    "Gain $10m.",
+    "No additional requirements.",
+    false
+  ],
+  "Militia I": [
+    1200,
+    2,
+    50,
+    [
+      "Defense of the Nation"
+    ],
+    "True",
+    [
+      "self.training.append([1, 0])"
+    ],
+    60,
+    "Train a division.",
+    "No additional requirements.",
+    false
+  ],
+  "Militia II": [
+    1200,
+    3,
+    50,
+    [
+      "Militia I"
+    ],
+    "True",
+    [
+      "self.training.append([2, 0])"
+    ],
+    60,
+    "Train 2 divisions.",
+    "No additional requirements.",
+    false
+  ],
+  "Militia III": [
+    1200,
+    4,
+    50,
+    [
+      "Militia II"
+    ],
+    "True",
+    [
+      "self.training.append([3, 0])"
+    ],
+    60,
+    "Train 3 divisions.",
+    "No additional requirements.",
+    false
+  ],
+  "Modernization": [
+    800,
+    1,
+    50,
+    [
+      "Military Effort"
+    ],
+    "True",
+    [
+      "self.money += 10_000_000"
+    ],
+    60,
+    "Gain $10m.",
+    "No additional requirements.",
+    false
+  ],
+  "Monarchism": [
+    2025,
+    7,
+    50,
+    [
+      "End The Status Quo"
+    ],
+    "not self.hasChangedCountry",
+    [
+      "self.revolution('monarchist')"
+    ],
+    30,
+    "Change flag and color of country.",
+    "Has not changed country flag and color previously.",
+    false
+  ],
+  "National Unity": [
+    2250,
+    3,
+    50,
+    [
+      "Patriotism"
+    ],
+    "True",
+    [
+      "self.ideology[0] += 0.25"
+    ],
+    30,
+    "Gain 25 right.",
+    "No additional requirements.",
+    false
+  ],
+  "Nationalism": [
+    2225,
+    7,
+    50,
+    [
+      "End The Status Quo"
+    ],
+    "not self.hasChangedCountry",
+    [
+      "self.revolution('nationalist')"
+    ],
+    30,
+    "Change flag and color of country.",
+    "Has not changed country flag and color previously.",
+    false
+  ],
+  "Offense I": [
+    800,
+    2,
+    50,
+    [
+      "Modernization"
+    ],
+    "True",
+    [
+      "self.attackMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division attack.",
+    "No additional requirements.",
+    false
+  ],
+  "Offense II": [
+    800,
+    3,
+    50,
+    [
+      "Offense I"
+    ],
+    "True",
+    [
+      "self.attackMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division attack.",
+    "No additional requirements.",
+    false
+  ],
+  "Patriotism": [
+    2250,
+    2,
+    50,
+    [
+      "Ideology Focus"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25"
+    ],
+    30,
+    "Gain 25 authoritarian.",
+    "No additional requirements.",
+    false
+  ],
+  "Policy Focus": [
+    2650,
+    1,
+    50,
+    [
+      "Political Effort"
+    ],
+    "True",
+    [
+      "self.politicalMultiplier += 0.1"
+    ],
+    30,
+    "Gain 10% political power gain.",
+    "No additional requirements.",
+    false
+  ],
+  "Political Effort": [
+    2225,
+    0,
+    50,
+    [],
+    "True",
+    [
+      "self.politicalPower += 50"
+    ],
+    30,
+    "Gain +50 political power.",
+    "No additional requirements.",
+    false
+  ],
+  "Progressivism": [
+    1800,
+    2,
+    50,
+    [
+      "Ideology Focus"
+    ],
+    "True",
+    [
+      "self.ideology[0] -= 0.25"
+    ],
+    30,
+    "Gain 25 left.",
+    "No additional requirements.",
+    false
+  ],
+  "Proletariat Dictatorship": [
+    1600,
+    5,
+    50,
+    [
+      "Socialism"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25",
+      "self.ideology[1] -= 0.25"
+    ],
+    30,
+    "Gain 25 communist.",
+    "No additional requirements.",
+    false
+  ],
+  "Reform I": [
+    2450,
+    2,
+    50,
+    [
+      "Policy Focus"
+    ],
+    "True",
+    [
+      "self.baseStability += 5"
+    ],
+    30,
+    "Gain 5 stability.",
+    "No additional requirements.",
+    false
+  ],
+  "Reform II": [
+    2450,
+    3,
+    50,
+    [
+      "Reform I"
+    ],
+    "True",
+    [
+      "self.baseStability += 10"
+    ],
+    30,
+    "Gain 10 stability.",
+    "No additional requirements.",
+    false
+  ],
+  "Reform III": [
+    2450,
+    4,
+    50,
+    [
+      "Reform II"
+    ],
+    "True",
+    [
+      "self.baseStability += 15"
+    ],
+    30,
+    "Gain 15 stability.",
+    "No additional requirements.",
+    false
+  ],
+  "Restore the Throne": [
+    2050,
+    5,
+    50,
+    [
+      "The Divine Right"
+    ],
+    "True",
+    [
+      "self.ideology[0] += 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 monarchist.",
+    "No additional requirements.",
+    false
+  ],
+  "Socialism": [
+    1600,
+    4,
+    50,
+    [
+      "Class Struggle"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25",
+      "self.ideology[1] -= 0.25"
+    ],
+    30,
+    "Gain 25 communist.",
+    "No additional requirements.",
+    false
+  ],
+  "Suffrage For All": [
+    1800,
+    4,
+    50,
+    [
+      "Life, Liberty, Property"
+    ],
+    "True",
+    [
+      "self.ideology[0] -= 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 liberal.",
+    "No additional requirements.",
+    false
+  ],
+  "Technology I": [
+    200,
+    2,
+    50,
+    [
+      "Investment"
+    ],
+    "True",
+    [
+      "self.moneyMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% industry production.",
+    "No additional requirements.",
+    false
+  ],
+  "Technology II": [
+    200,
+    3,
+    50,
+    [
+      "Technology I"
+    ],
+    "True",
+    [
+      "self.moneyMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% industry production.",
+    "No additional requirements.",
+    false
+  ],
+  "Territorial Expansion": [
+    2650,
+    4,
+    100,
+    [
+      "The New Order"
+    ],
+    "not self.faction == None and self.factionLeader",
+    [
+      "self.expandedInvitations = True"
+    ],
+    60,
+    "Can expand faction across borders.",
+    "Leader of a faction.",
+    false
+  ],
+  "The Divine Right": [
+    2050,
+    4,
+    50,
+    [
+      "Under God"
+    ],
+    "True",
+    [
+      "self.ideology[0] += 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 monarchist.",
+    "No additional requirements.",
+    false
+  ],
+  "The New Order": [
+    2650,
+    3,
+    100,
+    [
+      "Geopolitics"
+    ],
+    "self.faction == None",
+    [
+      "self.canMakeFaction = True"
+    ],
+    60,
+    "Can create a faction.",
+    "Not in a faction.",
+    false
+  ],
+  "Traditionalism": [
+    2050,
+    2,
+    50,
+    [
+      "Ideology Focus"
+    ],
+    "True",
+    [
+      "self.ideology[0] += 0.25"
+    ],
+    30,
+    "Gain 25 right.",
+    "No additional requirements.",
+    false
+  ],
+  "Transportation I": [
+    1000,
+    2,
+    50,
+    [
+      "Modernization"
+    ],
+    "True",
+    [
+      "self.transportMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division speed.",
+    "No additional requirements.",
+    false
+  ],
+  "Transportation II": [
+    1000,
+    3,
+    50,
+    [
+      "Transportation I"
+    ],
+    "True",
+    [
+      "self.transportMultiplier += 0.1"
+    ],
+    60,
+    "Gain 10% division speed.",
+    "No additional requirements.",
+    false
+  ],
+  "Under God": [
+    2050,
+    3,
+    50,
+    [
+      "Traditionalism"
+    ],
+    "True",
+    [
+      "self.ideology[1] += 0.25"
+    ],
+    30,
+    "Gain 25 libertarian.",
+    "No additional requirements.",
+    false
+  ],
+  "Us Above All": [
+    2250,
+    4,
+    50,
+    [
+      "National Unity"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25",
+      "self.ideology[0] += 0.25"
+    ],
+    30,
+    "Gain 25 nationalist.",
+    "No additional requirements.",
+    false
+  ],
+  "Workers Rights": [
+    1600,
+    2,
+    50,
+    [
+      "Ideology Focus"
+    ],
+    "True",
+    [
+      "self.ideology[1] -= 0.25"
+    ],
+    30,
+    "Gain 25 authoritarian.",
+    "No additional requirements.",
+    false
+  ]
+}
