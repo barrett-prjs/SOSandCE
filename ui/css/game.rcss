@@ -1,0 +1,377 @@
+/* ════════════════════════════════════════════════════════════════════
+   SPIRITS OF STEEL – Master Stylesheet
+   Dark military command aesthetic with warm gold accents.
+   ════════════════════════════════════════════════════════════════════ */
+
+body {
+    font-family: Arial;
+    font-size: 16dp;
+    color: #ccc4a8;
+}
+
+/* ─── Core Layout ──────────────────────────────────────────────── */
+.fullscreen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+.center-box {
+    margin: auto;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── Panel Base ───────────────────────────────────────────────── */
+.panel {
+    background-color: #191b20e8;
+    border-width: 2dp;
+    border-color: #6e5c38;
+    border-radius: 10dp;
+    padding: 0;
+}
+
+.panel-dark {
+    background-color: #10121690;
+    border-width: 1dp;
+    border-color: #3a3e48;
+    border-radius: 8dp;
+}
+
+/* ─── Panel Header ─────────────────────────────────────────────── */
+.panel-header {
+    background-color: #1e1c14;
+    padding: 14dp 24dp;
+    border-radius: 10dp 10dp 0 0;
+    text-align: center;
+}
+
+.panel-header h1 {
+    font-size: 26dp;
+    font-weight: bold;
+    color: #bfa860;
+    margin: 0;
+    letter-spacing: 2dp;
+}
+
+.panel-header h2 {
+    font-size: 20dp;
+    font-weight: bold;
+    color: #bfa860;
+    margin: 0;
+}
+
+/* ─── Gold Accents ─────────────────────────────────────────────── */
+.gold-divider {
+    height: 2dp;
+    background-color: #6e5c38;
+    margin: 0;
+}
+
+.gold-divider-thin {
+    height: 1dp;
+    background-color: #6e5c3880;
+    margin: 4dp 0;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────── */
+.btn {
+    display: block;
+    background-color: #282c36;
+    border-width: 1dp;
+    border-color: #484e5a;
+    border-radius: 6dp;
+    padding: 12dp 20dp;
+    margin: 5dp 0;
+    color: #ccc4a8;
+    font-size: 17dp;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #363c48;
+    border-color: #7a6840;
+    color: #dcc478;
+}
+
+.btn:active {
+    background-color: #1a1c22;
+    border-color: #bfa860;
+    color: #bfa860;
+}
+
+.btn-lg {
+    padding: 16dp 28dp;
+    font-size: 20dp;
+    margin: 8dp 0;
+    border-radius: 8dp;
+    border-width: 2dp;
+}
+
+.btn-green {
+    background-color: #1e3a28;
+    border-color: #2e8050;
+    color: #b0e0c0;
+}
+
+.btn-green:hover {
+    background-color: #285838;
+    border-color: #40a868;
+    color: #ffffff;
+}
+
+.btn-red {
+    background-color: #3a1e1e;
+    border-color: #804040;
+    color: #e0b0b0;
+}
+
+.btn-red:hover {
+    background-color: #502828;
+    border-color: #a05050;
+    color: #ffffff;
+}
+
+/* ─── Section Headers ──────────────────────────────────────────── */
+.section {
+    background-color: #14161c;
+    padding: 8dp 14dp;
+    margin: 10dp 0 4dp 0;
+    text-align: center;
+    font-size: 15dp;
+    font-weight: bold;
+    color: #bfa860;
+    border-radius: 4dp;
+}
+
+/* ─── Info Rows ────────────────────────────────────────────────── */
+.info-row {
+    padding: 6dp 10dp;
+    display: flex;
+    flex-direction: row;
+}
+
+.info-label {
+    color: #8c9098;
+    font-size: 15dp;
+    flex: 1;
+}
+
+.info-value {
+    color: #ccc4a8;
+    font-size: 15dp;
+    text-align: right;
+}
+
+/* ─── Selectables / Lists ──────────────────────────────────────── */
+.list-panel {
+    background-color: #12141a;
+    border-width: 1dp;
+    border-color: #3a3e48;
+    border-radius: 6dp;
+    padding: 4dp;
+    overflow: auto;
+}
+
+.list-item {
+    padding: 8dp 12dp;
+    border-radius: 4dp;
+    margin: 2dp 0;
+    cursor: pointer;
+    color: #ccc4a8;
+    font-size: 15dp;
+}
+
+.list-item:hover {
+    background-color: #2a3040;
+    color: #dcc478;
+}
+
+.list-item.selected {
+    background-color: #2e3228;
+    color: #bfa860;
+    border-width: 0 0 0 3dp;
+    border-color: #bfa860;
+}
+
+/* ─── Tabs ─────────────────────────────────────────────────────── */
+.tab-bar {
+    display: flex;
+    flex-direction: row;
+    background-color: #14161c;
+}
+
+.tab {
+    flex: 1;
+    padding: 10dp 0;
+    text-align: center;
+    color: #8c9098;
+    font-size: 15dp;
+    cursor: pointer;
+}
+
+.tab:hover {
+    color: #ccc4a8;
+    background-color: #1e2028;
+}
+
+.tab.active {
+    color: #bfa860;
+    background-color: #1a1c22;
+}
+
+/* ─── Cards (country select) ───────────────────────────────────── */
+.card {
+    background-color: #22262e;
+    border-width: 1dp;
+    border-color: #3a3e48;
+    border-radius: 8dp;
+    padding: 8dp;
+    text-align: center;
+    cursor: pointer;
+    margin: 4dp;
+}
+
+.card:hover {
+    border-color: #7a6840;
+    background-color: #2c3038;
+}
+
+.card.selected {
+    border-color: #bfa860;
+    border-width: 2dp;
+    background-color: #302c20;
+}
+
+.card-name {
+    font-size: 13dp;
+    color: #ccc4a8;
+    margin-top: 4dp;
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────────── */
+scrollbarvertical {
+    width: 10dp;
+    margin-left: 4dp;
+}
+
+scrollbarvertical sliderbar {
+    background-color: #6e5c38;
+    border-radius: 5dp;
+    min-height: 24dp;
+}
+
+scrollbarvertical sliderbar:hover {
+    background-color: #bfa860;
+}
+
+scrollbarvertical sliderarrowdec,
+scrollbarvertical sliderarrowinc {
+    display: none;
+}
+
+/* ─── Top Bar ──────────────────────────────────────────────────── */
+.topbar {
+    background-color: #10121ae8;
+    padding: 8dp 16dp;
+    display: flex;
+    flex-direction: row;
+    height: 48dp;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+}
+
+.topbar-slot {
+    background-color: #22262e;
+    border-width: 1dp;
+    border-color: #3a3e48;
+    border-radius: 5dp;
+    padding: 4dp 10dp;
+    margin: 0 3dp;
+    font-size: 13dp;
+}
+
+.topbar-country {
+    font-size: 18dp;
+    font-weight: bold;
+    color: #dcc478;
+    margin-right: 12dp;
+    padding: 4dp 0;
+}
+
+/* ─── Sidebar ──────────────────────────────────────────────────── */
+.sidebar {
+    background-color: #191b20f0;
+    border-width: 0 0 0 2dp;
+    border-color: #6e5c38;
+    position: absolute;
+    right: 0; top: 48dp; bottom: 0;
+    width: 360dp;
+    padding: 0;
+    overflow: auto;
+}
+
+/* ─── Popup / Dialog ───────────────────────────────────────────── */
+.dialog-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #00000060;
+}
+
+.dialog {
+    background-color: #191b20f0;
+    border-width: 2dp;
+    border-color: #6e5c38;
+    border-radius: 10dp;
+    padding: 0;
+    margin: auto;
+    width: 500dp;
+}
+
+/* ─── Subtitle / Credits ───────────────────────────────────────── */
+.subtitle {
+    text-align: center;
+    font-size: 14dp;
+    color: #6e5c38;
+    padding: 6dp 0 2dp 0;
+}
+
+.credits {
+    position: absolute;
+    bottom: 0; left: 0;
+    background-color: #191b20c0;
+    padding: 8dp 16dp;
+    border-radius: 0 8dp 0 0;
+    font-size: 14dp;
+    color: #8c9098;
+    cursor: pointer;
+}
+
+.credits:hover {
+    color: #bfa860;
+    background-color: #22262ed0;
+}
+
+/* ─── Utility ──────────────────────────────────────────────────── */
+.text-gold { color: #bfa860; }
+.text-bright { color: #dcc478; }
+.text-dim { color: #8c9098; }
+.text-red { color: #dc6464; }
+.text-green { color: #3ca564; }
+.text-orange { color: #d29137; }
+.text-center { text-align: center; }
+.text-sm { font-size: 13dp; }
+.text-lg { font-size: 20dp; }
+.text-xl { font-size: 26dp; }
+.mt { margin-top: 8dp; }
+.mb { margin-bottom: 8dp; }
+.p { padding: 12dp; }
+.px { padding: 0 12dp; }

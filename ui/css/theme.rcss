@@ -1,0 +1,10 @@
+body {
+    font-family: Arial;
+    font-size: 18dp;
+    color: #d2c8ac;
+}
+.gold-line {
+    height: 2dp;
+    background-color: #826e48;
+    margin: 8dp 0;
+}

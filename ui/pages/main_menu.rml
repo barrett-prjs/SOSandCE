@@ -1,0 +1,176 @@
+<rml>
+<head>
+<style>
+body {
+    font-family: Arial;
+    font-size: 16dp;
+    color: #ccc4a8;
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Heavy dark overlay to kill the busy map ───────────── */
+#overlay {
+    position: absolute;
+    top: 0dp; left: 0dp; right: 0dp; bottom: 0dp;
+    background-color: #0a0c10c0;
+}
+
+/* ── Main menu container - centered ────────────────────── */
+#menu {
+    position: absolute;
+    top: 12%;
+    left: 28%;
+    right: 28%;
+    bottom: auto;
+}
+
+/* ── Outer frame: thick gold border ────────────────────── */
+#frame-outer {
+    border-width: 3dp;
+    border-color: #8a7840;
+    background-color: #0e1018f0;
+    padding: 5dp;
+}
+
+/* ── Inner frame: thin secondary border ────────────────── */
+#frame-inner {
+    border-width: 1dp;
+    border-color: #4a4230;
+}
+
+/* ── Logo area inside panel ────────────────────────────── */
+#logo-area {
+    background-color: #161410;
+    padding: 32dp 40dp 20dp 40dp;
+    text-align: center;
+    border-width: 0dp 0dp 2dp 0dp;
+    border-color: #8a7840;
+}
+
+#game-title {
+    font-size: 42dp;
+    font-weight: bold;
+    color: #c8a850;
+}
+
+#game-subtitle {
+    font-size: 16dp;
+    color: #685830;
+    margin-top: 8dp;
+}
+
+/* ── Gold ornamental divider ───────────────────────────── */
+.ornament {
+    height: 3dp;
+    background-color: #8a7840;
+}
+
+.ornament-thin {
+    height: 1dp;
+    background-color: #4a4230;
+    margin: 0dp 60dp;
+}
+
+/* ── Button container ──────────────────────────────────── */
+#btn-area {
+    padding: 36dp 12% 40dp 12%;
+    background-color: #0e1018;
+}
+
+/* ── Chunky HOI4-style buttons ─────────────────────────── */
+.mbtn {
+    display: block;
+    background-color: #1a1e28;
+    border-width: 2dp;
+    border-color: #3a3e4a;
+    padding: 22dp 32dp;
+    margin: 14dp 0dp;
+    color: #a8a090;
+    font-size: 24dp;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mbtn:hover {
+    background-color: #262c38;
+    border-color: #a89048;
+    color: #e8d880;
+}
+
+.mbtn:active {
+    background-color: #101420;
+    border-color: #c8a850;
+    color: #c8a850;
+}
+
+/* ── Bottom strip ──────────────────────────────────────── */
+#bottom {
+    background-color: #080a0e;
+    padding: 10dp 24dp;
+    text-align: center;
+    border-width: 1dp 0dp 0dp 0dp;
+    border-color: #2a2820;
+}
+
+#bottom span {
+    font-size: 13dp;
+    color: #3a3428;
+}
+
+/* ── Credits in bottom-left of screen ──────────────────── */
+#credits {
+    position: absolute;
+    bottom: 16dp;
+    left: 16dp;
+    background-color: #0e1018e0;
+    border-width: 1dp;
+    border-color: #3a3420;
+    padding: 10dp 24dp;
+    font-size: 14dp;
+    color: #585040;
+    cursor: pointer;
+}
+
+#credits:hover {
+    color: #c8a850;
+    border-color: #8a7840;
+}
+</style>
+</head>
+<body>
+    <!-- Dark overlay kills the busy map -->
+    <div id="overlay"></div>
+
+    <!-- One unified menu panel -->
+    <div id="menu">
+        <div id="frame-outer">
+            <div id="frame-inner">
+                <!-- Logo integrated into the panel header -->
+                <div id="logo-area">
+                    <span id="game-title">SPIRITS OF STEEL</span>
+                    <br/>
+                    <span id="game-subtitle">Community Edition v2.0</span>
+                </div>
+
+                <!-- Ornamental gold line -->
+                <div class="ornament"></div>
+
+                <!-- Chunky button stack -->
+                <div id="btn-area">
+                    <div class="mbtn" id="btn-newgame">New Game</div>
+                    <div class="mbtn" id="btn-loadgame">Load Game</div>
+                    <div class="mbtn" id="btn-settings">Settings</div>
+                    <div class="mbtn" id="btn-quit">Quit</div>
+                </div>
+
+                <!-- Version strip -->
+                <div id="bottom"><span>v2.0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credits -->
+    <div id="credits">A Game By Gavin Grubert</div>
+</body>
+</rml>

@@ -1,0 +1,42 @@
+{
+  "expansionist": {
+    "war_willingness": 0.8,
+    "build_priority": "military",
+    "diplomacy": "aggressive",
+    "focus_preference": ["military", "expansion", "industry"],
+    "trade_willingness": 0.4,
+    "description": "Seeks territorial expansion"
+  },
+  "defensive": {
+    "war_willingness": 0.2,
+    "build_priority": "infrastructure",
+    "diplomacy": "neutral",
+    "focus_preference": ["defense", "industry", "political"],
+    "trade_willingness": 0.7,
+    "description": "Prioritizes homeland defense"
+  },
+  "economic": {
+    "war_willingness": 0.3,
+    "build_priority": "civilian",
+    "diplomacy": "trade_focused",
+    "focus_preference": ["industry", "political", "defense"],
+    "trade_willingness": 0.9,
+    "description": "Focuses on economic growth"
+  },
+  "ideological": {
+    "war_willingness": 0.5,
+    "build_priority": "balanced",
+    "diplomacy": "faction_builder",
+    "focus_preference": ["political", "military", "industry"],
+    "trade_willingness": 0.6,
+    "description": "Spreads ideology through factions"
+  },
+  "naval": {
+    "war_willingness": 0.4,
+    "build_priority": "naval",
+    "diplomacy": "colonial",
+    "focus_preference": ["military", "industry", "expansion"],
+    "trade_willingness": 0.7,
+    "description": "Projects power through naval dominance"
+  }
+}

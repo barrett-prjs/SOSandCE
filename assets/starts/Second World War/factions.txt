@@ -1,0 +1,5 @@
+Allies: [United_Kingdom, Dominion_of_Canada, France, Apartheid_South_Africa, Egyptian_Kingdom, British_Raj, British_Malaya, Australia, New_Zealand, France, Poland]
+Axis: [German_Reich, Italian_Empire]
+GEACPS: [Imperial_Japan, Manchukuo, Mengjiang]
+Comintern: [Soviet_Union, Mongolian_Peoples_Republic, Tannu_Tuva]
+United_Front: [Chinese_Republic, Communist_China]

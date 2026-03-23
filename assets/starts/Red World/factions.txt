@@ -1,0 +1,2 @@
+Democratic_League: [Canada, Alaska, Hawaii, Australia, New_Zealand]
+Warsaw_Pact: [Soviet_Union, Polish_Republic, Czech_Republic, Hungarian_Republic, Bulgarian_Republic, Italian_Republic, German_Republic, Dutch_Republic, Belgian_Republic, Rosa_Luxembourg, French_Commune, Afghan_Republic, Romanian_Republic]

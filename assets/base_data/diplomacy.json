@@ -1,0 +1,26 @@
+{
+  "peace_actions": {
+    "annex_province": {"base_cost": 5, "capital_multiplier": 3, "victory_point_multiplier": 2, "factory_multiplier": 1.5},
+    "puppet": {"base_cost": 50, "per_province": 2},
+    "liberate": {"base_cost": 30, "per_province": 1},
+    "install_government": {"base_cost": 40}
+  },
+  "turn_order": "victory_points_descending",
+  "ai_preferences": {
+    "homeland_weight": 10,
+    "contiguous_weight": 5,
+    "culture_weight": 3,
+    "factory_weight": 2,
+    "port_weight": 2
+  },
+  "puppet_rules": {
+    "starting_autonomy": 25,
+    "autonomy_gain_per_day": 0.02,
+    "autonomy_loss_war_help": 0.05,
+    "revolt_threshold": 95,
+    "annex_threshold": 5,
+    "resource_tribute_percent": 25,
+    "reduce_autonomy_cost": 40,
+    "reduce_autonomy_amount": 10
+  }
+}

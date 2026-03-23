@@ -1,0 +1,2 @@
+NATO: [United_States, Canada, Denmark, Norway, Sweden, Finland, Iceland, United_Kingdom, Portugal, Spain, France, Belgium, Netherlands, Germany, Poland, Estonia, Latvia, Lithuania, Czechia, Slovakia, Hungary, Italy, Slovenia, Croatia, Romania, Bulgaria, North_Macedonia, Albania, Montenegro, Greece, Turkey, Luxembourg]
+CSTO: [Russia, Belarus, Armenia, Kazakhstan, Kyrgyzstan, Tajikistan]

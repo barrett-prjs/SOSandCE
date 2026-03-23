@@ -1,0 +1,113 @@
+<rml>
+<head>
+    <link type="text/rcss" href="../css/theme.rcss" />
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #menu-container {
+            position: absolute;
+            left: 50%;
+            margin-left: -240dp;
+            width: 480dp;
+            top: 30%;
+        }
+
+        #menu-panel {
+            background-color: #1c1e23ee;
+            border: 2dp solid #826e48;
+            border-radius: 12dp;
+            box-shadow: 0dp 8dp 32dp #00000088;
+        }
+
+        #menu-header {
+            background-color: #24221a;
+            border-bottom: 2dp solid #826e48;
+            border-radius: 12dp 12dp 0 0;
+            padding: 16dp 20dp;
+            text-align: center;
+        }
+
+        #menu-header h1 {
+            font-size: 28dp;
+            font-weight: bold;
+            color: #c0a868;
+            margin: 0;
+        }
+
+        #subtitle {
+            text-align: center;
+            font-size: 15dp;
+            color: #826e48;
+            padding: 8dp 0 4dp 0;
+        }
+
+        #button-area {
+            padding: 16dp 40dp 24dp 40dp;
+        }
+
+        .menu-btn {
+            display: block;
+            background-color: #2a2d35;
+            border: 2dp solid #4a4e58;
+            border-top-color: #555a66;
+            border-bottom-color: #222428;
+            border-radius: 8dp;
+            padding: 16dp 24dp;
+            margin: 12dp 0;
+            color: #d2c8ac;
+            font-size: 20dp;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .menu-btn:hover {
+            background-color: #363a44;
+            border-color: #826e48;
+            color: #dcc478;
+        }
+
+        .menu-btn:active {
+            background-color: #1e2026;
+            border-color: #c0a868;
+            color: #c0a868;
+        }
+
+        #credits {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: #1c1e23d0;
+            padding: 10dp 20dp;
+            border-top-right-radius: 8dp;
+            font-size: 15dp;
+            color: #8c9098;
+            cursor: pointer;
+        }
+
+        #credits:hover {
+            color: #c0a868;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-container">
+        <div id="menu-panel">
+            <div id="menu-header">
+                <h1>SPIRITS OF STEEL</h1>
+            </div>
+            <div id="subtitle">Community Edition v2.0</div>
+            <div class="gold-line"></div>
+            <div id="button-area">
+                <div class="menu-btn" id="btn-newgame">New Game</div>
+                <div class="menu-btn" id="btn-loadgame">Load Game</div>
+                <div class="menu-btn" id="btn-settings">Settings</div>
+                <div class="menu-btn" id="btn-quit">Quit</div>
+            </div>
+        </div>
+    </div>
+    <div id="credits">A Game By Gavin Grubert</div>
+</body>
+</rml>

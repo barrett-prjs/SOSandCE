@@ -1,0 +1,93 @@
+{
+  "economy": {
+    "starting_stockpile_per_region": 2,
+    "max_stockpile": 1000,
+    "base_money_per_factory": 5000,
+    "money_cap_per_region": 2500000,
+    "trade_price_per_unit": 100,
+    "training_cost_per_division": 25000,
+    "division_upkeep_per_day": 200,
+    "dynamic_cost_region_divisor": 150,
+    "deficit_production_penalty_steel": 0.5,
+    "deficit_production_penalty_aluminum": 0.7,
+    "deficit_combat_penalty_oil": 0.6,
+    "deficit_combat_penalty_rubber": 0.8,
+    "deficit_combat_penalty_tungsten": 0.85,
+    "deficit_combat_penalty_chromium": 0.85,
+    "division_oil_consumption": 0.5,
+    "division_steel_consumption": 0.3,
+    "division_rubber_consumption": 0.1,
+    "factory_steel_consumption": 0.2,
+    "factory_aluminum_consumption": 0.15,
+    "arms_factory_tungsten_consumption": 0.3,
+    "arms_factory_chromium_consumption": 0.2
+  },
+  "combat": {
+    "base_attack": 10,
+    "base_defense": 10,
+    "base_speed": 5,
+    "base_fuel_use": 1,
+    "base_supply_use": 2,
+    "attack_per_stack": 2,
+    "defense_per_stack": 2,
+    "armor_per_factory": 0.5,
+    "piercing_per_factory": 0.5,
+    "armor_piercing_full_damage": 1.0,
+    "armor_piercing_reduced_damage": 0.5,
+    "fuel_penalty_multiplier": 0.4,
+    "supply_penalty_multiplier": 0.6,
+    "encirclement_bonus": 1.5,
+    "speed_retreat_bonus": 0.1,
+    "speed_flank_bonus": 0.05
+  },
+  "peace_conference": {
+    "annex_province_base_cost": 5,
+    "annex_capital_multiplier": 3,
+    "annex_factory_multiplier": 1.5,
+    "puppet_base_cost": 50,
+    "puppet_per_province": 2,
+    "liberate_base_cost": 30,
+    "install_government_base_cost": 40,
+    "ai_homeland_weight": 10,
+    "ai_contiguous_weight": 5,
+    "ai_culture_weight": 3,
+    "ai_max_picks_per_turn": 5
+  },
+  "puppets": {
+    "starting_autonomy": 25,
+    "autonomy_gain_per_day": 0.02,
+    "autonomy_loss_war_help": 0.05,
+    "revolt_threshold": 95,
+    "annex_threshold": 5,
+    "resource_tribute_base_percent": 25,
+    "reduce_autonomy_pp_cost": 40,
+    "reduce_autonomy_amount": 10
+  },
+  "politics": {
+    "election_cycle_democratic": 1460,
+    "election_cycle_nonaligned": 1825,
+    "political_power_base_gain": 0.25,
+    "leader_death_chance_per_check": 0.001,
+    "scandal_chance_per_check": 0.003,
+    "economic_shock_chance_per_check": 0.002,
+    "military_incident_chance_per_check": 0.002,
+    "event_cooldown_days": 30
+  },
+  "buildings": {
+    "max_construction_queue_multiplier": 1,
+    "infrastructure_construction_speed_bonus": 0.05,
+    "civilian_factory_construction_speed": 1.0,
+    "starting_civilian_factories_per_50_regions": 1,
+    "starting_arms_factories_per_100_regions": 1,
+    "starting_infrastructure_per_30_regions": 1
+  },
+  "ai": {
+    "build_check_interval_ticks": 180,
+    "trade_check_interval_ticks": 360,
+    "war_decision_interval_ticks": 720,
+    "min_military_advantage_for_war": 1.5,
+    "threat_at_war_bonus": 100,
+    "threat_military_ratio_weight": 30,
+    "threat_ideology_mismatch": 10
+  }
+}
