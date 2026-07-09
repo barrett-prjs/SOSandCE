@@ -1,0 +1,46 @@
+{
+  "liberal": {
+    "election_cycle": 1460,
+    "allows_elections": true,
+    "drift_speed": 0.01,
+    "stability_bonus": 5,
+    "trade_bonus": 0.2,
+    "war_support_penalty": -0.1,
+    "color": [30, 100, 200]
+  },
+  "communist": {
+    "election_cycle": 0,
+    "allows_elections": false,
+    "drift_speed": 0.02,
+    "stability_bonus": -5,
+    "production_bonus": 0.15,
+    "manpower_bonus": 0.1,
+    "color": [200, 30, 30]
+  },
+  "nationalist": {
+    "election_cycle": 0,
+    "allows_elections": false,
+    "drift_speed": 0.015,
+    "stability_bonus": 0,
+    "war_support_bonus": 0.2,
+    "military_bonus": 0.15,
+    "color": [100, 60, 30]
+  },
+  "monarchist": {
+    "election_cycle": 0,
+    "allows_elections": false,
+    "drift_speed": 0.005,
+    "stability_bonus": 10,
+    "political_power_bonus": 0.1,
+    "reform_penalty": -0.1,
+    "color": [150, 50, 150]
+  },
+  "nonaligned": {
+    "election_cycle": 1825,
+    "allows_elections": true,
+    "drift_speed": 0.005,
+    "stability_bonus": 0,
+    "trade_bonus": 0.1,
+    "color": [128, 128, 128]
+  }
+}

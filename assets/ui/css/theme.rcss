@@ -1,0 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Spirits of Steel – RCSS Theme
+   Dark military aesthetic with gold accents.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+body {
+    font-family: LatoLatin;
+    font-size: 18dp;
+    color: #d2c8ac;
+}
+
+/* ─── Panels / Windows ──────────────────────────────────────────────── */
+.panel {
+    background-color: #1c1e23ee;
+    border: 2dp solid #826e48;
+    border-radius: 12dp;
+    padding: 20dp;
+    box-shadow: 0dp 8dp 32dp #00000088;
+}
+
+.panel-header {
+    background-color: #24221a;
+    border-bottom: 2dp solid #826e48;
+    border-radius: 12dp 12dp 0 0;
+    padding: 12dp 20dp;
+    text-align: center;
+}
+
+.panel-header h1 {
+    font-size: 24dp;
+    font-weight: bold;
+    color: #c0a868;
+    text-shadow: 1dp 1dp 2dp #000000;
+    margin: 0;
+}
+
+.panel-body {
+    padding: 16dp 20dp;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────────── */
+button, .btn {
+    display: block;
+    background-color: #2a2d35;
+    border: 1.5dp solid #4a4e58;
+    border-radius: 8dp;
+    padding: 14dp 24dp;
+    margin: 6dp 0;
+    color: #d2c8ac;
+    font-size: 18dp;
+    text-align: center;
+    cursor: pointer;
+
+    /* Subtle gradient via top/bottom border colors */
+    border-top-color: #555a66;
+    border-bottom-color: #222428;
+}
+
+button:hover, .btn:hover {
+    background-color: #363a44;
+    border-color: #826e48;
+    color: #dcc478;
+    border-top-color: #826e48;
+}
+
+button:active, .btn:active {
+    background-color: #1e2026;
+    border-color: #c0a868;
+    color: #c0a868;
+}
+
+button.primary, .btn-primary {
+    background-color: #28593a;
+    border-color: #3ca55c;
+    color: #d2c8ac;
+    border-top-color: #48b06a;
+    border-bottom-color: #1e4a2e;
+}
+
+button.primary:hover, .btn-primary:hover {
+    background-color: #327048;
+    border-color: #4cc070;
+    color: #ffffff;
+}
+
+button.danger, .btn-danger {
+    background-color: #5a2828;
+    border-color: #a04040;
+    color: #d2c8ac;
+}
+
+button.danger:hover, .btn-danger:hover {
+    background-color: #702e2e;
+    border-color: #c05050;
+    color: #ffffff;
+}
+
+/* Large menu buttons */
+.btn-large {
+    padding: 18dp 32dp;
+    font-size: 22dp;
+    margin: 10dp 0;
+    border-radius: 10dp;
+    border-width: 2dp;
+}
+
+/* ─── Gold decorative elements ──────────────────────────────────────── */
+.gold-line {
+    height: 2dp;
+    background-color: #826e48;
+    margin: 8dp 0;
+}
+
+.gold-text {
+    color: #c0a868;
+}
+
+.bright-gold {
+    color: #dcc478;
+}
+
+.dim-text {
+    color: #8c9098;
+}
+
+.red-text { color: #dc6464; }
+.green-text { color: #3ca564; }
+.orange-text { color: #d29137; }
+
+/* ─── Section headers ───────────────────────────────────────────────── */
+.section-header {
+    background-color: #16181e;
+    border-left: 4dp solid #c0a868;
+    border-top: 2dp solid #826e4880;
+    border-bottom: 1dp solid #826e4840;
+    padding: 8dp 16dp;
+    margin: 12dp 0 4dp 0;
+    text-align: center;
+    font-size: 16dp;
+    font-weight: bold;
+    color: #c0a868;
+}
+
+/* ─── Info rows ─────────────────────────────────────────────────────── */
+.info-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 6dp 8dp;
+    border-bottom: 1dp solid #3c404820;
+}
+
+.info-row:nth-child(even) {
+    background-color: #ffffff06;
+}
+
+.info-label {
+    color: #d2c8ac;
+    font-size: 16dp;
+}
+
+.info-value {
+    color: #8c9098;
+    font-size: 16dp;
+    text-align: right;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────────── */
+.tab-bar {
+    display: flex;
+    flex-direction: row;
+    background-color: #16181e;
+    border-bottom: 1dp solid #3c4048;
+}
+
+.tab {
+    flex: 1;
+    padding: 12dp 0;
+    text-align: center;
+    color: #8c9098;
+    font-size: 16dp;
+    cursor: pointer;
+    border-bottom: 3dp solid transparent;
+}
+
+.tab:hover {
+    color: #d2c8ac;
+    background-color: #22242a;
+}
+
+.tab.active {
+    color: #c0a868;
+    border-bottom-color: #c0a868;
+    background-color: #1c1e24;
+}
+
+/* ─── Selectables / List items ──────────────────────────────────────── */
+.list-item {
+    padding: 10dp 14dp;
+    border-radius: 4dp;
+    margin: 2dp 0;
+    cursor: pointer;
+    color: #d2c8ac;
+}
+
+.list-item:hover {
+    background-color: #303440;
+    color: #dcc478;
+}
+
+.list-item.selected {
+    background-color: #34382e;
+    border-left: 3dp solid #c0a868;
+    color: #c0a868;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────── */
+scrollbarvertical {
+    width: 12dp;
+    margin-left: 4dp;
+}
+
+scrollbarvertical sliderbar {
+    background-color: #826e48;
+    border-radius: 6dp;
+    min-height: 30dp;
+}
+
+scrollbarvertical sliderbar:hover {
+    background-color: #c0a868;
+}
+
+/* ─── Cards (country selection) ─────────────────────────────────────── */
+.card {
+    background-color: #24262e;
+    border: 1.5dp solid #3c4048;
+    border-radius: 8dp;
+    padding: 10dp;
+    text-align: center;
+    cursor: pointer;
+    width: 120dp;
+    height: 100dp;
+}
+
+.card:hover {
+    border-color: #826e48;
+    background-color: #2c3038;
+}
+
+.card.selected {
+    border-color: #c0a868;
+    border-width: 2dp;
+    background-color: #343028;
+}
+
+.card .country-name {
+    font-size: 14dp;
+    color: #d2c8ac;
+    margin-top: 6dp;
+}
+
+/* ─── Top bar ───────────────────────────────────────────────────────── */
+.topbar {
+    background-color: #12141aee;
+    border-bottom: 2dp solid #826e48;
+    padding: 6dp 12dp;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 52dp;
+}
+
+.topbar .slot {
+    background-color: #24262e;
+    border: 1dp solid #3c4048;
+    border-radius: 6dp;
+    padding: 4dp 12dp;
+    margin: 0 4dp;
+    font-size: 14dp;
+    border-top-color: #444850;
+    border-bottom-color: #1c1e22;
+}
+
+.topbar .country-name {
+    font-size: 20dp;
+    font-weight: bold;
+    color: #dcc478;
+    margin-right: 16dp;
+}
+
+.topbar .date {
+    background-color: #0a0c10;
+    border: 1dp solid #3c4048;
+    border-radius: 4dp;
+    padding: 4dp 14dp;
+    font-size: 14dp;
+    color: #d2c8ac;
+}
+
+/* ─── Speed pips ────────────────────────────────────────────────────── */
+.speed-pip {
+    display: inline-block;
+    width: 8dp;
+    height: 6dp;
+    background-color: #0a0c10;
+    margin: 0 2dp;
+    border-radius: 1dp;
+}
+
+.speed-pip.active {
+    background-color: #c0a868;
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────────────── */
+.sidebar {
+    background-color: #1c1e23f0;
+    border-left: 2dp solid #826e48;
+    width: 380dp;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 52dp;
+}
+
+/* ─── Political compass ─────────────────────────────────────────────── */
+.compass {
+    width: 160dp;
+    height: 160dp;
+    margin: 8dp auto;
+    border: 1dp solid #3c4048;
+    border-radius: 4dp;
+}
+
+/* ─── Toast notifications ───────────────────────────────────────────── */
+.toast {
+    background-color: #1c1e23e8;
+    border: 1dp solid #826e48;
+    border-radius: 6dp;
+    padding: 10dp 20dp;
+    color: #d2c8ac;
+    font-size: 16dp;
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    margin-left: -150dp;
+    width: 300dp;
+}
+
+/* ─── Credits ───────────────────────────────────────────────────────── */
+.credits {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: #1c1e23d0;
+    padding: 8dp 16dp;
+    border-top-right-radius: 6dp;
+    font-size: 14dp;
+    color: #8c9098;
+}
+
+.credits:hover {
+    color: #c0a868;
+    background-color: #24262ed0;
+}

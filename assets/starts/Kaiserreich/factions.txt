@@ -1,0 +1,4 @@
+Reichspakt: [German_Empire, Flanders, Lithuanian_Kingdom, Baltic_Duchy, White_Ruthenia, Ukrainian_State, Poland, Finland, Georgia]
+Entente: [Dominion_of_Canada, Apartheid_South_Africa, Australia, West_Indies, British_Raj, France]
+GEACPS: [Japanese_Empire, Manchukuo, Transamur]
+Austria_Hungary: [Austrian_Empire, Greater_Hungary, Illyria, Bohemia, Lodomeria]

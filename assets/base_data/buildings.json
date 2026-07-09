@@ -1,0 +1,9 @@
+{
+  "civilian_factory": {"cost": 5000, "days": 120, "max_per_region": 3, "effects": {"construction_speed": 0.1, "money_production": 5000}, "icon": "placeholder.png", "description": "Produces money and speeds up construction", "category": "industry"},
+  "arms_factory": {"cost": 8000, "days": 150, "max_per_region": 3, "effects": {"military_production": 1, "training_speed": 0.15}, "icon": "placeholder.png", "description": "Reduces training time and boosts combat stats", "category": "military"},
+  "dockyard": {"cost": 6000, "days": 60, "max_per_region": 2, "effects": {"transport_speed": 0.1}, "icon": "placeholder.png", "description": "Enables naval access and boosts transport speed", "category": "naval"},
+  "mine": {"cost": 3000, "days": 90, "max_per_region": 2, "effects": {"resource_multiplier": 1.5}, "icon": "placeholder.png", "description": "Multiplies resource extraction by 1.5x", "category": "resource"},
+  "oil_well": {"cost": 4000, "days": 100, "max_per_region": 2, "effects": {"oil_production": 2}, "icon": "placeholder.png", "description": "Extracts +2 oil per day", "category": "resource"},
+  "refinery": {"cost": 6000, "days": 120, "max_per_region": 1, "effects": {"fuel_production": 1}, "icon": "placeholder.png", "description": "Boosts oil output by 1.3x", "category": "resource"},
+  "infrastructure": {"cost": 2000, "days": 60, "max_per_region": 3, "effects": {"movement_speed": 0.2, "supply": 0.15, "construction_speed": 0.05}, "icon": "placeholder.png", "description": "+20% move speed, +15% supply, +5% build speed", "category": "logistics"}
+}

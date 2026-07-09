@@ -1,0 +1,2 @@
+NATO: [United_States, Dominion_of_Canada, Iceland, United_Kingdom, Belgium, Netherlands, Denmark, Norway, Luxembourg, Portugal, Italy, France]
+Comintern: [Soviet_Union, Polish_Republic, Czech_Republic, Hungarian_Republic, Romanian_Republic, Bulgarian_Republic, Mongolian_Peoples_Republic, PSR_Albania]

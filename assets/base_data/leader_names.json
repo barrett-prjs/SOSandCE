@@ -1,0 +1,178 @@
+{
+  "Eastern_European": {
+    "first_names": [
+      "Aleksandr", "Dmitri", "Ivan", "Nikolai", "Pavel",
+      "Sergei", "Viktor", "Andrei", "Boris", "Grigori",
+      "Mikhail", "Oleg", "Yuri", "Vasili", "Konstantin",
+      "Lev", "Maxim", "Fyodor", "Roman", "Stanislav",
+      "Vladislav", "Igor", "Anatoli", "Evgeni", "Pyotr"
+    ],
+    "last_names": [
+      "Volkov", "Petrov", "Ivanov", "Kuznetsov", "Sokolov",
+      "Popov", "Lebedev", "Kozlov", "Novikov", "Morozov",
+      "Pavlov", "Smirnov", "Fedorov", "Orlov", "Zhukov",
+      "Vasiliev", "Kovalenko", "Bogdanov", "Voronov", "Korolev",
+      "Baranov", "Sorokin", "Tkachenko", "Kravchenko", "Shevchenko"
+    ]
+  },
+  "Western_European": {
+    "first_names": [
+      "Jean", "Pierre", "Henri", "Louis", "Charles",
+      "Friedrich", "Wilhelm", "Hans", "Karl", "Heinrich",
+      "Antonio", "Marco", "Giovanni", "Alessandro", "Lorenzo",
+      "Philippe", "Jacques", "Etienne", "Francois", "Michel",
+      "Stefan", "Georg", "Wolfgang", "Helmut", "Konrad"
+    ],
+    "last_names": [
+      "Dupont", "Laurent", "Moreau", "Bernard", "Lefebvre",
+      "Muller", "Schmidt", "Schneider", "Fischer", "Weber",
+      "Rossi", "Bianchi", "Romano", "Colombo", "Ricci",
+      "Martin", "Dubois", "Fontaine", "Renard", "Chevalier",
+      "Wagner", "Hoffmann", "Becker", "Braun", "Zimmermann"
+    ]
+  },
+  "Nordic": {
+    "first_names": [
+      "Erik", "Lars", "Olaf", "Sven", "Bjorn",
+      "Anders", "Magnus", "Gunnar", "Harald", "Leif",
+      "Ragnar", "Thorsten", "Sigurd", "Ivar", "Aksel",
+      "Nils", "Einar", "Frode", "Torbjorn", "Halvar",
+      "Arne", "Knut", "Vidar", "Rolf", "Haakon"
+    ],
+    "last_names": [
+      "Johansson", "Andersson", "Eriksson", "Lindqvist", "Bergstrom",
+      "Larsson", "Nilsson", "Olsson", "Persson", "Svensson",
+      "Hansen", "Johansen", "Pedersen", "Kristiansen", "Haugen",
+      "Lindgren", "Lundberg", "Sandberg", "Holmberg", "Nystrom",
+      "Virtanen", "Korhonen", "Nieminen", "Makinen", "Hakkinen"
+    ]
+  },
+  "East_Asian": {
+    "first_names": [
+      "Hiroshi", "Takeshi", "Kenji", "Masaru", "Akira",
+      "Wei", "Jun", "Ming", "Hao", "Chen",
+      "Jinhwan", "Seunghyun", "Minho", "Taehyung", "Dongwook",
+      "Satoshi", "Ryuji", "Kazuki", "Shigeru", "Noboru",
+      "Zhigang", "Yongzhi", "Xiaolong", "Daesung", "Jianfeng"
+    ],
+    "last_names": [
+      "Tanaka", "Yamamoto", "Suzuki", "Watanabe", "Nakamura",
+      "Wang", "Li", "Zhang", "Liu", "Chen",
+      "Kim", "Park", "Lee", "Choi", "Jung",
+      "Takahashi", "Ito", "Sato", "Kobayashi", "Kato",
+      "Huang", "Zhou", "Wu", "Yang", "Zhao"
+    ]
+  },
+  "South_Asian": {
+    "first_names": [
+      "Rajesh", "Vikram", "Arjun", "Suresh", "Deepak",
+      "Amir", "Rajan", "Pradeep", "Sanjay", "Mohan",
+      "Ashok", "Venkat", "Ganesh", "Ramesh", "Kiran",
+      "Harish", "Naveen", "Anand", "Gopal", "Nikhil",
+      "Imran", "Farhan", "Tariq", "Zafar", "Samir"
+    ],
+    "last_names": [
+      "Sharma", "Patel", "Singh", "Kumar", "Gupta",
+      "Reddy", "Nair", "Iyer", "Rao", "Menon",
+      "Joshi", "Pillai", "Das", "Bose", "Chatterjee",
+      "Malhotra", "Kapoor", "Desai", "Verma", "Mishra",
+      "Thakur", "Bhatt", "Kulkarni", "Banerjee", "Srinivasan"
+    ]
+  },
+  "Southeast_Asian": {
+    "first_names": [
+      "Nguyen", "Tran", "Somchai", "Budi", "Rizal",
+      "Aung", "Khanh", "Thanh", "Surin", "Arief",
+      "Minh", "Phan", "Anwar", "Bayu", "Dimas",
+      "Phong", "Wichai", "Ismail", "Hendra", "Reza",
+      "Thien", "Prasit", "Eko", "Farid", "Quang"
+    ],
+    "last_names": [
+      "Pham", "Hoang", "Srisai", "Suryadi", "Santos",
+      "Thein", "Dang", "Bui", "Chaiyaporn", "Widodo",
+      "Le", "Vu", "Ngo", "Sukhumvit", "Putra",
+      "Trinh", "Duong", "Prasetyo", "Salazar", "Reyes",
+      "Do", "Luong", "Wirawan", "Tanuwijaya", "Lim"
+    ]
+  },
+  "Middle_Eastern": {
+    "first_names": [
+      "Ahmed", "Mohammed", "Ali", "Hassan", "Omar",
+      "Khalid", "Ibrahim", "Yusuf", "Samir", "Tariq",
+      "Faisal", "Rashid", "Nasser", "Jamal", "Karim",
+      "Mustafa", "Hamza", "Reza", "Abbas", "Salim",
+      "Walid", "Mansur", "Bashir", "Adnan", "Ziad"
+    ],
+    "last_names": [
+      "Al-Rashid", "Al-Farsi", "Al-Hashimi", "Al-Maktoum", "Al-Saud",
+      "Hadid", "Nazari", "Bakhtiari", "Khoury", "Haddad",
+      "Al-Mansur", "Al-Jabri", "Al-Khalil", "Rahmani", "Hosseini",
+      "Al-Din", "Sharif", "Kassab", "Sabbagh", "Najjar",
+      "Al-Thani", "Mousavi", "Karimi", "Bahrami", "Zamani"
+    ]
+  },
+  "African": {
+    "first_names": [
+      "Kwame", "Amara", "Kofi", "Chidi", "Musa",
+      "Oluwole", "Sekou", "Tendai", "Jelani", "Abdi",
+      "Obiora", "Kamau", "Thabo", "Emeka", "Dayo",
+      "Sipho", "Mamadou", "Yeboah", "Adewale", "Nnamdi",
+      "Jabari", "Kenyatta", "Osei", "Mandla", "Bongani"
+    ],
+    "last_names": [
+      "Okonkwo", "Diallo", "Mensah", "Kenyatta", "Nkrumah",
+      "Toure", "Osei", "Kamara", "Ndlovu", "Mwangi",
+      "Okello", "Traore", "Dlamini", "Mabaso", "Ouedraogo",
+      "Adeyemi", "Chukwu", "Mbeki", "Senghor", "Ndiaye",
+      "Zulu", "Moyo", "Banda", "Mulenga", "Kimathi"
+    ]
+  },
+  "Latin_American": {
+    "first_names": [
+      "Carlos", "Miguel", "Alejandro", "Fernando", "Ricardo",
+      "Diego", "Rafael", "Enrique", "Manuel", "Andres",
+      "Javier", "Francisco", "Emilio", "Rodrigo", "Sebastian",
+      "Gustavo", "Hector", "Raul", "Luis", "Ernesto",
+      "Pablo", "Arturo", "Ignacio", "Eduardo", "Santiago"
+    ],
+    "last_names": [
+      "Rodriguez", "Hernandez", "Garcia", "Martinez", "Lopez",
+      "Gonzalez", "Ramirez", "Torres", "Flores", "Rivera",
+      "Vargas", "Castillo", "Morales", "Ortega", "Gutierrez",
+      "Mendoza", "Reyes", "Cruz", "Aguilar", "Delgado",
+      "Silva", "Pereira", "Ferreira", "Cardoso", "Oliveira"
+    ]
+  },
+  "North_American": {
+    "first_names": [
+      "James", "William", "Robert", "Thomas", "George",
+      "Edward", "John", "Richard", "Charles", "Henry",
+      "Andrew", "David", "Michael", "Joseph", "Samuel",
+      "Daniel", "Benjamin", "Alexander", "Theodore", "Franklin",
+      "Patrick", "Douglas", "Kenneth", "Raymond", "Arthur"
+    ],
+    "last_names": [
+      "Smith", "Johnson", "Williams", "Brown", "Jones",
+      "Davis", "Miller", "Wilson", "Moore", "Taylor",
+      "Anderson", "Thompson", "Jackson", "Harris", "Martin",
+      "Robinson", "Clark", "Walker", "Hall", "Allen",
+      "Baker", "Mitchell", "Campbell", "Sullivan", "Reynolds"
+    ]
+  },
+  "Oceanian": {
+    "first_names": [
+      "Jack", "Liam", "Oliver", "Noah", "William",
+      "James", "Thomas", "Henry", "Ethan", "Samuel",
+      "Tane", "Koa", "Matiu", "Nikau", "Wiremu",
+      "Rawiri", "Hemi", "Tamati", "Aiden", "Caleb",
+      "Finn", "Angus", "Hamish", "Callum", "Lachlan"
+    ],
+    "last_names": [
+      "Williams", "Smith", "Brown", "Wilson", "Taylor",
+      "Campbell", "Stewart", "Thomson", "Mitchell", "Anderson",
+      "Te Rangi", "Mahuta", "Henare", "Tamati", "Ngata",
+      "O'Brien", "Murphy", "Kelly", "Sullivan", "Fitzgerald",
+      "Henderson", "Morrison", "Hamilton", "Douglas", "Cameron"
+    ]
+  }
+}

@@ -1,0 +1,1180 @@
+{
+  "Industrial Effort": {
+    "x": 400,
+    "y": 0,
+    "cost": 25,
+    "days": 30,
+    "prerequisites": [],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000",
+      "self.baseStability += 2"
+    ],
+    "description": "Gain $10M. +2 base stability. Kickstart the national economy.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Infrastructure I": {
+    "x": 0,
+    "y": 1,
+    "cost": 35,
+    "days": 45,
+    "prerequisites": ["Industrial Effort"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()"
+    ],
+    "description": "Build 1 factory. Lay the groundwork for industrial growth.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Infrastructure II": {
+    "x": 0,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Infrastructure I"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.addFactory()"
+    ],
+    "description": "Build 2 factories. Expand the national infrastructure network.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Infrastructure III": {
+    "x": 0,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Infrastructure II"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.addFactory()"
+    ],
+    "description": "Build 3 factories. A massive buildout of national capacity.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Investment": {
+    "x": 400,
+    "y": 1,
+    "cost": 25,
+    "days": 30,
+    "prerequisites": ["Industrial Effort"],
+    "condition": "True",
+    "effects": [
+      "self.money += 20_000_000"
+    ],
+    "description": "Gain $20M. Attract domestic and foreign capital.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Technology I": {
+    "x": 200,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Investment"],
+    "condition": "True",
+    "effects": [
+      "self.moneyMultiplier += 0.1"
+    ],
+    "description": "+10% money production. Fund applied research programs.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Technology II": {
+    "x": 200,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Technology I"],
+    "condition": "True",
+    "effects": [
+      "self.moneyMultiplier += 0.15"
+    ],
+    "description": "+15% money production. Breakthrough innovations boost output.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Construction I": {
+    "x": 600,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Investment"],
+    "condition": "True",
+    "effects": [
+      "self.buildSpeed -= 0.1"
+    ],
+    "description": "+10% build speed. Streamline construction processes.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Construction II": {
+    "x": 600,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Construction I"],
+    "condition": "True",
+    "effects": [
+      "self.buildSpeed -= 0.15"
+    ],
+    "description": "+15% build speed. Prefabrication and modern engineering methods.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Resource Development": {
+    "x": 800,
+    "y": 1,
+    "cost": 35,
+    "days": 45,
+    "prerequisites": ["Industrial Effort"],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000",
+      "self.moneyMultiplier += 0.05"
+    ],
+    "description": "Gain $10M. +5% money production. Survey and catalog national resources.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Mining Operations": {
+    "x": 800,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Resource Development"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.money += 5_000_000"
+    ],
+    "description": "Build 1 factory. Gain $5M. Extract raw minerals and ores.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Refinery Program": {
+    "x": 800,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Mining Operations"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.moneyMultiplier += 0.1"
+    ],
+    "description": "Build 1 factory. +10% money production. Refine raw materials into valuable goods.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Strategic Reserves": {
+    "x": 800,
+    "y": 4,
+    "cost": 100,
+    "days": 90,
+    "prerequisites": ["Refinery Program"],
+    "condition": "True",
+    "effects": [
+      "self.money += 50_000_000",
+      "self.baseStability += 5"
+    ],
+    "description": "Gain $50M. +5 base stability. Stockpile critical materials for times of crisis.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Economic Specialization": {
+    "x": 400,
+    "y": 4,
+    "cost": 50,
+    "days": 45,
+    "prerequisites": ["Investment"],
+    "condition": "True",
+    "effects": [
+      "self.money += 15_000_000",
+      "self.politicalPower += 25"
+    ],
+    "description": "Gain $15M. +25 political power. Chart the nation's economic future.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Agricultural Economy": {
+    "x": 200,
+    "y": 5,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Economic Specialization"],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000",
+      "self.baseStability += 5"
+    ],
+    "description": "Gain $10M. +5 base stability. Prioritize farming and agrarian self-sufficiency.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "economic_path"
+  },
+  "Food Exports": {
+    "x": 200,
+    "y": 6,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Agricultural Economy"],
+    "condition": "True",
+    "effects": [
+      "self.moneyMultiplier += 0.1",
+      "self.money += 15_000_000"
+    ],
+    "description": "+10% money production. Gain $15M. Sell surplus harvests on the world market.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Rural Development": {
+    "x": 200,
+    "y": 7,
+    "cost": 75,
+    "days": 70,
+    "prerequisites": ["Food Exports"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 10",
+      "self.addFactory()",
+      "self.money += 10_000_000"
+    ],
+    "description": "+10 base stability. Build 1 factory. Gain $10M. Transform the countryside with modern amenities.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Industrial Economy": {
+    "x": 600,
+    "y": 5,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Economic Specialization"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.money += 10_000_000"
+    ],
+    "description": "Build 2 factories. Gain $10M. Pivot toward heavy industry and manufacturing.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "economic_path"
+  },
+  "Factory Expansion": {
+    "x": 600,
+    "y": 6,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Industrial Economy"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.moneyMultiplier += 0.05"
+    ],
+    "description": "Build 2 factories. +5% money production. Build new industrial complexes.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Mass Production": {
+    "x": 600,
+    "y": 7,
+    "cost": 80,
+    "days": 75,
+    "prerequisites": ["Factory Expansion"],
+    "condition": "True",
+    "effects": [
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.addFactory()",
+      "self.moneyMultiplier += 0.15",
+      "self.buildSpeed -= 0.1"
+    ],
+    "description": "Build 3 factories. +15% money production. +10% build speed. Assembly lines transform the economy.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+
+  "Political Effort": {
+    "x": 2400,
+    "y": 0,
+    "cost": 25,
+    "days": 30,
+    "prerequisites": [],
+    "condition": "True",
+    "effects": [
+      "self.politicalPower += 50"
+    ],
+    "description": "+50 political power. Begin shaping the nation's political landscape.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Ideology Focus": {
+    "x": 2000,
+    "y": 1,
+    "cost": 35,
+    "days": 30,
+    "prerequisites": ["Political Effort"],
+    "condition": "True",
+    "effects": [
+      "self.politicalMultiplier += 0.1"
+    ],
+    "description": "+10% political power gain. Define the ideological direction of the state.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Workers Rights": {
+    "x": 1600,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Ideology Focus"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[1] -= 0.25"
+    ],
+    "description": "Shift 25% authoritarian. Empower the working class through organized labor.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Class Struggle": {
+    "x": 1600,
+    "y": 3,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Workers Rights"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.25"
+    ],
+    "description": "Shift 25% left. Frame politics as a battle between the classes.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Socialism": {
+    "x": 1600,
+    "y": 4,
+    "cost": 60,
+    "days": 45,
+    "prerequisites": ["Class Struggle"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.25",
+      "self.ideology[1] -= 0.25"
+    ],
+    "description": "Shift 25% left. Shift 25% authoritarian. Seize the means of production for the people.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Proletariat Dictatorship": {
+    "x": 1600,
+    "y": 5,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["Socialism"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.5",
+      "self.ideology[1] -= 0.5",
+      "self.baseStability -= 5",
+      "self.politicalPower += 100"
+    ],
+    "description": "Shift 50% left. Shift 50% authoritarian. -5 base stability. +100 political power. The vanguard party rules unchallenged.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "ideology_path"
+  },
+  "Progressivism": {
+    "x": 1800,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Ideology Focus"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.25"
+    ],
+    "description": "Shift 25% left. Champion social reform and modernization.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Life Liberty Property": {
+    "x": 1800,
+    "y": 3,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Progressivism"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[1] += 0.25"
+    ],
+    "description": "Shift 25% libertarian. Enshrine individual rights as the foundation of the state.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Suffrage For All": {
+    "x": 1800,
+    "y": 4,
+    "cost": 60,
+    "days": 45,
+    "prerequisites": ["Life Liberty Property"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    "description": "Shift 25% left. Shift 25% libertarian. Extend the vote to every citizen regardless of class or creed.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Enshrine Democracy": {
+    "x": 1800,
+    "y": 5,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["Suffrage For All"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] -= 0.25",
+      "self.ideology[1] += 0.5",
+      "self.baseStability += 10"
+    ],
+    "description": "Shift 25% left. Shift 50% libertarian. +10 base stability. Constitutional protections guarantee the democratic process.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "ideology_path"
+  },
+  "Traditionalism": {
+    "x": 2200,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Ideology Focus"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] += 0.25"
+    ],
+    "description": "Shift 25% right. Preserve time-honored customs and institutions.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Under God": {
+    "x": 2200,
+    "y": 3,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Traditionalism"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[1] += 0.25"
+    ],
+    "description": "Shift 25% libertarian. Religious faith becomes a cornerstone of national identity.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "The Divine Right": {
+    "x": 2200,
+    "y": 4,
+    "cost": 60,
+    "days": 45,
+    "prerequisites": ["Under God"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] += 0.25",
+      "self.ideology[1] += 0.25"
+    ],
+    "description": "Shift 25% right. Shift 25% libertarian. The sovereign rules by mandate of heaven.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Restore the Throne": {
+    "x": 2200,
+    "y": 5,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["The Divine Right"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] += 0.5",
+      "self.ideology[1] += 0.5",
+      "self.baseStability += 5",
+      "self.politicalPower += 50"
+    ],
+    "description": "Shift 50% right. Shift 50% libertarian. +5 base stability. +50 political power. The crown is restored to its rightful place.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "ideology_path"
+  },
+  "Patriotism": {
+    "x": 2400,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Ideology Focus"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[1] -= 0.25"
+    ],
+    "description": "Shift 25% authoritarian. Rally the people around the flag.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "National Unity": {
+    "x": 2400,
+    "y": 3,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Patriotism"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] += 0.25"
+    ],
+    "description": "Shift 25% right. One people, one voice, one purpose.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Us Above All": {
+    "x": 2400,
+    "y": 4,
+    "cost": 60,
+    "days": 45,
+    "prerequisites": ["National Unity"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[1] -= 0.25",
+      "self.ideology[0] += 0.25"
+    ],
+    "description": "Shift 25% right. Shift 25% authoritarian. The nation's interests supersede all others.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Fascism": {
+    "x": 2400,
+    "y": 5,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["Us Above All"],
+    "condition": "True",
+    "effects": [
+      "self.ideology[0] += 0.5",
+      "self.ideology[1] -= 0.5",
+      "self.baseStability -= 10",
+      "self.attackMultiplier += 0.1"
+    ],
+    "description": "Shift 50% right. Shift 50% authoritarian. -10 base stability. +10% attack. Total state control through militant nationalism.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "ideology_path"
+  },
+  "End The Status Quo": {
+    "x": 2000,
+    "y": 6,
+    "cost": 10,
+    "days": 15,
+    "prerequisites": ["Ideology Focus"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability -= 10",
+      "self.politicalPower += 100"
+    ],
+    "description": "-10 base stability. +100 political power. Overthrow the existing order and remake the nation.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Policy Focus": {
+    "x": 2800,
+    "y": 1,
+    "cost": 35,
+    "days": 30,
+    "prerequisites": ["Political Effort"],
+    "condition": "True",
+    "effects": [
+      "self.politicalMultiplier += 0.1"
+    ],
+    "description": "+10% political power gain. Turn attention to concrete governance.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Reform I": {
+    "x": 2600,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Policy Focus"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 5"
+    ],
+    "description": "+5 base stability. Enact initial governance reforms.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Reform II": {
+    "x": 2600,
+    "y": 3,
+    "cost": 60,
+    "days": 45,
+    "prerequisites": ["Reform I"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 10"
+    ],
+    "description": "+10 base stability. Deepen institutional reform across the bureaucracy.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Reform III": {
+    "x": 2600,
+    "y": 4,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["Reform II"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 15",
+      "self.politicalPower += 50"
+    ],
+    "description": "+15 base stability. +50 political power. Comprehensive constitutional reform reshapes the state.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Geopolitics": {
+    "x": 3000,
+    "y": 2,
+    "cost": 50,
+    "days": 30,
+    "prerequisites": ["Policy Focus"],
+    "condition": "True",
+    "effects": [
+      "self.politicalMultiplier += 0.1"
+    ],
+    "description": "+10% political power gain. Position the nation on the world stage.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "The New Order": {
+    "x": 2800,
+    "y": 3,
+    "cost": 100,
+    "days": 60,
+    "prerequisites": ["Geopolitics"],
+    "condition": "self.faction == None",
+    "effects": [
+      "self.canMakeFaction = True"
+    ],
+    "description": "Unlocks faction creation. Establish a new international order under your leadership.",
+    "requirement_desc": "Not currently in a faction.",
+    "exclusive_group": null
+  },
+  "Territorial Expansion": {
+    "x": 3000,
+    "y": 3,
+    "cost": 100,
+    "days": 60,
+    "prerequisites": ["Geopolitics"],
+    "condition": "not self.faction == None and self.factionLeader",
+    "effects": [
+      "self.expandedInvitations = True"
+    ],
+    "description": "Unlocks expanded faction invitations. Project influence far beyond your frontiers.",
+    "requirement_desc": "Must be the leader of a faction.",
+    "exclusive_group": null
+  },
+  "Gain Autonomy": {
+    "x": 3200,
+    "y": 3,
+    "cost": 100,
+    "days": 60,
+    "prerequisites": ["Geopolitics"],
+    "condition": "not self.puppetTo == None",
+    "effects": [
+      "self.puppetTo = None"
+    ],
+    "description": "Gain full independence. Sever the chains of foreign domination.",
+    "requirement_desc": "Currently a puppet of another country.",
+    "exclusive_group": null
+  },
+  "Diplomatic Effort": {
+    "x": 3600,
+    "y": 1,
+    "cost": 25,
+    "days": 30,
+    "prerequisites": ["Political Effort"],
+    "condition": "True",
+    "effects": [
+      "self.politicalPower += 25",
+      "self.money += 5_000_000"
+    ],
+    "description": "+25 political power. Gain $5M. Open embassies and engage with the world.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Foreign Relations": {
+    "x": 3400,
+    "y": 2,
+    "cost": 50,
+    "days": 45,
+    "prerequisites": ["Diplomatic Effort"],
+    "condition": "True",
+    "effects": [
+      "self.politicalMultiplier += 0.05",
+      "self.money += 10_000_000"
+    ],
+    "description": "+5% political power gain. Gain $10M. Cultivate relationships with foreign powers.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "diplo_path"
+  },
+  "Alliance Building": {
+    "x": 3400,
+    "y": 3,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Foreign Relations"],
+    "condition": "True",
+    "effects": [
+      "self.politicalPower += 50",
+      "self.baseStability += 5"
+    ],
+    "description": "+50 political power. +5 base stability. Forge bonds that could define a generation.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Faction Leadership": {
+    "x": 3400,
+    "y": 4,
+    "cost": 100,
+    "days": 75,
+    "prerequisites": ["Alliance Building"],
+    "condition": "self.faction == None",
+    "effects": [
+      "self.canMakeFaction = True",
+      "self.baseStability += 10",
+      "self.politicalPower += 100"
+    ],
+    "description": "Unlocks faction creation. +10 base stability. +100 political power. Rise to lead the free world.",
+    "requirement_desc": "Not currently in a faction.",
+    "exclusive_group": null
+  },
+  "Non Alignment": {
+    "x": 3800,
+    "y": 2,
+    "cost": 50,
+    "days": 45,
+    "prerequisites": ["Diplomatic Effort"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 10",
+      "self.money += 20_000_000"
+    ],
+    "description": "+10 base stability. Gain $20M. Chart an independent course between the great powers.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "diplo_path"
+  },
+  "Neutral Trade": {
+    "x": 3800,
+    "y": 3,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Non Alignment"],
+    "condition": "True",
+    "effects": [
+      "self.moneyMultiplier += 0.15"
+    ],
+    "description": "+15% money production. Trade freely with all sides without entanglements.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Swiss Model": {
+    "x": 3800,
+    "y": 4,
+    "cost": 100,
+    "days": 75,
+    "prerequisites": ["Neutral Trade"],
+    "condition": "True",
+    "effects": [
+      "self.baseStability += 15",
+      "self.moneyMultiplier += 0.1",
+      "self.defenseMultiplier += 0.1"
+    ],
+    "description": "+15 base stability. +10% money production. +10% defense. Armed neutrality and prosperity through peace.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+
+  "Military Effort": {
+    "x": 4800,
+    "y": 0,
+    "cost": 25,
+    "days": 30,
+    "prerequisites": [],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000"
+    ],
+    "description": "Gain $10M. Allocate funds to strengthen the armed forces.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Modernization": {
+    "x": 4200,
+    "y": 1,
+    "cost": 35,
+    "days": 45,
+    "prerequisites": ["Military Effort"],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000"
+    ],
+    "description": "Gain $10M. Replace obsolete equipment with modern arms.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Offense I": {
+    "x": 4000,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Modernization"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.1"
+    ],
+    "description": "+10% attack. Improve offensive firepower and doctrine.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Offense II": {
+    "x": 4000,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Offense I"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.15"
+    ],
+    "description": "+15% attack. Deploy next-generation weapons systems.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Defense I": {
+    "x": 4200,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Modernization"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.1"
+    ],
+    "description": "+10% defense. Harden positions and improve protective equipment.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Defense II": {
+    "x": 4200,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Defense I"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.15"
+    ],
+    "description": "+15% defense. Advanced armor and fortified defensive networks.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Transportation I": {
+    "x": 4400,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Modernization"],
+    "condition": "True",
+    "effects": [
+      "self.transportMultiplier += 0.1"
+    ],
+    "description": "+10% transport speed. Improve military logistics and supply lines.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Transportation II": {
+    "x": 4400,
+    "y": 3,
+    "cost": 70,
+    "days": 70,
+    "prerequisites": ["Transportation I"],
+    "condition": "True",
+    "effects": [
+      "self.transportMultiplier += 0.15"
+    ],
+    "description": "+15% transport speed. Motorized transport and rail expansion.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Defense of the Nation": {
+    "x": 4800,
+    "y": 1,
+    "cost": 35,
+    "days": 45,
+    "prerequisites": ["Military Effort"],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000",
+      "self.training.append([1, 0])"
+    ],
+    "description": "Gain $10M. Train 1 division. Prepare the homeland for any threat.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Militia I": {
+    "x": 4600,
+    "y": 2,
+    "cost": 50,
+    "days": 60,
+    "prerequisites": ["Defense of the Nation"],
+    "condition": "True",
+    "effects": [
+      "self.training.append([1, 0])"
+    ],
+    "description": "Train 1 division. Organize civilian volunteers into local defense units.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Militia II": {
+    "x": 4600,
+    "y": 3,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Militia I"],
+    "condition": "True",
+    "effects": [
+      "self.training.append([2, 0])"
+    ],
+    "description": "Train 2 divisions. Expand the militia with proper equipment and training.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Militia III": {
+    "x": 4600,
+    "y": 4,
+    "cost": 75,
+    "days": 70,
+    "prerequisites": ["Militia II"],
+    "condition": "True",
+    "effects": [
+      "self.training.append([3, 0])"
+    ],
+    "description": "Train 3 divisions. A fully mobilized citizen army stands ready.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Militarism": {
+    "x": 5000,
+    "y": 2,
+    "cost": 75,
+    "days": 60,
+    "prerequisites": ["Defense of the Nation"],
+    "condition": "not self.militarySize == 4",
+    "effects": [
+      "self.militarySize += 1"
+    ],
+    "description": "+1 military size. Martial culture pervades society.",
+    "requirement_desc": "Less than maximum military size.",
+    "exclusive_group": null
+  },
+  "Conscription": {
+    "x": 5000,
+    "y": 3,
+    "cost": 100,
+    "days": 75,
+    "prerequisites": ["Militarism"],
+    "condition": "not self.militarySize == 4",
+    "effects": [
+      "self.militarySize += 1"
+    ],
+    "description": "+1 military size. Mandatory national service fills the ranks.",
+    "requirement_desc": "Less than maximum military size.",
+    "exclusive_group": null
+  },
+  "Military Doctrine": {
+    "x": 5400,
+    "y": 1,
+    "cost": 50,
+    "days": 45,
+    "prerequisites": ["Military Effort"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.05",
+      "self.defenseMultiplier += 0.05"
+    ],
+    "description": "+5% attack. +5% defense. Establish a formal military doctrine.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Offensive Doctrine": {
+    "x": 5200,
+    "y": 2,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Military Doctrine"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.1"
+    ],
+    "description": "+10% attack. Strike first, strike hard.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "doctrine"
+  },
+  "Mobile Warfare": {
+    "x": 5200,
+    "y": 3,
+    "cost": 70,
+    "days": 60,
+    "prerequisites": ["Offensive Doctrine"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.1",
+      "self.transportMultiplier += 0.1"
+    ],
+    "description": "+10% attack. +10% transport speed. Rapid maneuver overwhelms the enemy.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Blitzkrieg Tactics": {
+    "x": 5200,
+    "y": 4,
+    "cost": 80,
+    "days": 70,
+    "prerequisites": ["Mobile Warfare"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.15",
+      "self.transportMultiplier += 0.05"
+    ],
+    "description": "+15% attack. +5% transport speed. Concentrated armor and air power shatter enemy lines.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Combined Arms": {
+    "x": 5200,
+    "y": 5,
+    "cost": 100,
+    "days": 90,
+    "prerequisites": ["Blitzkrieg Tactics"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.1",
+      "self.defenseMultiplier += 0.1",
+      "self.transportMultiplier += 0.05"
+    ],
+    "description": "+10% attack. +10% defense. +5% transport speed. Infantry, armor and air work as one lethal machine.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Defensive Doctrine": {
+    "x": 5600,
+    "y": 2,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Military Doctrine"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.1"
+    ],
+    "description": "+10% defense. Hold the line at all costs.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": "doctrine"
+  },
+  "Fortification Program": {
+    "x": 5600,
+    "y": 3,
+    "cost": 70,
+    "days": 60,
+    "prerequisites": ["Defensive Doctrine"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.15"
+    ],
+    "description": "+15% defense. Concrete bunkers and layered defenses protect the homeland.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Elastic Defense": {
+    "x": 5600,
+    "y": 4,
+    "cost": 80,
+    "days": 70,
+    "prerequisites": ["Fortification Program"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.1",
+      "self.attackMultiplier += 0.05"
+    ],
+    "description": "+10% defense. +5% attack. Bend but never break, then counterattack.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Guerrilla Warfare": {
+    "x": 5600,
+    "y": 5,
+    "cost": 100,
+    "days": 90,
+    "prerequisites": ["Elastic Defense"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.15",
+      "self.transportMultiplier += 0.1"
+    ],
+    "description": "+15% defense. +10% transport speed. Decentralized resistance makes occupation impossible.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Naval Development": {
+    "x": 5800,
+    "y": 1,
+    "cost": 50,
+    "days": 45,
+    "prerequisites": ["Military Effort"],
+    "condition": "True",
+    "effects": [
+      "self.money += 10_000_000"
+    ],
+    "description": "Gain $10M. Invest in shipyards and naval infrastructure.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Coastal Defense": {
+    "x": 5800,
+    "y": 2,
+    "cost": 60,
+    "days": 60,
+    "prerequisites": ["Naval Development"],
+    "condition": "True",
+    "effects": [
+      "self.defenseMultiplier += 0.1"
+    ],
+    "description": "+10% defense. Shore batteries and patrol boats secure the coastline.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  },
+  "Blue Water Navy": {
+    "x": 5800,
+    "y": 3,
+    "cost": 100,
+    "days": 90,
+    "prerequisites": ["Coastal Defense"],
+    "condition": "True",
+    "effects": [
+      "self.attackMultiplier += 0.1",
+      "self.transportMultiplier += 0.1",
+      "self.money += 20_000_000"
+    ],
+    "description": "+10% attack. +10% transport speed. Gain $20M. A deep-water fleet projects power across the oceans.",
+    "requirement_desc": "No additional requirements.",
+    "exclusive_group": null
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "uiSize": 24,
+  "musicVolume": 1,
+  "soundVolume": 1,
+  "fps": 60,
+  "fogOfWar": true,
+  "sidebarLeft": false,
+  "fullscreen": true,
+  "windowWidth": 1280,
+  "windowHeight": 720
+}

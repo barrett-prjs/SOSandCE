@@ -1,0 +1,11 @@
+# Runtime-generated files — do not commit
+game.log
+crash.log
+imgui.ini
+assets/saves/
+assets/screenshots/
+
+# Local build output from the bundled source snapshot
+source/SOSandCE_CPP/build/
+source/SOSandCE_CPP/out/
+source/SOSandCE_CPP/.vs/

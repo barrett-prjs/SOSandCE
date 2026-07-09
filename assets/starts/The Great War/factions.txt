@@ -1,0 +1,2 @@
+Entente: [United_Kingdom, France, White_Russia, Serbian_Kingdom, Montenegrin_Kingdom, Belgium, Dominion_of_Canada, British_South_Africa, British_Raj, British_Malaya, Australia, New_Zealand]
+Central_Powers: [German_Empire, Austria_Hungary, Ottoman_Empire, Bulgarian_Kingdom]

@@ -1,0 +1,1014 @@
+{
+  "Abu Dhabi": {
+    "culture": "Emirati",
+    "region": 2061
+  },
+  "Abuja": {
+    "culture": "Nigerian",
+    "region": 2590
+  },
+  "Accra": {
+    "culture": "Ghanaian",
+    "region": 2698
+  },
+  "Addis Ababa": {
+    "culture": "Ethiopian",
+    "region": 2547
+  },
+  "Aden": {
+    "culture": null,
+    "region": 2387
+  },
+  "Ahemdabad": {
+    "culture": null,
+    "region": 2066
+  },
+  "Al Fashir": {
+    "culture": null,
+    "region": 2359
+  },
+  "Alexandria": {
+    "culture": null,
+    "region": 1789
+  },
+  "Algiers": {
+    "culture": "Algerian",
+    "region": 1486
+  },
+  "Almaty": {
+    "culture": null,
+    "region": 1003
+  },
+  "Amman": {
+    "culture": "Jordanian",
+    "region": 1698
+  },
+  "Amsterdam": {
+    "culture": "Dutch",
+    "region": 550
+  },
+  "Ankara": {
+    "culture": "Turkish",
+    "region": 1309
+  },
+  "Antalya": {
+    "culture": null,
+    "region": 1464
+  },
+  "Antananarivo": {
+    "culture": "Malagasy",
+    "region": 3231
+  },
+  "Ashgabat": {
+    "culture": "Turkmen",
+    "region": 1389
+  },
+  "Asmara": {
+    "culture": "Eritrean",
+    "region": 2355
+  },
+  "Astana": {
+    "culture": "Kazakh",
+    "region": 627
+  },
+  "Asuncion": {
+    "culture": "Paraguayan",
+    "region": 3310
+  },
+  "Athens": {
+    "culture": "Greek",
+    "region": 1404
+  },
+  "Atlanta": {
+    "culture": null,
+    "region": 1598
+  },
+  "Atyrau": {
+    "culture": null,
+    "region": 750
+  },
+  "Auckland": {
+    "culture": null,
+    "region": 3477
+  },
+  "Baghdad": {
+    "culture": "Iraqi",
+    "region": 1685
+  },
+  "Baku": {
+    "culture": "Azerbaijani",
+    "region": 1314
+  },
+  "Bamako": {
+    "culture": "Malian",
+    "region": 2357
+  },
+  "Bangkok": {
+    "culture": "Thai",
+    "region": 2422
+  },
+  "Bangui": {
+    "culture": "Central African",
+    "region": 2711
+  },
+  "Barcelona": {
+    "culture": null,
+    "region": 1130
+  },
+  "Basrah": {
+    "culture": null,
+    "region": 1792
+  },
+  "Beijing": {
+    "culture": "Chinese",
+    "region": 1218
+  },
+  "Belgrade": {
+    "culture": "Serbian",
+    "region": 997
+  },
+  "Belo Horizonte": {
+    "culture": null,
+    "region": 3224
+  },
+  "Bengaluru": {
+    "culture": null,
+    "region": 2388
+  },
+  "Benghazi": {
+    "culture": null,
+    "region": 1707
+  },
+  "Bergen": {
+    "culture": null,
+    "region": 271
+  },
+  "Berlin": {
+    "culture": "German",
+    "region": 570
+  },
+  "Bern": {
+    "culture": "Swiss",
+    "region": 812
+  },
+  "Birmingham": {
+    "culture": null,
+    "region": 522
+  },
+  "Bishkek": {
+    "culture": "Kyrgyz",
+    "region": 1105
+  },
+  "Bloemfontein": {
+    "culture": null,
+    "region": 3393
+  },
+  "Bogota": {
+    "culture": "Colombian",
+    "region": 2723
+  },
+  "Brasilia": {
+    "culture": "Brazilian",
+    "region": 3192
+  },
+  "Bratislava": {
+    "culture": "Slovak",
+    "region": 724
+  },
+  "Brazzaville": {
+    "culture": "Congolese",
+    "region": 2941
+  },
+  "Brussels": {
+    "culture": "Belgian",
+    "region": 620
+  },
+  "Bucharest": {
+    "culture": "Romanian",
+    "region": 952
+  },
+  "Budapest": {
+    "culture": "Hungarian",
+    "region": 800
+  },
+  "Buenos Aires": {
+    "culture": "Argentinian",
+    "region": 3469
+  },
+  "Busan": {
+    "culture": null,
+    "region": 1544
+  },
+  "Cairo": {
+    "culture": "Egyptian",
+    "region": 1889
+  },
+  "Calgary": {
+    "culture": null,
+    "region": 618
+  },
+  "Cali": {
+    "culture": null,
+    "region": 2727
+  },
+  "Canberra": {
+    "culture": "Australian",
+    "region": 3535
+  },
+  "Cape Town": {
+    "culture": "South African",
+    "region": 3449
+  },
+  "Caracas": {
+    "culture": "Venezuelan",
+    "region": 2516
+  },
+  "Cebu": {
+    "culture": null,
+    "region": 2514
+  },
+  "Chiang Mai": {
+    "culture": null,
+    "region": 2285
+  },
+  "Chicago": {
+    "culture": null,
+    "region": 1141
+  },
+  "Chongqing": {
+    "culture": null,
+    "region": 1760
+  },
+  "Colombo": {
+    "culture": "Sinhalese",
+    "region": 2592
+  },
+  "Comodoro Rivadavia": {
+    "culture": null,
+    "region": 3538
+  },
+  "Conakry": {
+    "culture": "Guinean",
+    "region": 2500
+  },
+  "Copenhagen": {
+    "culture": "Danish",
+    "region": 419
+  },
+  "Cordoba": {
+    "culture": null,
+    "region": 3396
+  },
+  "Cusco": {
+    "culture": null,
+    "region": 3113
+  },
+  "Dakar": {
+    "culture": "Senegalese",
+    "region": 2351
+  },
+  "Dallas": {
+    "culture": null,
+    "region": 1675
+  },
+  "Damascus": {
+    "culture": "Syrian",
+    "region": 1662
+  },
+  "Dar es Salaam": {
+    "culture": null,
+    "region": 2995
+  },
+  "Dhaka": {
+    "culture": "Bengali",
+    "region": 2044
+  },
+  "Dire Dawa": {
+    "culture": "Afar",
+    "region": 2512
+  },
+  "Dnipro": {
+    "culture": null,
+    "region": 725
+  },
+  "Dodoma": {
+    "culture": "Tanzanian",
+    "region": 2971
+  },
+  "Doha": {
+    "culture": "Qatari",
+    "region": 2008
+  },
+  "Dolisie": {
+    "culture": null,
+    "region": 2890
+  },
+  "Dublin": {
+    "culture": "Irish",
+    "region": 482
+  },
+  "Dushanbe": {
+    "culture": "Tajik",
+    "region": 1392
+  },
+  "East Jerusalem": {
+    "culture": "Palestinian",
+    "region": 1752
+  },
+  "Edinburgh": {
+    "culture": null,
+    "region": 426
+  },
+  "Erbil": {
+    "culture": null,
+    "region": 1564
+  },
+  "Frankfurt": {
+    "culture": null,
+    "region": 691
+  },
+  "Gaborone": {
+    "culture": "Batswana",
+    "region": 3282
+  },
+  "Georgetown": {
+    "culture": "Guyanese",
+    "region": 2677
+  },
+  "Gothenburg": {
+    "culture": null,
+    "region": 318
+  },
+  "Guadalajara": {
+    "culture": null,
+    "region": 2143
+  },
+  "Guangzhou": {
+    "culture": null,
+    "region": 2093
+  },
+  "Guatemala": {
+    "culture": "Guatemalan",
+    "region": 2336
+  },
+  "Hamburg": {
+    "culture": null,
+    "region": 503
+  },
+  "Hanoi": {
+    "culture": "Vietnamese",
+    "region": 2171
+  },
+  "Harare": {
+    "culture": "Zimbabwean",
+    "region": 3200
+  },
+  "Harbin": {
+    "culture": null,
+    "region": 860
+  },
+  "Hargeisa": {
+    "culture": "Somali",
+    "region": 2536
+  },
+  "Havana": {
+    "culture": "Cuban",
+    "region": 2107
+  },
+  "Helsinki": {
+    "culture": "Finnish",
+    "region": 281
+  },
+  "Hiroshima": {
+    "culture": null,
+    "region": 1640
+  },
+  "Ho Chi Minh": {
+    "culture": null,
+    "region": 2506
+  },
+  "Hong Kong": {
+    "culture": null,
+    "region": 2117
+  },
+  "Houston": {
+    "culture": null,
+    "region": 1812
+  },
+  "Huambo": {
+    "culture": null,
+    "region": 3112
+  },
+  "Isfahan": {
+    "culture": null,
+    "region": 1713
+  },
+  "Islamabad": {
+    "culture": "Pakistani",
+    "region": 1651
+  },
+  "Istanbul": {
+    "culture": null,
+    "region": 1245
+  },
+  "Jakarta": {
+    "culture": "Indonesian",
+    "region": 3004
+  },
+  "Jeddah": {
+    "culture": null,
+    "region": 2111
+  },
+  "Johannesburg": {
+    "culture": null,
+    "region": 3366
+  },
+  "Juba": {
+    "culture": "South Sudanese",
+    "region": 2706
+  },
+  "Kabul": {
+    "culture": "Afghani",
+    "region": 1508
+  },
+  "Kampala": {
+    "culture": "Ugandan",
+    "region": 2825
+  },
+  "Kandahar": {
+    "culture": null,
+    "region": 1686
+  },
+  "Kano": {
+    "culture": null,
+    "region": 2457
+  },
+  "Karachi": {
+    "culture": null,
+    "region": 2010
+  },
+  "Kathmandu": {
+    "culture": "Nepalese",
+    "region": 1910
+  },
+  "Kazan": {
+    "culture": null,
+    "region": 393
+  },
+  "Khartoum": {
+    "culture": "Sudanese",
+    "region": 2304
+  },
+  "Kingston": {
+    "culture": "Jamaican",
+    "region": 2262
+  },
+  "Kinshasa": {
+    "culture": "DR Congolese",
+    "region": 2963
+  },
+  "Kolkata": {
+    "culture": null,
+    "region": 2079
+  },
+  "Krakow": {
+    "culture": null,
+    "region": 667
+  },
+  "Kuala Lumpur": {
+    "culture": "Malaysian",
+    "region": 2755
+  },
+  "Kuwait City": {
+    "culture": "Kuwaiti",
+    "region": 1858
+  },
+  "Kyiv": {
+    "culture": "Ukrainian",
+    "region": 625
+  },
+  "La Paz": {
+    "culture": "Bolivian",
+    "region": 3121
+  },
+  "Lagos": {
+    "culture": null,
+    "region": 2668
+  },
+  "Lahore": {
+    "culture": null,
+    "region": 1714
+  },
+  "Lanzhou": {
+    "culture": null,
+    "region": 1372
+  },
+  "Las Vegas": {
+    "culture": null,
+    "region": 1472
+  },
+  "Lhasa": {
+    "culture": "Tibetan",
+    "region": 1740
+  },
+  "Libreville": {
+    "culture": "Gabonese",
+    "region": 2850
+  },
+  "Lilongwe": {
+    "culture": "Malawian",
+    "region": 3125
+  },
+  "Lima": {
+    "culture": "Peruvian",
+    "region": 3108
+  },
+  "Lisbon": {
+    "culture": "Portuguese",
+    "region": 1361
+  },
+  "London": {
+    "culture": "British",
+    "region": 609
+  },
+  "Los Angeles": {
+    "culture": null,
+    "region": 1628
+  },
+  "Luanda": {
+    "culture": "Angolan",
+    "region": 3078
+  },
+  "Lubumbashi": {
+    "culture": null,
+    "region": 3055
+  },
+  "Lusaka": {
+    "culture": "Zambian",
+    "region": 3191
+  },
+  "Luxembourg": {
+    "culture": "Luxembourgish",
+    "region": 679
+  },
+  "Lviv": {
+    "culture": null,
+    "region": 658
+  },
+  "Madinah": {
+    "culture": null,
+    "region": 1957
+  },
+  "Madrid": {
+    "culture": "Spanish",
+    "region": 1262
+  },
+  "Makassar": {
+    "culture": null,
+    "region": 2892
+  },
+  "Managua": {
+    "culture": "Nicaraguan",
+    "region": 2446
+  },
+  "Manaus": {
+    "culture": null,
+    "region": 2853
+  },
+  "Mandalay": {
+    "culture": null,
+    "region": 2103
+  },
+  "Manila": {
+    "culture": "Filipino",
+    "region": 2367
+  },
+  "Maputo": {
+    "culture": "Mozambican",
+    "region": 3361
+  },
+  "Maracaibo": {
+    "culture": null,
+    "region": 2495
+  },
+  "Marrakesh": {
+    "culture": null,
+    "region": 1718
+  },
+  "Mashhad": {
+    "culture": null,
+    "region": 1481
+  },
+  "Mbuji-Mayi": {
+    "culture": null,
+    "region": 2989
+  },
+  "Medan": {
+    "culture": null,
+    "region": 2750
+  },
+  "Medellin": {
+    "culture": null,
+    "region": 2585
+  },
+  "Melbourne": {
+    "culture": null,
+    "region": 3539
+  },
+  "Mexico City": {
+    "culture": "Mexican",
+    "region": 2198
+  },
+  "Miami": {
+    "culture": null,
+    "region": 1986
+  },
+  "Milan": {
+    "culture": null,
+    "region": 982
+  },
+  "Minsk": {
+    "culture": "Belarusian",
+    "region": 468
+  },
+  "Mogadishu": {
+    "culture": "Somalian",
+    "region": 2762
+  },
+  "Monrovia": {
+    "culture": "Liberian",
+    "region": 2613
+  },
+  "Monterrey": {
+    "culture": null,
+    "region": 1950
+  },
+  "Montevideo": {
+    "culture": "Uruguayan",
+    "region": 3468
+  },
+  "Moscow": {
+    "culture": "Russian",
+    "region": 363
+  },
+  "Munich": {
+    "culture": null,
+    "region": 758
+  },
+  "Muscat": {
+    "culture": "Omanis",
+    "region": 2098
+  },
+  "N Djamena": {
+    "culture": "Chadian",
+    "region": 2496
+  },
+  "Nagpur": {
+    "culture": null,
+    "region": 2135
+  },
+  "Nairobi": {
+    "culture": "Kenyan",
+    "region": 2857
+  },
+  "Nanjing": {
+    "culture": null,
+    "region": 1688
+  },
+  "Nantes": {
+    "culture": null,
+    "region": 788
+  },
+  "Naples": {
+    "culture": null,
+    "region": 1241
+  },
+  "Naypyidaw": {
+    "culture": "Burmese",
+    "region": 2232
+  },
+  "New Delhi": {
+    "culture": "Indian",
+    "region": 1909
+  },
+  "New York": {
+    "culture": null,
+    "region": 1176
+  },
+  "Niamey": {
+    "culture": "Nigerien",
+    "region": 2340
+  },
+  "Nouakchott": {
+    "culture": "Mauritanian",
+    "region": 2265
+  },
+  "Osaka": {
+    "culture": null,
+    "region": 1593
+  },
+  "Oslo": {
+    "culture": "Norwegian",
+    "region": 316
+  },
+  "Ottawa": {
+    "culture": "Canadian",
+    "region": 922
+  },
+  "Ouagadougou": {
+    "culture": "Burkinabe",
+    "region": 2466
+  },
+  "Oulu": {
+    "culture": null,
+    "region": 230
+  },
+  "Panama City": {
+    "culture": "Panamanian",
+    "region": 2571
+  },
+  "Paramaribo": {
+    "culture": "Surinamese",
+    "region": 2714
+  },
+  "Paris": {
+    "culture": "French",
+    "region": 739
+  },
+  "Phnom Penh": {
+    "culture": "Khmer",
+    "region": 2484
+  },
+  "Plovdiv": {
+    "culture": null,
+    "region": 1131
+  },
+  "Port Moresby": {
+    "culture": "Papuan",
+    "region": 3012
+  },
+  "Port-au-Prince": {
+    "culture": "Haitian",
+    "region": 2246
+  },
+  "Poznan": {
+    "culture": null,
+    "region": 525
+  },
+  "Prauge": {
+    "culture": "Czech",
+    "region": 657
+  },
+  "Pyongyang": {
+    "culture": "North Korean",
+    "region": 1329
+  },
+  "Qingdao": {
+    "culture": null,
+    "region": 1455
+  },
+  "Quito": {
+    "culture": "Ecuadorian",
+    "region": 2835
+  },
+  "Rabat": {
+    "culture": "Moroccan",
+    "region": 1644
+  },
+  "Reykjavik": {
+    "culture": "Icelandic",
+    "region": 225
+  },
+  "Riga": {
+    "culture": "Latvian",
+    "region": 382
+  },
+  "Riyadh": {
+    "culture": "Saudi",
+    "region": 1937
+  },
+  "Rome": {
+    "culture": "Italian",
+    "region": 1121
+  },
+  "Salalah": {
+    "culture": null,
+    "region": 2258
+  },
+  "Salvador": {
+    "culture": null,
+    "region": 3111
+  },
+  "San Francisco": {
+    "culture": null,
+    "region": 1152
+  },
+  "San Jose": {
+    "culture": "Costa Rican",
+    "region": 2515
+  },
+  "Sana a": {
+    "culture": "Yemeni",
+    "region": 2371
+  },
+  "Santa Cruz de la Sierra": {
+    "culture": null,
+    "region": 3146
+  },
+  "Santiago": {
+    "culture": "Chilean",
+    "region": 3454
+  },
+  "Santo Domingo": {
+    "culture": "Dominicano",
+    "region": 2256
+  },
+  "Sao Paulo": {
+    "culture": null,
+    "region": 3312
+  },
+  "Sapporo": {
+    "culture": null,
+    "region": 1086
+  },
+  "Sarajevo": {
+    "culture": "Bosnian",
+    "region": 996
+  },
+  "Seattle": {
+    "culture": null,
+    "region": 783
+  },
+  "Seoul": {
+    "culture": "South Korean",
+    "region": 1429
+  },
+  "Sevastopol": {
+    "culture": null,
+    "region": 967
+  },
+  "Seville": {
+    "culture": null,
+    "region": 1403
+  },
+  "Shanghai": {
+    "culture": null,
+    "region": 1796
+  },
+  "Shiraz": {
+    "culture": null,
+    "region": 1756
+  },
+  "Singapore": {
+    "culture": "Singaporean",
+    "region": 2822
+  },
+  "Sofia": {
+    "culture": "Bulgarian",
+    "region": 1082
+  },
+  "St Pertersburg": {
+    "culture": null,
+    "region": 317
+  },
+  "Stockholm": {
+    "culture": "Swedish",
+    "region": 306
+  },
+  "Surabaya": {
+    "culture": null,
+    "region": 3082
+  },
+  "Sydney": {
+    "culture": null,
+    "region": 3442
+  },
+  "Taipei": {
+    "culture": "Taiwanese",
+    "region": 2049
+  },
+  "Tallinn": {
+    "culture": "Estonian",
+    "region": 321
+  },
+  "Tashkent": {
+    "culture": "Uzbek",
+    "region": 1252
+  },
+  "Tbilisi": {
+    "culture": "Georgian",
+    "region": 1164
+  },
+  "Tehran": {
+    "culture": "Iranian",
+    "region": 1558
+  },
+  "Thessaloniki": {
+    "culture": null,
+    "region": 1243
+  },
+  "Thimphu": {
+    "culture": "Bhutanese",
+    "region": 1961
+  },
+  "Tirana": {
+    "culture": "Albanian",
+    "region": 1242
+  },
+  "Tokyo": {
+    "culture": "Japanese",
+    "region": 1570
+  },
+  "Toronto": {
+    "culture": null,
+    "region": 977
+  },
+  "Tripoli": {
+    "culture": "Libyan",
+    "region": 1706
+  },
+  "Trujillo": {
+    "culture": null,
+    "region": 3022
+  },
+  "Tunis": {
+    "culture": "Tunisian",
+    "region": 1461
+  },
+  "Turkmenabat": {
+    "culture": null,
+    "region": 1368
+  },
+  "Ulaanbaatar": {
+    "culture": "Mongolian",
+    "region": 694
+  },
+  "Valencia": {
+    "culture": null,
+    "region": 1277
+  },
+  "Vancouver": {
+    "culture": null,
+    "region": 538
+  },
+  "Venice": {
+    "culture": null,
+    "region": 910
+  },
+  "Vichy": {
+    "culture": null,
+    "region": 866
+  },
+  "Vienna": {
+    "culture": "Austrian",
+    "region": 742
+  },
+  "Vientiane": {
+    "culture": "Lao",
+    "region": 2252
+  },
+  "Vilnius": {
+    "culture": "Lithuanian",
+    "region": 423
+  },
+  "Volgograd": {
+    "culture": null,
+    "region": 747
+  },
+  "Warsaw": {
+    "culture": "Polish",
+    "region": 572
+  },
+  "Washington": {
+    "culture": "American",
+    "region": 1347
+  },
+  "Wellington": {
+    "culture": "Kiwi",
+    "region": 3547
+  },
+  "West Jerusalem": {
+    "culture": "Israeli",
+    "region": 1696
+  },
+  "Windhoek": {
+    "culture": "Namibian",
+    "region": 3235
+  },
+  "Yamoussoukro": {
+    "culture": "Ivorian",
+    "region": 2649
+  },
+  "Yaounde": {
+    "culture": "Cameroonian",
+    "region": 2704
+  },
+  "Yerevan": {
+    "culture": "Armenian",
+    "region": 1269
+  },
+  "Zagreb": {
+    "culture": "Croatian",
+    "region": 900
+  }
+}
