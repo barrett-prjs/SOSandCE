@@ -196,6 +196,7 @@ void GameState::clear() {
     ports.clear();
     divisionsByRegion.clear();
     aiControllers.clear();
+    biomeDefenseByRegion.clear();
 
     time = GameTime{};
     tick = 0;
@@ -218,6 +219,22 @@ void GameState::clear() {
     eventManager = std::make_unique<EventManager>();
     polEventManager = std::make_unique<PoliticalEventManager>();
     fogOfWar = std::make_unique<FogOfWar>();
+}
+
+void GameState::bakeBiomeDefense(SDL_Surface* biomeMap) {
+    biomeDefenseByRegion.clear();
+    if (!biomeMap) return;
+
+    auto& rd = RegionData::instance();
+    for (const auto& [regionId, loc] : rd.getAllLocations()) {
+        int px = std::clamp(static_cast<int>(std::round(loc.x)), 0, biomeMap->w - 1);
+        int py = std::clamp(static_cast<int>(std::round(loc.y)), 0, biomeMap->h - 1);
+        Color c = getPixel(biomeMap, px, py);
+        // getBiomeInfo -> {_, attackMod, defenseMod, moveMod}
+        float defMod = rd.getBiomeInfo(c)[2];
+        if (defMod <= 0.0f) defMod = 1.0f;
+        biomeDefenseByRegion[regionId] = defMod;
+    }
 }
 
 void GameState::updateTime() {

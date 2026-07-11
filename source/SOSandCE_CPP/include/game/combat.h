@@ -5,6 +5,7 @@
 constexpr float COMBAT_SCALE        = 0.01f;
 constexpr float MULTI_FRONT_PENALTY = 0.15f;
 constexpr float ORG_DRAIN_RATE      = 2.0f;
+constexpr float ENTRENCH_DEF_BONUS  = 0.35f;  // max defensive bonus from being fully dug in
 
 
 struct CombatStats {

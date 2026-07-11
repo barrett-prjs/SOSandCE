@@ -4,6 +4,7 @@
 #include "game/country.h"
 #include "game/division.h"
 #include "game/faction.h"
+#include "game/ai.h"
 #include "map/map_manager.h"
 
 SaveSystem::SaveSystem() {
@@ -91,6 +92,7 @@ bool SaveSystem::loadGame(GameState& gs, MapManager& maps, const std::string& na
     gs.industryMapSurf = maps.getIndustryMap();
     gs.cultureMapSurf = maps.getCultureMap();
     gs.regionsMapSurf = maps.getRegionsMap();
+    gs.bakeBiomeDefense(maps.getBiomeMap());
 
     auto restoreSurface = [&](SDL_Surface* target, const std::string& path) {
         if (!target || !fs::exists(path)) return;
@@ -120,6 +122,23 @@ bool SaveSystem::loadGame(GameState& gs, MapManager& maps, const std::string& na
         auto* c = gs.getCountry(cName);
         if (c) {
             deserializeCountry(*c, cData, gs);
+        }
+    }
+
+    // Restore AI controller state now that the controllers exist (they are
+    // created by registerCountry above).
+    if (worldData.contains("aiControllers") && worldData["aiControllers"].is_object()) {
+        for (auto& [name, a] : worldData["aiControllers"].items()) {
+            auto it = gs.aiControllers.find(name);
+            if (it == gs.aiControllers.end() || !it->second) continue;
+            AIController* ctrl = it->second.get();
+            ctrl->lastActionHourStamp        = a.value("lastActionHour", -1);
+            ctrl->lastWarActionHourStamp     = a.value("lastWarActionHour", -1);
+            ctrl->lastFactionActionHourStamp = a.value("lastFactionActionHour", -1);
+            ctrl->lastAccessActionHourStamp  = a.value("lastAccessActionHour", -1);
+            ctrl->targetCountry              = a.value("targetCountry", std::string());
+            ctrl->wantsWar                   = a.value("wantsWar", false);
+            ctrl->atWar                      = a.value("atWar", false);
         }
     }
 
@@ -199,6 +218,23 @@ json SaveSystem::serializeWorldData(const GameState& gs) {
     j["totalDays"] = gs.time.totalDays;
     j["ports"] = gs.ports;
     j["canals"] = gs.canals;
+
+    // Persist AI controller state so cooldowns/targets survive a save/load
+    // instead of resetting (which made the AI re-fire actions right after load).
+    json ai = json::object();
+    for (const auto& [name, ctrl] : gs.aiControllers) {
+        if (!ctrl) continue;
+        json a;
+        a["lastActionHour"]        = ctrl->lastActionHourStamp;
+        a["lastWarActionHour"]     = ctrl->lastWarActionHourStamp;
+        a["lastFactionActionHour"] = ctrl->lastFactionActionHourStamp;
+        a["lastAccessActionHour"]  = ctrl->lastAccessActionHourStamp;
+        a["targetCountry"]         = ctrl->targetCountry;
+        a["wantsWar"]              = ctrl->wantsWar;
+        a["atWar"]                 = ctrl->atWar;
+        ai[name] = a;
+    }
+    j["aiControllers"] = ai;
     return j;
 }
 

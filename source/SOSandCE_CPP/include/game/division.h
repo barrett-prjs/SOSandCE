@@ -53,7 +53,9 @@ public:
     bool navalLocked = false;
     int  attempts   = 0;
     int  lastAIOrderHour = -1;
+    int  lastArrivalHour = -1;
     int  aiObjectiveRegion = -1;
+    float entrenchment = 0.0f;
 
 
     void update(GameState& gs);

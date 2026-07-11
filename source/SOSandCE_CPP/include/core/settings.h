@@ -15,6 +15,7 @@ struct Settings {
     bool  fullscreen   = true;
     int   windowWidth  = 1200;
     int   windowHeight = 675;
+    float aiAggression = 1.0f;   // 0.5 = passive, 1.0 = normal, 1.5 = aggressive
 
 
     void load(const std::string& path) {
@@ -65,6 +66,7 @@ struct Settings {
             readBool ("fullscreen",   fullscreen);
             readInt  ("windowWidth",  windowWidth);
             readInt  ("windowHeight", windowHeight);
+            readFloat("aiAggression", aiAggression);
         } catch (...) {
             std::cerr << "[Settings] Warning: failed to parse " << path << "\n";
         }
@@ -87,7 +89,8 @@ struct Settings {
         file << "  \"sidebarLeft\": "  << (sidebarLeft ? "true" : "false") << ",\n";
         file << "  \"fullscreen\": "   << (fullscreen ? "true" : "false") << ",\n";
         file << "  \"windowWidth\": "  << windowWidth  << ",\n";
-        file << "  \"windowHeight\": " << windowHeight << "\n";
+        file << "  \"windowHeight\": " << windowHeight << ",\n";
+        file << "  \"aiAggression\": " << aiAggression << "\n";
         file << "}\n";
     }
 };

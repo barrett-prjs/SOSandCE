@@ -69,6 +69,10 @@ public:
     SDL_Surface* regionsMapSurf = nullptr;
     bool mapDirty = false;
 
+    // Per-region defensive terrain modifier (baked once from the biome map at
+    // map load). Used by Battle::update; 1.0 = neutral, >1 = strong defense.
+    std::unordered_map<int, float> biomeDefenseByRegion;
+
 
     float DIVISION_UPKEEP_PER_DAY = 200.0f;
     float TRAINING_COST_PER_DIV   = 25000.0f;
@@ -85,6 +89,7 @@ public:
 
 
     void clear();
+    void bakeBiomeDefense(SDL_Surface* biomeMap);
     void updateTime();
     void tickAll();
     void spawnCountry(const std::string& name, const std::vector<int>& regions = {});

@@ -1926,6 +1926,7 @@ void GameScreen::setupGame(App& app, const std::string& scenario, int eventFrequ
     gs.industryMapSurf = mapManager_.getIndustryMap();
     gs.cultureMapSurf = mapManager_.getCultureMap();
     gs.regionsMapSurf = mapManager_.getRegionsMap();
+    gs.bakeBiomeDefense(mapManager_.getBiomeMap());
     camera_.x = 0;
     camera_.y = 0;
     camera_.zoom = 1.0f;

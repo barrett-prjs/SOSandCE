@@ -21,6 +21,16 @@ Battle::Battle(Division* atk, Division* def, GameState& gs)
     atk->fighting = true;
     def->fighting = true;
 
+    // Bake in the terrain modifiers for this battle. The defender fights on the
+    // terrain of their own province (mountains/forest defend well, plains do
+    // not); the attacker gets no terrain help. Layout: {_, attackMod, defenseMod, moveMod}.
+    auto biomeDef = [&](int region) -> float {
+        auto it = gs.biomeDefenseByRegion.find(region);
+        return it != gs.biomeDefenseByRegion.end() ? it->second : 1.0f;
+    };
+    attackerBiome = {0.0f, 1.0f, 1.0f, 1.0f};
+    defenderBiome = {0.0f, 1.0f, biomeDef(def->region), 1.0f};
+
     reloadImage(gs);
 }
 
@@ -86,7 +96,8 @@ void Battle::update(GameState& gs) {
 
 
     float aAtk = attacker->combatStats.attack * aCountry->attackMultiplier;
-    float dDef = defender->combatStats.defense * dCountry->defenseMultiplier;
+    float dDef = defender->combatStats.defense * dCountry->defenseMultiplier
+                 * (1.0f + defender->entrenchment * ENTRENCH_DEF_BONUS);
 
 
     float atkBiome = attackerBiome[1];

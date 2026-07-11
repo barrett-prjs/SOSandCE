@@ -31,7 +31,7 @@ public:
     int lastWarActionHourStamp = -1;
     int lastFactionActionHourStamp = -1;
     int lastAccessActionHourStamp = -1;
-    int warActionCooldownHours = 24 * 45;
+    int warActionCooldownHours = 24 * 25;
     int factionActionCooldownHours = 24 * 30;
     int accessActionCooldownHours = 24 * 14;
 

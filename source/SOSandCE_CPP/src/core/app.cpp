@@ -137,6 +137,7 @@ void App::initSDL() {
     }
 
     engine.FPS = settings_.fps;
+    engine.aiAggression = settings_.aiAggression;
     engine.recalcUI(settings_.uiSize);
     Theme::setScale(engine.uiScale);
 

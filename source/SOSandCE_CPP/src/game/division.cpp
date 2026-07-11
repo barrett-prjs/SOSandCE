@@ -247,6 +247,7 @@ void Division::update(GameState& gs) {
                         aiObjectiveRegion = -1;
                         trackedCommandRegion = -1;
                         trackedCommandOwner.clear();
+                        lastArrivalHour = gs.time.totalDays * 24 + gs.time.hour;
                     } else {
                         trackedCommandRegion = commands[0];
                         trackedCommandOwner = rd.getOwner(commands[0]);
@@ -278,6 +279,12 @@ void Division::update(GameState& gs) {
 
     if (recovering && !fighting && resources >= maxResources * 0.9f) {
         recovering = false;
+    }
+
+    // Dig in while holding a position; entrenchment gives a defensive edge in
+    // battle (see Battle::update) and is reset the moment the division moves.
+    if (commands.empty() && !fighting && !recovering) {
+        entrenchment = std::min(1.0f, entrenchment + 0.02f * gs.speed / 5.0f);
     }
 
     updateLocation(gs);
@@ -314,6 +321,7 @@ void Division::updateLocation(GameState& gs) {
 void Division::move(int newRegion, GameState& gs) {
     auto& rd = RegionData::instance();
 
+    entrenchment = 0.0f;
     lastCountry = rd.getOwner(region);
     std::string oldOwner = rd.getOwner(newRegion);
 

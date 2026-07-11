@@ -15,6 +15,7 @@ public:
     int HEIGHT = 675;
     int FPS    = 60;
     float uiScale = 24.0f;
+    float aiAggression = 1.0f;  // global AI aggression multiplier (from Settings)
 
 
     void recalcUI(float userUiSize = 24.0f);

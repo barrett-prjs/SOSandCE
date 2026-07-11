@@ -6,6 +6,7 @@
 #include "game/buildings.h"
 #include "game/helpers.h"
 #include "data/region_data.h"
+#include "core/engine.h"
 
 namespace {
 
@@ -126,6 +127,30 @@ bool isStrategicCity(int region) {
 bool recentlyOrdered(const Division* div, const GameState& gs, int cooldownHours) {
     if (!div) return false;
     return div->lastAIOrderHour >= 0 && currentHourStamp(gs) - div->lastAIOrderHour < cooldownHours;
+}
+
+// A division that just reached a province should hold there a beat before being
+// sent off again — stops the frantic one-tile-then-sprint behaviour.
+bool recentlyArrived(const Division* div, const GameState& gs, int settleHours) {
+    if (!div) return false;
+    return div->lastArrivalHour >= 0 && currentHourStamp(gs) - div->lastArrivalHour < settleHours;
+}
+
+// An enemy province is a "pocket" if none of its neighbours are owned by anyone
+// we're at war with — i.e. it's cut off from the enemy's main body (surrounded
+// by us / allies / neutral). Cut-off enemy troops can't retreat or resupply, so
+// wiping them out should take priority over grabbing empty land.
+bool isEnemyPocket(const GameState& gs, const Country* country, int region) {
+    if (!country) return false;
+    auto& rd = RegionData::instance();
+    for (int conn : rd.getConnections(region)) {
+        const std::string& owner = rd.getOwner(conn);
+        if (owner.empty()) continue;
+        if (std::find(country->atWarWith.begin(), country->atWarWith.end(), owner) != country->atWarWith.end()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void issueAiOrder(Division* div, int region, GameState& gs, bool ignoreEnemy, bool ignoreWater, int iterations) {
@@ -339,10 +364,20 @@ void AIController::assignFrontline(GameState& gs) {
             if (!d || d->fighting || d->locked || d->recovering) continue;
             if (!d->commands.empty()) continue;
             if (recentlyOrdered(d.get(), gs, 12)) continue;
+            if (recentlyArrived(d.get(), gs, 8)) continue;  // let it settle before re-tasking
+            // Only redeploy troops we can afford to move: a badly depleted or
+            // low-supply division stays put to recover instead of marching.
+            if (d->maxUnits > 0 && d->units / d->maxUnits < 0.4f) continue;
+            if (d->maxResources > 0 && d->resources / d->maxResources < 0.35f) continue;
             if (isHolder(d.get())) continue;
             out.push_back(d.get());
         }
     };
+
+    // Divisions shouldn't sprint across the whole map to plug a distant gap —
+    // a far hole is left for a closer division to backfill as the front firms up.
+    float mapW = gs.regionsMapSurf ? static_cast<float>(gs.regionsMapSurf->w) : 1275.0f;
+    float maxTravelSq = (mapW * 0.28f) * (mapW * 0.28f);
 
     std::vector<Division*> reserve;
     rebuildReserve(reserve);
@@ -404,6 +439,12 @@ void AIController::assignFrontline(GameState& gs) {
             });
             if (bestIt == reserve.end()) break;
             Division* d = *bestIt;
+            // If even the closest reserve is too far, leave the gap — don't
+            // send a division on a cross-map march. A nearer unit fills it later.
+            if (d->region != need.region &&
+                regionDistanceScore(d->region, need.region) > maxTravelSq) {
+                break;
+            }
             if (d->region != need.region) {
                 issueAiOrder(d, need.region, gs, true, true, 400);
             } else {
@@ -428,7 +469,9 @@ void AIController::assignFrontline(GameState& gs) {
             float dist = regionDistanceScore(d->region, region);
             if (dist < best) { best = dist; nearest = region; }
         }
-        if (nearest >= 0 && nearest != d->region) {
+        // Only bring it up if the front is within reach; otherwise it holds as a
+        // strategic reserve rather than trekking across the map.
+        if (nearest >= 0 && nearest != d->region && best <= maxTravelSq) {
             issueAiOrder(d, nearest, gs, true, true, 400);
         }
     }
@@ -542,8 +585,12 @@ void AIController::microDivision(Division* div, GameState& gs) {
 
     if (!atWar) return;
     if (!containsRegion(country->battleBorder, div->region)) return;
+    // Settle: hold newly-taken ground briefly instead of immediately pushing on.
+    if (recentlyArrived(div, gs, 8)) return;
     if (div->maxUnits > 0 && div->units / div->maxUnits < 0.5f) return;
-    if (div->maxResources > 0 && div->resources / div->maxResources < 0.45f) return;
+    // Match the battle-start requirement (Division::update needs >= 0.5 org to
+    // actually engage) so we don't order attacks the division can't follow through.
+    if (div->maxResources > 0 && div->resources / div->maxResources < 0.5f) return;
 
     int target = findBestTarget(div, gs);
     if (target >= 0) {
@@ -597,14 +644,24 @@ int AIController::findBestTarget(Division* div, GameState& gs) const {
         int support = countFriendlySupportForTarget(gs, country, T);
         float attack = static_cast<float>(myStack) + support * 0.5f;
 
+        bool pocket = isEnemyPocket(gs, country, T);
+
         float score;
         if (enemyStack == 0) {
             score = 120.0f;
         } else if (attack >= static_cast<float>(enemyStack)) {
             score = 45.0f + (attack - enemyStack) * 6.0f;
+        } else if (pocket && attack >= enemyStack * 0.6f) {
+            // Trapped troops can't be reinforced, so it's worth grinding them
+            // down even without a clear numerical edge.
+            score = 40.0f;
         } else {
             continue;
         }
+
+        // Crushing an encircled enemy stack beats grabbing empty land: it
+        // removes enemy strength permanently and collapses the pocket.
+        if (pocket && enemyStack > 0) score += 150.0f;
 
         Country* enemyCountry = gs.getCountry(rd.getOwner(T));
         if (isCapitalRegion(enemyCountry, T)) score += 30.0f;
@@ -755,40 +812,54 @@ void AIController::considerDeclareWar(GameState& gs) {
     if (!country || !country->atWarWith.empty()) return;
 
     if (!canAffordWar(gs)) return;
-    if (country->politicalPower < 25.0f) return;
+    if (country->politicalPower < 20.0f) return;
     if (!isDiplomaticActionReady(lastWarActionHourStamp, warActionCooldownHours, gs)) return;
 
-    float warWillingness = personality.aggressiveness;
-    float declareChance = std::clamp(0.02f + warWillingness * 0.18f, 0.02f, 0.35f);
+    // Big nations are deliberately restrained (they shouldn't be constantly
+    // steamrolling); small nations squabble freely so minor powers grind each
+    // other down. ~1.0 for tiny states, falling toward 0.15 past ~23 regions.
+    int myRegions = static_cast<int>(country->regions.size());
+    float sizeRestraint = std::clamp(1.0f - (myRegions - 6) * 0.05f, 0.15f, 1.0f);
+
+    float warWillingness = personality.aggressiveness * Engine::instance().aiAggression;
+    float declareChance = std::clamp(0.03f + warWillingness * 0.22f, 0.02f, 0.6f) * sizeRestraint;
     if (randFloat(0.0f, 1.0f) > declareChance) return;
 
     float myStrength = static_cast<float>(countDivisionStrength(country));
 
+    // Pick the most attractive victim: a weaker, ideally smaller neighbour.
+    std::string bestTarget;
+    float bestScore = -1e9f;
     for (auto& neighbor : country->bordering) {
         Country* n = gs.getCountry(neighbor);
         if (!n) continue;
-        if (n->faction == country->faction && !country->faction.empty()) continue;
+        if (!country->faction.empty() && n->faction == country->faction) continue;
+        if (std::find(country->atWarWith.begin(), country->atWarWith.end(), neighbor) != country->atWarWith.end()) continue;
 
         float theirStrength = static_cast<float>(countDivisionStrength(n));
+        if (myStrength < theirStrength * 1.3f + 1.0f) continue;  // only pick on the weaker
 
-        if (myStrength > theirStrength * 1.5f) {
-            bool hasClaims = false;
-            for (int core : country->coreRegions) {
-                for (int rid : n->regions) {
-                    if (core == rid) { hasClaims = true; break; }
-                }
-                if (hasClaims) break;
-            }
-
-            if (hasClaims || warWillingness > 0.6f) {
-                wantsWar = true;
-                targetCountry = neighbor;
-                country->politicalPower -= 25.0f;
-                country->declareWar(neighbor, gs, false, false);
-                lastWarActionHourStamp = currentHourStamp(gs);
-                return;
-            }
+        bool hasClaims = false;
+        for (int core : country->coreRegions) {
+            if (std::find(n->regions.begin(), n->regions.end(), core) != n->regions.end()) { hasClaims = true; break; }
         }
+        // Aggressive personalities attack opportunistically; others need a claim.
+        if (!hasClaims && warWillingness <= 0.6f) continue;
+
+        // Prefer weaker + smaller targets; a core claim is a strong pull.
+        float score = (myStrength - theirStrength) * 2.0f
+                    - static_cast<float>(n->regions.size()) * 1.5f
+                    + (hasClaims ? 40.0f : 0.0f)
+                    + randFloat(0.0f, 5.0f);
+        if (score > bestScore) { bestScore = score; bestTarget = neighbor; }
+    }
+
+    if (!bestTarget.empty()) {
+        wantsWar = true;
+        targetCountry = bestTarget;
+        country->politicalPower -= 20.0f;
+        country->declareWar(bestTarget, gs, false, false);
+        lastWarActionHourStamp = currentHourStamp(gs);
     }
 }
 
@@ -1138,6 +1209,8 @@ bool AIController::canAffordWar(GameState& gs) const {
     Country* country = getCountry(gs);
     if (!country) return false;
 
-
-    return country->divisions.size() >= 3 && country->money > 500000.0f;
+    // Much lower bar than before (was 500k + 3 divisions) so wars actually
+    // happen. The threshold eases further as the aggression setting rises.
+    float moneyGate = 50000.0f / std::clamp(Engine::instance().aiAggression, 0.25f, 3.0f);
+    return country->divisions.size() >= 2 && country->money > moneyGate;
 }
