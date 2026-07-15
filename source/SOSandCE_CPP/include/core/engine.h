@@ -16,6 +16,8 @@ public:
     int FPS    = 60;
     float uiScale = 24.0f;
     float aiAggression = 1.0f;  // global AI aggression multiplier (from Settings)
+    bool oceanDetail = true;
+    bool dayNight = true;
 
 
     void recalcUI(float userUiSize = 24.0f);

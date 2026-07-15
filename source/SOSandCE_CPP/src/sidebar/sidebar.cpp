@@ -6,6 +6,7 @@
 #include "ui/theme.h"
 #include "ui/anim.h"
 #include "ui/ui_assets.h"
+#include "ui/hoi4.h"
 #include "game/game_state.h"
 #include "game/country.h"
 #include "game/faction.h"
@@ -29,28 +30,16 @@ void drawSidebarCard(SDL_Renderer* r, float x, float y, float w, float h,
                      Color fill = {24, 25, 28, 255},
                      Color border = {156, 126, 54, 165},
                      int radius = 3) {
-    UIPrim::drawRoundedRect(r, fill, x, y, w, h, radius, border);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, 5);
-    SDL_Rect topGlow = {
-        (int)(x + 1),
-        (int)(y + 1),
-        std::max(0, (int)(w - 2)),
-        std::max(0, (int)(h * 0.16f))
-    };
-    SDL_RenderFillRect(r, &topGlow);
-    SDL_SetRenderDrawColor(r, 0, 0, 0, 18);
-    SDL_Rect bottomShade = {
-        (int)(x + 1),
-        (int)(y + h * 0.72f),
-        std::max(0, (int)(w - 2)),
-        std::max(0, (int)(h * 0.26f))
-    };
-    SDL_RenderFillRect(r, &bottomShade);
+    if (fill.r == 24 && fill.g == 25 && fill.b == 28) {
+        HOI4::inset(r, x, y, w, h);
+        return;
+    }
+    UIPrim::drawRectFilled(r, fill, x, y, w, h);
+    HOI4::frame(r, x, y, w, h, false);
 }
 
 void drawSidebarCardTitle(SDL_Renderer* r, float x, float y, const std::string& title, int fontSize) {
-    UIPrim::drawText(r, title, fontSize, x, y, "topleft", Theme::accent_yellow, true);
+    HOI4::sectionLabel(r, x, y, title, fontSize);
 }
 
 std::pair<std::string, std::string> countryProfileLines(const Country& country) {
@@ -185,15 +174,7 @@ void Sidebar::render(SDL_Renderer* r, App& app) {
     float panelW = sideW;
     float panelH = sideH;
 
-    UIPrim::drawRectFilled(r, {21, 22, 24, 252}, panelX, panelY, panelW, panelH);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, 5);
-    SDL_Rect panelGlow = {(int)panelX, (int)panelY, (int)panelW, (int)(panelH * 0.08f)};
-    SDL_RenderFillRect(r, &panelGlow);
-    SDL_SetRenderDrawColor(r, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 120);
-    SDL_RenderDrawLine(r, (int)panelX, (int)panelY, (int)panelX, (int)(panelY + panelH));
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 90);
-    SDL_RenderDrawLine(r, (int)panelX + 1, (int)panelY, (int)panelX + 1, (int)(panelY + panelH));
+    HOI4::panel(r, panelX, panelY - 2, panelW + 4, panelH + 4);
 
     int mx, my; SDL_GetMouseState(&mx, &my);
     bool showTabs = showsPlayerTabs(gs);
@@ -202,9 +183,9 @@ void Sidebar::render(SDL_Renderer* r, App& app) {
     float contentInset = std::round(u * 1.25f);
 
     if (showTabs) {
-        float tabsX = panelX;
-        float tabsY = panelY;
-        float tabsW = panelW;
+        float tabsX = panelX + 2;
+        float tabsY = panelY + 2;
+        float tabsW = panelW - 2;
         tabH = std::max(40.0f, H * 0.06f);
         float tabW = tabsW / 3.0f;
 
@@ -216,22 +197,13 @@ void Sidebar::render(SDL_Renderer* r, App& app) {
             bool active = (activeTab == tabKeys[i]);
             bool hovered = (mx >= tx && mx <= tx + tabW && my >= ty && my <= ty + tabH);
 
-            if (active) {
-                UIPrim::drawRectFilled(r, {28, 28, 30, 255}, tx, ty, tabW, tabH);
-                UIPrim::drawHLine(r, Theme::gold, tx + 8, tx + tabW - 8, ty + tabH - 2, 2);
-            } else {
-                Color tabColor = hovered ? Color{30, 30, 33, 255} : Color{24, 24, 27, 255};
-                UIPrim::drawRectFilled(r, tabColor, tx, ty, tabW, tabH);
-            }
-            if (i > 0) UIPrim::drawVLine(r, {Theme::border.r, Theme::border.g, Theme::border.b, 110},
-                                         tx, ty + 6, ty + tabH - 6, 1);
+            HOI4::tab(r, tx, ty, tabW + (i < 2 ? 1.0f : 0.0f), tabH, active, hovered);
 
-            int tabFs = std::max(13, static_cast<int>(tabH * 0.35f));
+            int tabFs = std::max(13, static_cast<int>(tabH * 0.33f));
             Color tabTextColor = active ? Theme::gold_bright : (hovered ? Theme::cream : Theme::grey);
-            UIPrim::drawText(r, tabs[i], tabFs, tx + tabW * 0.5f, ty + tabH * 0.5f,
+            UIPrim::drawText(r, HOI4::caps(tabs[i]), tabFs, tx + tabW * 0.5f, ty + tabH * 0.52f,
                              "center", tabTextColor, active);
         }
-        UIPrim::drawHLine(r, Theme::gold_dim, tabsX, tabsX + tabsW, tabsY + tabH, 1);
         contentTop = tabsY + tabH;
     } else {
         float headerH = std::max(42.0f, H * 0.05f);
@@ -246,11 +218,11 @@ void Sidebar::render(SDL_Renderer* r, App& app) {
         float headerX = panelX + contentInset;
         float headerY = panelY + contentInset;
         float headerW = panelW - contentInset * 2.0f;
-        drawSidebarCard(r, headerX, headerY, headerW, headerH, {28, 28, 30, 245}, {Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 150}, 2);
-        UIPrim::drawHLine(r, overlayAccent, headerX + u * 0.8f, headerX + headerW - u * 0.8f, headerY + headerH - 2, 2);
-        UIPrim::drawText(r, headerTitle, std::max(14, (int)(headerH * 0.33f)),
-                         headerX + headerW * 0.5f, headerY + headerH * 0.5f, "center",
-                         !overlayTitle.empty() ? overlayAccent : Theme::gold_bright, true);
+        HOI4::sectionHeader(r, headerX, headerY, headerW, headerH, headerTitle);
+        if (!overlayTitle.empty()) {
+            UIPrim::drawHLine(r, overlayAccent, headerX + u * 0.8f, headerX + headerW - u * 0.8f,
+                              headerY + headerH - 2, 2);
+        }
         contentTop = headerY + headerH;
     }
 
@@ -392,7 +364,13 @@ float Sidebar::renderPoliticalTab(SDL_Renderer* r, App& app, float x, float y, f
     SDL_Texture* flagTex = Engine::instance().loadTexture(Engine::instance().assetsPath + "flags/" + lowerName + "_flag.png");
     drawSidebarCard(r, previewX, previewY, previewSize, previewSize, {12, 14, 18, 255}, {78, 70, 44, 160}, 6);
     if (flagTex) {
-        SDL_Rect dst = {(int)(previewX + 4), (int)(previewY + 4), (int)(previewSize - 8), (int)(previewSize - 8)};
+        int fw, fh;
+        SDL_QueryTexture(flagTex, nullptr, nullptr, &fw, &fh);
+        float availSz = previewSize - 8.0f;
+        float fscale = std::min(availSz / fw, availSz / fh);
+        float dw = fw * fscale, dh = fh * fscale;
+        SDL_Rect dst = {(int)(previewX + (previewSize - dw) * 0.5f),
+                        (int)(previewY + (previewSize - dh) * 0.5f), (int)dw, (int)dh};
         SDL_RenderCopy(r, flagTex, nullptr, &dst);
     } else {
         float half = previewSize * 0.5f;
@@ -486,9 +464,7 @@ float Sidebar::renderPoliticalTab(SDL_Renderer* r, App& app, float x, float y, f
         std::string catTitle = category.empty() ? "General" : category;
         if (!catTitle.empty()) catTitle[0] = std::toupper(catTitle[0]);
         bool catHover = mx >= x + cardPad && mx <= x + w - cardPad && my >= actY && my <= actY + catH;
-        drawSidebarCard(r, x + cardPad, actY, w - cardPad * 2.0f, catH,
-                        catHover ? Color{28, 31, 39, 255} : Color{20, 22, 28, 255},
-                        {48, 52, 60, 150}, 6);
+        HOI4::button(r, x + cardPad, actY, w - cardPad * 2.0f, catH, catHover, false, true);
         UIPrim::drawText(r, UIPrim::fitText(catTitle, fsLabel, w - cardPad * 4.5f), fsLabel,
                          x + cardPad * 1.9f, actY + catH * 0.5f, "midleft",
                          catHover ? Theme::gold : Theme::cream);
@@ -794,10 +770,13 @@ float Sidebar::renderIndustryTab(SDL_Renderer* r, App& app, float x, float y, fl
         float cbY = gy + row * (cbH + cbGap);
         bool isActive = (currentlyBuilding == cbtns[ci].key);
         bool cbHov = mx >= cbX && mx <= cbX + cbW && my >= cbY && my <= cbY + cbH;
-        Color cbBg = isActive ? Theme::gold_bg
-                   : (cbHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2);
-        Color cbBrd = isActive ? Theme::gold : Theme::hairline();
-        UIPrim::drawRoundedRect(r, cbBg, cbX, cbY, cbW, cbH, 4, cbBrd);
+        HOI4::button(r, cbX, cbY, cbW, cbH, cbHov, false, true);
+        if (isActive) {
+            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, 230);
+            SDL_Rect activeRim = {(int)cbX, (int)cbY, (int)cbW, (int)cbH};
+            SDL_RenderDrawRect(r, &activeRim);
+        }
         int cbFs = std::max(10, (int)(cbH * 0.34f));
         Color cbTc = isActive ? Theme::gold_bright : (cbHov ? Theme::cream : Theme::grey);
         UIPrim::drawText(r, UIPrim::fitText(cbtns[ci].label, cbFs, cbW - 8.0f), cbFs,

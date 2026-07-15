@@ -1,5 +1,6 @@
 #include "ui/ui_assets.h"
 #include "core/engine.h"
+#include <unordered_set>
 
 UIAssets& UIAssets::instance() {
     static UIAssets s;
@@ -25,6 +26,10 @@ SDL_Texture* UIAssets::panelBodyHeadless() const {
 
 SDL_Texture* UIAssets::btnRectDefault() const { return Engine::instance().loadTexture(base_ + "buttons/Base-Rect-Default.png"); }
 SDL_Texture* UIAssets::btnRectHover()   const { return Engine::instance().loadTexture(base_ + "buttons/Base-Rect-Hover.png"); }
+
+SDL_Texture* UIAssets::hoi4Panel()  const { return Engine::instance().loadTexture(base_ + "hoi4/panel.png"); }
+SDL_Texture* UIAssets::hoi4Button() const { return Engine::instance().loadTexture(base_ + "hoi4/button.png"); }
+SDL_Texture* UIAssets::hoi4TopBar() const { return Engine::instance().loadTexture(base_ + "hoi4/topbar.png"); }
 SDL_Texture* UIAssets::btnSquare(const std::string& name, bool hover) const {
 
     std::string state = hover ? "Hover" : "Default";
@@ -35,6 +40,13 @@ SDL_Texture* UIAssets::btnSquare(const std::string& name, bool hover) const {
 
 
 SDL_Texture* UIAssets::icon(const std::string& name) const {
+    static const std::unordered_set<std::string> hoi4Icons = {
+        "Star", "Player", "Cart", "Factory", "Levels", "Rifles",
+        "Tank", "Plane", "Ship", "Anchor", "Gear", "Flag"};
+    if (hoi4Icons.count(name)) {
+        SDL_Texture* t = Engine::instance().loadTexture(base_ + "hoi4/icons/" + name + ".png");
+        if (t) return t;
+    }
     return Engine::instance().loadTexture(base_ + "icons/" + name + ".png");
 }
 

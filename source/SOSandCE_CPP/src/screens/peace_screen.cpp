@@ -7,6 +7,7 @@
 #include "ui/primitives.h"
 #include "ui/anim.h"
 #include "ui/theme.h"
+#include "ui/hoi4.h"
 #include "ui/ui_assets.h"
 #include "ui/toast.h"
 #include "game/game_state.h"
@@ -76,6 +77,7 @@ void PeaceScreen::enter(App& app) {
         camera_.mapWidth = static_cast<float>(gs.politicalMapSurf->w);
         camera_.mapHeight = static_cast<float>(gs.politicalMapSurf->h);
     }
+    mapRenderer_.setStyleContext(gs.regionsMapSurf);
     clampCameraToMapBounds(Engine::instance().WIDTH, Engine::instance().HEIGHT);
     rebuildTreatyMap(app);
 }
@@ -260,9 +262,9 @@ void PeaceScreen::render(App& app) {
     eng.clear(Theme::bg_dark);
 
     if (treatyMapSurface_) {
-        mapRenderer_.renderMap(r, treatyMapSurface_, camera_, W, H);
+        mapRenderer_.renderMap(r, treatyMapSurface_, camera_, W, H, gs.terrainMapSurf);
     } else if (gs.politicalMapSurf) {
-        mapRenderer_.renderMap(r, gs.politicalMapSurf, camera_, W, H);
+        mapRenderer_.renderMap(r, gs.politicalMapSurf, camera_, W, H, gs.terrainMapSurf);
     }
 
     UIPrim::drawMapDim(r, W, H, 20);
@@ -277,13 +279,10 @@ void PeaceScreen::render(App& app) {
     float contentX = sideX + pad;
     float contentW = sideW - pad * 2.0f;
 
-    UIPrim::drawRectFilled(r, {16, 18, 24}, sideX, sideY, sideW, sideH);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 110);
-    SDL_RenderDrawLine(r, static_cast<int>(sideW), 0, static_cast<int>(sideW), H);
-    UIPrim::drawRectFilled(r, {22, 24, 32}, sideX, sideY, sideW, titleH);
-    UIPrim::drawHLine(r, Theme::gold, sideX, sideW, titleH - 1.0f, 2);
-    UIPrim::drawText(r, "PEACE CONFERENCE", std::max(18, static_cast<int>(u * 1.35f)),
+    HOI4::panel(r, sideX - 4, sideY - 4, sideW + 8, sideH + 8);
+    UIPrim::drawGradientV(r, sideX, sideY, sideW - 2, titleH, {54, 58, 52, 255}, {34, 37, 33, 255});
+    HOI4::goldDivider(r, sideX + 4, sideW - 6, titleH - 1.0f);
+    UIPrim::drawText(r, HOI4::tracked("Peace Conference"), std::max(18, static_cast<int>(u * 1.35f)),
                      sideW * 0.5f, titleH * 0.52f, "center", Theme::gold_bright, true);
 
     float y = titleH + pad;
@@ -315,7 +314,7 @@ void PeaceScreen::render(App& app) {
         bool hovered = mx >= contentX && mx <= contentX + contentW && my >= y && my <= y + rowH;
         bool active = (loser == currentEnemy);
         if (active || hovered) {
-            UIPrim::drawRectFilled(r, active ? Color{42, 34, 20} : Color{24, 28, 34},
+            UIPrim::drawRectFilled(r, active ? Color{52, 56, 50} : Color{38, 42, 39},
                                    contentX, y, contentW, rowH);
         }
         if (hovered && app.input().mouseLeftDown) {

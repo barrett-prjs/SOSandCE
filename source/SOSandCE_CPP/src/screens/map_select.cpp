@@ -1,9 +1,10 @@
-#include "screens/map_select.h"
+﻿#include "screens/map_select.h"
 #include "core/app.h"
 #include "core/engine.h"
 #include "core/input.h"
 #include "ui/primitives.h"
 #include "ui/theme.h"
+#include "ui/hoi4.h"
 #include "ui/ui_assets.h"
 #include "game/game_state.h"
 
@@ -172,22 +173,15 @@ void MapSelectScreen::render(App& app) {
         SDL_Rect sh = {(int)L.winX - s/2, (int)L.winY + s, (int)L.winW + s, (int)L.winH};
         SDL_RenderFillRect(r, &sh);
     }
-    UIPrim::drawRoundedRect(r, {18, 20, 26}, L.winX, L.winY, L.winW, L.winH, 8);
-    SDL_Texture* windowTex = assets.panelBodyHeaded();
-    if (!windowTex) windowTex = assets.panelBodyHeadless();
-    if (windowTex) UIAssets::draw9Slice(r, windowTex, L.winX, L.winY, L.winW, L.winH, 28);
+    HOI4::panel(r, L.winX, L.winY, L.winW, L.winH);
 
-    SDL_Texture* headerTex = assets.panelHeader();
-    if (headerTex) UIAssets::draw9Slice(r, headerTex, L.winX + 3, L.winY + 3, L.winW - 6, L.headerH, 14);
+    UIPrim::drawGradientV(r, L.winX + 2, L.winY + 2, L.winW - 4, L.headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(L.headerH * 0.42f));
-    UIPrim::drawText(r, "SELECT SCENARIO", titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold, L.winX + 8, L.winX + L.winW - 8, L.winY + L.headerH + 2, 2);
+    UIPrim::drawText(r, HOI4::tracked("Select Scenario"), titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, L.winX + 6, L.winX + L.winW - 6, L.winY + L.headerH + 2);
 
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, L.contentX, L.contentY, L.contentW, L.contentH, 6);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 40);
-    SDL_Rect wb = {(int)L.contentX, (int)L.contentY, (int)L.contentW, (int)L.contentH};
-    SDL_RenderDrawRect(r, &wb);
+    HOI4::inset(r, L.contentX, L.contentY, L.contentW, L.contentH);
 
 
     if (scenarios_.empty()) {
@@ -210,12 +204,7 @@ void MapSelectScreen::render(App& app) {
         bool hovered = (mx >= L.cardX && mx <= L.cardX + L.cardW && my >= by && my <= by + L.cardH);
 
 
-        SDL_Texture* btnTex = hovered ? assets.btnRectHover() : assets.btnRectDefault();
-        if (btnTex) {
-            SDL_SetTextureColorMod(btnTex, hovered ? 200 : 160, hovered ? 198 : 158, hovered ? 195 : 155);
-            UIAssets::draw9Slice(r, btnTex, L.cardX, by, L.cardW, L.cardH, 14);
-            SDL_SetTextureColorMod(btnTex, 255, 255, 255);
-        }
+        HOI4::button(r, L.cardX, by, L.cardW, L.cardH, hovered, false, true);
 
 
         SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);

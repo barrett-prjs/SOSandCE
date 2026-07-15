@@ -6,6 +6,7 @@
 #include "ui/theme.h"
 #include "ui/ui_assets.h"
 #include "ui/anim.h"
+#include "ui/hoi4.h"
 
 
 Popup::Popup()
@@ -153,15 +154,14 @@ void Popup::draw(SDL_Renderer* r, float uiSize) {
 
 
     UIPrim::drawShadow(r, px, py, pw, ph, 80, 8);
-    UIPrim::drawRoundedRect(r, Theme::surface1, px, py, pw, ph, 7,
-                            {Theme::border.r, Theme::border.g, Theme::border.b, 140});
+    HOI4::panel(r, px, py, pw, ph);
 
 
     float headerH = uiSize * 1.5f;
-    UIPrim::drawRectFilled(r, Theme::header, px + 2, py + 2, pw - 4, headerH);
+    UIPrim::drawGradientV(r, px + 2, py + 2, pw - 4, headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
 
 
-    UIPrim::drawHLine(r, Theme::gold_dim, px + 6, px + pw - 6, py + 2 + headerH, 1);
+    HOI4::goldDivider(r, px + 6, px + pw - 6, py + 2 + headerH);
 
 
     int titleSize = std::max(12, static_cast<int>(uiSize * 0.9f));

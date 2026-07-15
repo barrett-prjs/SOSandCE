@@ -4,6 +4,7 @@
 #include "game/helpers.h"
 #include "data/country_data.h"
 #include "data/region_data.h"
+#include "ui/notification_log.h"
 
 Faction::Faction(const std::string& name, const std::vector<std::string>& countriesInFaction, GameState& gs)
     : name(name), gs_(gs)
@@ -73,6 +74,8 @@ void Faction::addCountry(const std::string& country, GameState& gs, bool sendPro
     c->factionColor = color;
     if (std::find(members.begin(), members.end(), country) == members.end()) {
         members.push_back(country);
+        notifyLog().add(NoteCat::Diplomacy, replaceAll(country, "_", " ") + " joined " +
+                        replaceAll(name, "_", " "), gs);
     }
 
 

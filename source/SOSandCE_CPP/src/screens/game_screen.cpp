@@ -10,6 +10,8 @@
 #include "ui/theme.h"
 #include "ui/anim.h"
 #include "ui/ui_assets.h"
+#include "ui/hoi4.h"
+#include "ui/notification_log.h"
 #include "ui/ui_manager.h"
 #include "ui/popup.h"
 #include "ui/toast.h"
@@ -190,7 +192,8 @@ void GameScreen::handleInput(App& app, const InputState& input) {
     float topBarH = std::round(std::max(56.0f, H / 100.0f * eng.uiScaleFactor() * 5.5f));
     bool overTopBar = input.mouseY < topBarH;
     bool overMapButtons = input.mouseY > H - H * 0.04f;
-    bool overUI = uiManager_->hitUI(input.mouseX, input.mouseY) || overSidebar || overTopBar || overMapButtons;
+    bool overUI = uiManager_->hitUI(input.mouseX, input.mouseY) || overSidebar || overTopBar ||
+                  overMapButtons || notifyLog().wantsMouse(input.mouseX, input.mouseY);
 
 
     bool hasPopups = !uiManager_->popupList.empty();
@@ -364,7 +367,8 @@ void GameScreen::handleCameraInput(const InputState& input, App& app) {
     }
 
 
-    if (input.scrollY != 0) {
+    if (input.scrollY != 0 && notifyLog().handleScroll(input.mouseX, input.mouseY, input.scrollY)) {
+    } else if (input.scrollY != 0) {
         bool overSidebar = false;
         if (sidebar_ && sidebar_->isOpen()) {
             float sideX = sidebar_->getX(W);
@@ -1184,6 +1188,38 @@ void GameScreen::update(App& app, float dt) {
 
         uiManager_->topBar.rebuild(app, gs, eng.WIDTH);
 
+        static int lastAutosaveDay = -1;
+        int todayIdx = gs.time.totalDays;
+        if (lastAutosaveDay < 0 || lastAutosaveDay > todayIdx) lastAutosaveDay = todayIdx;
+        if (!gs.controlledCountry.empty() && !gs.mapViewOnly && todayIdx - lastAutosaveDay >= 30) {
+            lastAutosaveDay = todayIdx;
+            SaveSystem autoSaver;
+            std::string base = "autosave_" + gs.controlledCountry + "_";
+            std::string slotNames[3] = {base + "1", base + "2", base + "3"};
+            auto existing = autoSaver.listSaves();
+            std::string pick;
+            for (auto& n : slotNames) {
+                bool found = false;
+                for (auto& info : existing) {
+                    if (info.name == n) { found = true; break; }
+                }
+                if (!found) { pick = n; break; }
+            }
+            if (pick.empty()) {
+                std::string oldestDate;
+                for (auto& n : slotNames) {
+                    for (auto& info : existing) {
+                        if (info.name == n && (pick.empty() || info.date < oldestDate)) {
+                            pick = n;
+                            oldestDate = info.date;
+                        }
+                    }
+                }
+            }
+            if (!pick.empty() && autoSaver.saveGame(gs, mapManager_, pick)) {
+                toasts().show("Autosaved", 1500);
+            }
+        }
     }
 
     if (!selectedDivisions_.empty()) {
@@ -1276,9 +1312,7 @@ void GameScreen::render(App& app) {
 
         bool mergeHov = abMx >= abX && abMx <= abX + abW && abMy >= abY && abMy <= abY + abH;
         float mergeY = abY + UIAnim::springOffset("game:merge", mergeHov);
-        UIPrim::drawRoundedRect(eng.renderer,
-                                mergeHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2,
-                                abX, mergeY, abW, abH, 5, mergeHov ? Theme::gold_dim : Theme::hairline());
+        HOI4::button(eng.renderer, abX, mergeY, abW, abH, mergeHov, false, true);
         int abFs = std::max(10, (int)(abH * 0.22f));
         UIPrim::drawText(eng.renderer, "M", (int)(abH * 0.5f), abX + abW / 2, mergeY + abH * 0.35f, "center", Theme::cream);
         UIPrim::drawText(eng.renderer, "Merge", abFs, abX + abW / 2, mergeY + abH * 0.75f, "center", Theme::grey);
@@ -1287,9 +1321,7 @@ void GameScreen::render(App& app) {
         float abX2 = abX + abW + abGap;
         bool splitHov = abMx >= abX2 && abMx <= abX2 + abW && abMy >= abY && abMy <= abY + abH;
         float splitY = abY + UIAnim::springOffset("game:split", splitHov);
-        UIPrim::drawRoundedRect(eng.renderer,
-                                splitHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2,
-                                abX2, splitY, abW, abH, 5, splitHov ? Theme::gold_dim : Theme::hairline());
+        HOI4::button(eng.renderer, abX2, splitY, abW, abH, splitHov, false, true);
         UIPrim::drawText(eng.renderer, "/", (int)(abH * 0.5f), abX2 + abW / 2, splitY + abH * 0.35f, "center", Theme::cream);
         UIPrim::drawText(eng.renderer, "Split", abFs, abX2 + abW / 2, splitY + abH * 0.75f, "center", Theme::grey);
     }
@@ -1350,14 +1382,10 @@ void GameScreen::render(App& app) {
                 keyH = rowH * (count + 1) + u;
             }
 
-            SDL_SetRenderDrawBlendMode(eng.renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(eng.renderer, 0, 0, 0, 180);
-            SDL_Rect kb = {(int)keyX, (int)keyY, (int)keyW, (int)keyH};
-            SDL_RenderFillRect(eng.renderer, &kb);
-            SDL_SetRenderDrawColor(eng.renderer, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 80);
-            SDL_RenderDrawRect(eng.renderer, &kb);
+            HOI4::plate(eng.renderer, keyX, keyY, keyW, keyH);
+            HOI4::goldDivider(eng.renderer, keyX + 6, keyX + keyW - 6, keyY + rowH + u * 0.2f);
 
-            UIPrim::drawText(eng.renderer, legendTitle, legendFs + 1, keyX + keyW / 2, keyY + u * 0.6f, "topcenter", Theme::cream, true);
+            UIPrim::drawText(eng.renderer, HOI4::tracked(legendTitle), legendFs + 1, keyX + keyW / 2, keyY + u * 0.6f, "topcenter", Theme::gold_bright, true);
             float ky = keyY + rowH + u * 0.4f;
             for (auto& row : legendRows) {
                 float swatchW = u * 1.5f, swatchH = std::min(u * 1.2f, rowH * 0.7f);
@@ -1443,6 +1471,10 @@ void GameScreen::render(App& app) {
 
 
     toasts().render(eng.renderer, W, H, eng.uiScale);
+
+    if (showUI_ && !gs.controlledCountry.empty()) {
+        notifyLog().render(eng.renderer, W, H);
+    }
 }
 
 
@@ -1476,7 +1508,43 @@ void GameScreen::renderMap(App& app) {
     if (!activeSurface) activeSurface = mapManager_.getActiveSurface();
 
     if (activeSurface) {
-        mapRenderer_.renderMap(eng.renderer, activeSurface, camera_, W, H);
+        static bool lastOceanDetail = eng.oceanDetail;
+        if (lastOceanDetail != eng.oceanDetail) {
+            lastOceanDetail = eng.oceanDetail;
+            mapManager_.rebuildTerrain();
+            gs.terrainMapSurf = mapManager_.getTerrainMap();
+        }
+
+        if (eng.dayNight) {
+            float sunAnchorX = mapManager_.mapWidth() * 0.5f;
+            Country* sunPc = gs.getCountry(gs.controlledCountry);
+            if (sunPc) {
+                auto& rdSun = RegionData::instance();
+                int capRegion = -1;
+                if (!sunPc->capital.empty()) {
+                    const auto& cityMap = rdSun.getCities();
+                    auto cIt = cityMap.find(sunPc->capital);
+                    if (cIt != cityMap.end()) capRegion = cIt->second.region;
+                }
+                if (capRegion <= 0 && !sunPc->regions.empty()) capRegion = sunPc->regions.front();
+                if (capRegion > 0) sunAnchorX = rdSun.getLocation(capRegion).x;
+            }
+            mapRenderer_.setClock(gs.time.hour + std::clamp(gs.tick, 0.0f, 1.0f),
+                                  sunAnchorX, gs.time.month, gs.time.day);
+        } else {
+            mapRenderer_.setClock(-1.0f, 0.0f, 1, 1);
+        }
+        mapRenderer_.renderMap(eng.renderer, activeSurface, camera_, W, H,
+                               mapManager_.getTerrainMap());
+
+        if (mapManager_.getMode() == MapMode::POLITICAL) {
+            mapRenderer_.renderPuppetStripes(eng.renderer, gs, camera_, W, H);
+        }
+        if (sidebar_ && !sidebar_->selectedCountry.empty() &&
+            sidebar_->selectedCountry != gs.controlledCountry) {
+            mapRenderer_.renderCountryHighlight(eng.renderer, gs, camera_, W, H,
+                                                sidebar_->selectedCountry);
+        }
     }
 
 
@@ -1545,15 +1613,7 @@ void GameScreen::renderUI(App& app) {
     auto& assets = UIAssets::instance();
 
 
-    UIPrim::drawRectFilled(rr, {14, 16, 20}, 0, 0, (float)W, topH);
-    SDL_SetRenderDrawBlendMode(rr, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(rr, 255, 255, 255, 5);
-    SDL_Rect topHl = {0, 0, W, (int)(topH * 0.35f)};
-    SDL_RenderFillRect(rr, &topHl);
-
-
-    UIPrim::drawHLine(rr, Theme::gold_dim, 0, (float)W, topH - 2, 1);
-    UIPrim::drawHLine(rr, {6, 8, 10}, 0, (float)W, topH - 1, 1);
+    HOI4::topBar(rr, (float)W, topH);
 
     int mx, my; SDL_GetMouseState(&mx, &my);
 
@@ -1573,50 +1633,52 @@ void GameScreen::renderUI(App& app) {
         speedPlusRect_ = {0, 0, 0, 0};
     }
 
+    std::vector<std::string> topTipLines;
+    float topTipX = 0.0f;
+
     if (player) {
         float leftLimit = rightGroupLeft - std::round(u * 1.0f);
 
-        float flagW = std::round(u * 4.0f);
-        float flagH = slotH;
-        float flagX = pad + 2, flagY = pad;
+        float plateH = topH - 2;
+        int plateCut = (int)(plateH * 0.55f);
+        float flagW = std::round(u * 3.8f);
+        float flagH = slotH - 4;
+        float flagX = pad + 4, flagY = (topH - 2 - flagH) * 0.5f;
+
+        std::string cname = HOI4::caps(replaceAll(gs.controlledCountry, "_", " "));
+        float nameX = flagX + flagW + std::round(u * 1.0f);
+        float nameMax = std::max(u * 4.0f, leftLimit * 0.4f - nameX);
+        cname = UIPrim::fitText(cname, fsName, nameMax);
+        float nameW = (float)UIPrim::textWidth(cname, fsName);
+        float plateW = nameX + nameW + std::round(u * 1.2f) + plateCut;
+
+        HOI4::diagPlate(rr, 0, 0, plateW, plateH, plateCut, false);
 
         std::string lowerName = gs.controlledCountry;
         std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
         SDL_Texture* flagTex = eng.loadTexture(eng.assetsPath + "flags/" + lowerName + "_flag.png");
+        SDL_Rect fd = {(int)flagX, (int)flagY, (int)flagW, (int)flagH};
         if (flagTex) {
             int fw, fh; SDL_QueryTexture(flagTex, nullptr, nullptr, &fw, &fh);
             float dw = flagW, dh = flagW * fh / fw;
             if (dh > flagH) { dh = flagH; dw = flagH * fw / fh; }
-            SDL_Rect fd = {(int)(flagX + (flagW - dw)/2), (int)(flagY + (flagH - dh)/2), (int)dw, (int)dh};
-            SDL_RenderCopy(rr, flagTex, nullptr, &fd);
+            fd = {(int)(flagX + (flagW - dw)/2), (int)(flagY + (flagH - dh)/2), (int)dw, (int)dh};
         }
+        UIPrim::drawRectFilled(rr, {12, 14, 13, 255}, (float)fd.x, (float)fd.y, (float)fd.w, (float)fd.h);
+        if (flagTex) SDL_RenderCopy(rr, flagTex, nullptr, &fd);
+        HOI4::frame(rr, fd.x - 2.0f, fd.y - 2.0f, fd.w + 4.0f, fd.h + 4.0f, true);
 
-        SDL_SetRenderDrawColor(rr, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 150);
-        SDL_Rect fb = {(int)flagX, (int)flagY, (int)flagW, (int)flagH};
-        SDL_RenderDrawRect(rr, &fb);
-
-        float tx = flagX + flagW + std::round(u * 0.8f);
-        std::string cname = replaceAll(gs.controlledCountry, "_", " ");
-        float nameMax = std::max(u * 4.0f, leftLimit - tx - u * 1.0f);
-        cname = UIPrim::fitText(cname, fsName, nameMax);
-        UIPrim::drawText(rr, cname, fsName, tx, topH * 0.5f, "midleft", Theme::gold_bright, true);
-        tx += UIPrim::textWidth(cname, fsName) + std::round(u * 1.2f);
-
-        if (tx + u * 1.0f < leftLimit) {
-            SDL_SetRenderDrawColor(rr, Theme::border.r, Theme::border.g, Theme::border.b, 60);
-            SDL_RenderDrawLine(rr, (int)tx, (int)(pad + 4), (int)tx, (int)(topH - pad - 4));
-            tx += std::round(u * 1.0f);
-        }
+        UIPrim::drawText(rr, cname, fsName, nameX, (topH - 2) * 0.5f, "midleft", Theme::gold_bright, true);
 
         struct Slot { const char* label; std::string value; Color color; const char* icon; };
         std::vector<Slot> slots;
-        slots.push_back({"PP", Helpers::prefixNumber(UIAnim::countTo("top:pp", player->politicalPower)), Theme::blue, "Star"});
+        slots.push_back({"PP", Helpers::prefixNumber(UIAnim::countTo("top:pp", player->politicalPower)), Theme::gold_bright, "Star"});
         slots.push_back({"MP", Helpers::prefixNumber(std::max(0.0f, UIAnim::countTo("top:mp", player->manPower))), Theme::cream, "Player"});
         slots.push_back({"$", Helpers::prefixNumber(std::max(0.0f, UIAnim::countTo("top:money", player->money))),
                           player->money < 0 ? Theme::red_light : Theme::gold, "Cart"});
         int totalFac = player->buildingManager.countAll(BuildingType::CivilianFactory)
                      + player->buildingManager.countAll(BuildingType::MilitaryFactory);
-        slots.push_back({"Fac", std::to_string((int)std::llround(UIAnim::countTo("top:fac", (float)totalFac))), Theme::cream, "Gear"});
+        slots.push_back({"Fac", std::to_string((int)std::llround(UIAnim::countTo("top:fac", (float)totalFac))), Theme::cream, "Factory"});
         slots.push_back({"Stab", std::to_string((int)std::llround(UIAnim::countTo("top:stab", player->stability))) + "%",
                           player->stability < 30 ? Theme::red_light : (player->stability < 50 ? Theme::orange : Theme::green_light), "Levels"});
 
@@ -1629,32 +1691,95 @@ void GameScreen::renderUI(App& app) {
             slots.push_back({resLabels[ri], Helpers::resourceValueText(stk), rc, nullptr});
         }
 
-        for (auto& s : slots) {
-            std::string valText = s.value;
-            float valW = (float)UIPrim::textWidth(valText, fsVal);
-            float labelW = (float)UIPrim::textWidth(s.label, fsLabel);
-            float iconSz2 = s.icon ? slotH * 0.35f : 0.0f;
-            float minW = s.icon ? std::round(u * 5.0f) : std::round(u * 3.5f);
-            float slotW = std::max(minW, std::max(iconSz2 + labelW, valW) + std::round(u * 1.4f));
+        float cellPad = std::round(u * 0.55f);
+        float iconSz2 = slotH * 0.52f;
+        float gx = plateW + std::round(u * 0.9f);
 
-            if (tx + slotW > leftLimit) break;
+        for (size_t si = 0; si < slots.size(); si++) {
+            auto& s = slots[si];
+            float valW = (float)UIPrim::textWidth(s.value, fsVal);
+            float headW = s.icon ? iconSz2 : (float)UIPrim::textWidth(s.label, fsLabel);
+            float slotW = cellPad * 3.0f + headW + valW;
+            slotW = std::max(slotW, std::round(u * (s.icon ? 4.6f : 4.0f)));
 
-            UIPrim::drawBeveledRect(rr, Theme::slot, tx, pad, slotW, slotH);
+            if (si == 5) gx += std::round(u * 0.9f);
+            if (gx + slotW > leftLimit) break;
 
-            SDL_Texture* slotIcon = s.icon ? assets.icon(s.icon) : nullptr;
-            if (slotIcon) {
-                SDL_SetTextureColorMod(slotIcon, 120, 118, 115);
-                SDL_SetTextureAlphaMod(slotIcon, 160);
-                SDL_Rect iDst = {(int)(tx + 4), (int)(pad + 3), (int)iconSz2, (int)iconSz2};
-                SDL_RenderCopy(rr, slotIcon, nullptr, &iDst);
-                SDL_SetTextureColorMod(slotIcon, 255, 255, 255);
-                SDL_SetTextureAlphaMod(slotIcon, 255);
+            HOI4::cell(rr, gx, pad, slotW, slotH);
+
+            float cx = gx + cellPad;
+            if (s.icon) {
+                SDL_Texture* slotIcon = assets.icon(s.icon);
+                if (slotIcon) {
+                    SDL_SetTextureAlphaMod(slotIcon, 235);
+                    SDL_Rect iDst = {(int)cx, (int)(pad + (slotH - iconSz2) * 0.5f), (int)iconSz2, (int)iconSz2};
+                    SDL_RenderCopy(rr, slotIcon, nullptr, &iDst);
+                    SDL_SetTextureAlphaMod(slotIcon, 255);
+                }
+            } else {
+                UIPrim::drawText(rr, s.label, fsLabel, cx, pad + slotH * 0.5f, "midleft", Theme::dark_grey);
+            }
+            UIPrim::drawText(rr, s.value, fsVal, gx + slotW - cellPad, pad + slotH * 0.5f,
+                             "midright", s.color, true);
+
+            if (mx >= gx && mx <= gx + slotW && my >= pad && my <= pad + slotH) {
+                topTipX = gx;
+                char tb[96];
+                if (si == 0) {
+                    topTipLines.push_back("Political Power");
+                    snprintf(tb, sizeof(tb), "Current: %.1f", player->politicalPower);
+                    topTipLines.push_back(tb);
+                    snprintf(tb, sizeof(tb), "Gain modifier: x%.2f", player->politicalMultiplier);
+                    topTipLines.push_back(tb);
+                } else if (si == 1) {
+                    topTipLines.push_back("Manpower");
+                    topTipLines.push_back("Available: " + Helpers::prefixNumber(std::max(0.0f, player->manPower)));
+                    topTipLines.push_back("In service: " + Helpers::prefixNumber(std::max(0.0f, player->usedManPower)));
+                } else if (si == 2) {
+                    int civTT = player->buildingManager.countAll(BuildingType::CivilianFactory);
+                    float incomeTT = 5000.0f * (civTT + 1) * player->moneyMultiplier;
+                    float stacksTT = 0.0f;
+                    for (auto& d : player->divisions) stacksTT += d->divisionStack;
+                    float upkeepTT = stacksTT * gs.DIVISION_UPKEEP_PER_DAY;
+                    topTipLines.push_back("Treasury: $" + Helpers::prefixNumber(player->money));
+                    topTipLines.push_back("Income: +$" + Helpers::prefixNumber(incomeTT) + "/day");
+                    topTipLines.push_back("Army upkeep: -$" + Helpers::prefixNumber(upkeepTT) + "/day");
+                    float netTT = incomeTT - upkeepTT;
+                    topTipLines.push_back(std::string("Net: ") + (netTT >= 0 ? "+$" : "-$") +
+                                          Helpers::prefixNumber(std::fabs(netTT)) + "/day");
+                } else if (si == 3) {
+                    topTipLines.push_back("Factories");
+                    topTipLines.push_back("Civilian: " + std::to_string(
+                        player->buildingManager.countAll(BuildingType::CivilianFactory)));
+                    topTipLines.push_back("Military: " + std::to_string(
+                        player->buildingManager.countAll(BuildingType::MilitaryFactory)));
+                    topTipLines.push_back("Dockyards: " + std::to_string(
+                        player->buildingManager.countAll(BuildingType::Dockyard)));
+                } else if (si == 4) {
+                    topTipLines.push_back("Stability");
+                    snprintf(tb, sizeof(tb), "Current: %.0f%%", player->stability);
+                    topTipLines.push_back(tb);
+                    topTipLines.push_back(player->stability >= 55.0f
+                        ? "Stable politics support steady growth"
+                        : "Low stability weakens political power gain");
+                } else {
+                    static const char* fullRes[] = {"Oil", "Steel", "Aluminum", "Tungsten", "Chromium", "Rubber"};
+                    int ri = static_cast<int>(si) - 5;
+                    topTipLines.push_back(fullRes[ri]);
+                    topTipLines.push_back("Stockpile: " + Helpers::resourceValueText(rm.stockpile[ri]));
+                    snprintf(tb, sizeof(tb), "Production: +%.1f/day", rm.production[ri]);
+                    topTipLines.push_back(tb);
+                    snprintf(tb, sizeof(tb), "Consumption: -%.1f/day", rm.consumption[ri]);
+                    topTipLines.push_back(tb);
+                    snprintf(tb, sizeof(tb), "Trade: +%.1f in, -%.1f out", rm.tradeImports[ri], rm.tradeExports[ri]);
+                    topTipLines.push_back(tb);
+                    float netR = rm.production[ri] + rm.tradeImports[ri] - rm.consumption[ri] - rm.tradeExports[ri];
+                    snprintf(tb, sizeof(tb), "Net: %+.1f/day", netR);
+                    topTipLines.push_back(tb);
+                }
             }
 
-            UIPrim::drawText(rr, s.label, fsLabel, tx + iconSz2 + 6, pad + slotH * 0.22f, "midleft", Theme::dark_grey);
-            UIPrim::drawText(rr, valText, fsVal, tx + slotW * 0.5f, pad + slotH * 0.65f, "center", s.color, true);
-
-            tx += slotW + slotGap;
+            gx += slotW + std::round(u * 0.22f);
         }
     } else if (isSpectatorMode(gs)) {
         float modeCardX = pad + 2;
@@ -1675,7 +1800,7 @@ void GameScreen::renderUI(App& app) {
         float promptH = std::round(u * 5.5f);
         float promptX = std::round(u * 1.2f);
         float promptY = topH + std::round(u * 1.0f);
-        UIPrim::drawRoundedRect(rr, {16, 18, 24, 220}, promptX, promptY, promptW, promptH, 5, Theme::gold_dim);
+        HOI4::plate(rr, promptX, promptY, promptW, promptH);
         UIPrim::drawText(rr, "Scenario Map", std::max(15, (int)(u * 1.1f)),
                          promptX + promptW * 0.5f, promptY + promptH * 0.32f, "center", Theme::gold_bright, true);
         UIPrim::drawText(rr, "Click a country to inspect it, then use Play in the sidebar.",
@@ -1728,27 +1853,28 @@ void GameScreen::renderUI(App& app) {
                                     MapMode::INDUSTRY, MapMode::BIOME, MapMode::RESOURCE};
         MapMode currentMode = mapManager_.getMode();
 
+        float trayPad = std::round(u * 0.45f);
+        HOI4::plate(eng.renderer, mmX - trayPad, mmY - trayPad,
+                    totalMmW + trayPad * 2, mmBtnH + trayPad * 2);
+
         for (int i = 0; i < 6; i++) {
             float bx = mmX + i * (mmBtnW + mmGap);
             bool isActive = (currentMode == mmModes[i]);
             bool isHov = mx >= bx && mx <= bx + mmBtnW && my >= mmY && my <= mmY + mmBtnH;
-            float by = mmY + UIAnim::springOffset("mm:" + std::to_string(i), isHov);
 
-
-            Color idleBg = {16, 18, 22, 200};
-            Color bg = isActive ? Color{35, 45, 55} : (isHov ? UIAnim::brighten(Color{28, 32, 40}, 1.1f) : idleBg);
-            UIPrim::drawRoundedRect(eng.renderer, bg, bx, by, mmBtnW, mmBtnH, 4,
-                                    isActive ? Theme::gold_dim : Color{Theme::border.r, Theme::border.g, Theme::border.b, 80});
-
+            HOI4::button(eng.renderer, bx, mmY, mmBtnW, mmBtnH, isHov, false, true);
             if (isActive) {
-                UIPrim::drawHLine(eng.renderer, Theme::gold, bx + 4, bx + mmBtnW - 4, by + 1, 2);
+                SDL_SetRenderDrawBlendMode(eng.renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(eng.renderer, Theme::gold.r, Theme::gold.g, Theme::gold.b, 230);
+                SDL_Rect activeRim = {(int)bx, (int)mmY, (int)mmBtnW, (int)mmBtnH};
+                SDL_RenderDrawRect(eng.renderer, &activeRim);
             }
 
             int mmFs = std::max(11, (int)(mmBtnH * 0.36f));
             Color tc = isActive ? Theme::gold_bright : (isHov ? Theme::cream : Theme::grey);
             std::string label = std::string("") + (char)('1' + i) + " " + mmNames[i];
             UIPrim::drawText(eng.renderer, UIPrim::fitText(label, mmFs, mmBtnW - 8.0f), mmFs,
-                             bx + mmBtnW / 2, by + mmBtnH / 2, "center", tc, isActive);
+                             bx + mmBtnW / 2, mmY + mmBtnH / 2, "center", tc, isActive);
         }
     }
 
@@ -1781,13 +1907,39 @@ void GameScreen::renderUI(App& app) {
             float frontY = topH + std::round(u * 1.0f);
 
             for (auto& fn : frontNames) {
-                UIPrim::drawRoundedRect(eng.renderer, {35, 18, 18, 200}, frontX, frontY, frontW, frontH, 4, Theme::red);
+                UIPrim::drawGradientV(eng.renderer, frontX, frontY, frontW, frontH,
+                                      {58, 26, 24, 230}, {36, 17, 16, 230});
+                SDL_SetRenderDrawBlendMode(eng.renderer, SDL_BLENDMODE_BLEND);
+                SDL_SetRenderDrawColor(eng.renderer, 9, 10, 10, 255);
+                SDL_Rect frontEdge = {(int)frontX, (int)frontY, (int)frontW, (int)frontH};
+                SDL_RenderDrawRect(eng.renderer, &frontEdge);
                 int frontFs = std::max(10, (int)(frontH * 0.38f));
                 UIPrim::drawText(eng.renderer, UIPrim::fitText(fn, frontFs, frontW - 10.0f), frontFs,
                                  frontX + frontW / 2, frontY + frontH / 2, "center", Theme::red_light);
                 frontY += frontH + std::round(u * 0.4f);
                 if (frontY > H * 0.5f) break;
             }
+        }
+    }
+
+    if (!topTipLines.empty()) {
+        int tipFs = std::max(11, (int)(u * 0.9f));
+        float lineH = (float)UIPrim::textHeight(tipFs) + std::round(u * 0.2f);
+        float tipPad = std::round(u * 0.7f);
+        float tipW = 0.0f;
+        for (auto& ln : topTipLines) {
+            tipW = std::max(tipW, (float)UIPrim::textWidth(ln, tipFs));
+        }
+        tipW += tipPad * 2.0f;
+        float tipH = topTipLines.size() * lineH + tipPad * 2.0f;
+        float tipX = std::clamp(topTipX, 4.0f, (float)W - tipW - 4.0f);
+        float tipY = topH + std::round(u * 0.3f);
+        HOI4::plate(rr, tipX, tipY, tipW, tipH);
+        float ly = tipY + tipPad;
+        for (size_t li = 0; li < topTipLines.size(); li++) {
+            UIPrim::drawText(rr, topTipLines[li], tipFs, tipX + tipPad, ly, "topleft",
+                             li == 0 ? Theme::gold : Theme::cream);
+            ly += lineH;
         }
     }
 }
@@ -1811,7 +1963,7 @@ float GameScreen::renderTopBarRight(App& app, float pad, float slotH, float slot
     float tensionW = std::max(std::round(u * 5.0f),
                               (float)UIPrim::textWidth(tensionStr, fsVal) + std::round(u * 1.2f));
     float tensionX = rightEdge - tensionW;
-    UIPrim::drawBeveledRect(rr, Theme::slot, tensionX, pad, tensionW, slotH);
+    HOI4::cell(rr, tensionX, pad, tensionW, slotH);
     UIPrim::drawText(rr, tensionStr, fsVal, tensionX + tensionW / 2, topH * 0.5f, "center", tensionColor, true);
 
     float speedBtnSz = std::round(slotH * 0.9f);
@@ -1821,7 +1973,7 @@ float GameScreen::renderTopBarRight(App& app, float pad, float slotH, float slot
 
     float minusBtnX = speedGroupX;
     bool minusHov = mx >= minusBtnX && mx <= minusBtnX + speedBtnSz && my >= pad && my <= pad + slotH;
-    UIPrim::drawBeveledRect(rr, minusHov ? Theme::btn_hover : Theme::slot, minusBtnX, pad, speedBtnSz, slotH);
+    HOI4::button(rr, minusBtnX, pad, speedBtnSz, slotH, minusHov, false, true);
     SDL_Texture* minusIcon = assets.icon("ArrowLeft");
     if (minusIcon) {
         float iSz = speedBtnSz * 0.5f;
@@ -1832,11 +1984,11 @@ float GameScreen::renderTopBarRight(App& app, float pad, float slotH, float slot
     }
 
     float speedX = minusBtnX + speedBtnSz + slotGap;
-    UIPrim::drawBeveledRect(rr, Theme::slot, speedX, pad, speedSlotW, slotH);
+    HOI4::inset(rr, speedX, pad, speedSlotW, slotH);
     float pipW = std::round(u * 0.5f), pipGap = std::round(u * 0.2f);
     float pipsStartX = speedX + (speedSlotW - 5 * (pipW + pipGap)) / 2;
     for (int i = 0; i < 5; i++) {
-        Color pc = i < gs.speed ? Theme::gold : Color{30, 32, 38};
+        Color pc = i < gs.speed ? Theme::gold : Color{26, 29, 27};
         UIPrim::drawRoundedRect(rr, pc, pipsStartX + i * (pipW + pipGap), pad + slotH * 0.25f, pipW, slotH * 0.5f, 2);
     }
     if (gs.speed == 0) {
@@ -1854,7 +2006,7 @@ float GameScreen::renderTopBarRight(App& app, float pad, float slotH, float slot
 
     float plusBtnX = speedX + speedSlotW + slotGap;
     bool plusHov = mx >= plusBtnX && mx <= plusBtnX + speedBtnSz && my >= pad && my <= pad + slotH;
-    UIPrim::drawBeveledRect(rr, plusHov ? Theme::btn_hover : Theme::slot, plusBtnX, pad, speedBtnSz, slotH);
+    HOI4::button(rr, plusBtnX, pad, speedBtnSz, slotH, plusHov, false, true);
     SDL_Texture* plusIcon = assets.icon("ArrowRight");
     if (plusIcon) {
         float iSz = speedBtnSz * 0.5f;
@@ -1872,10 +2024,12 @@ float GameScreen::renderTopBarRight(App& app, float pad, float slotH, float slot
     std::string dateStr = std::to_string(gs.time.day) + " " +
         Helpers::getMonthName(gs.time.month) + ", " + std::to_string(gs.time.year) +
         "  " + hourBuf;
-    float dateW = (float)UIPrim::textWidth(dateStr, fsVal) + std::round(u * 1.6f);
+    int dateCut = (int)((topH - 2) * 0.55f);
+    float dateW = (float)UIPrim::textWidth(dateStr, fsVal) + std::round(u * 1.6f) + dateCut;
     float dateX = speedGroupX - dateW - slotGap;
-    UIPrim::drawBeveledRect(rr, Theme::slot, dateX, pad, dateW, slotH);
-    UIPrim::drawText(rr, dateStr, fsVal, dateX + dateW / 2, topH * 0.5f, "center", Theme::cream, true);
+    HOI4::diagPlate(rr, dateX, 0, dateW, topH - 2, dateCut, true);
+    UIPrim::drawText(rr, dateStr, fsVal, dateX + dateCut * 0.5f + dateW * 0.5f, (topH - 2) * 0.5f,
+                     "center", Theme::cream, true);
 
     return dateX;
 }
@@ -1900,6 +2054,7 @@ void GameScreen::setupGame(App& app, const std::string& scenario, int eventFrequ
     printf("[GameScreen] setupGame: scenario=%s\n", scenarioName.c_str()); fflush(stdout);
 
     resetSessionState();
+    notifyLog().clear();
 
 
     std::string savedControlled = gs.controlledCountry;
@@ -1926,6 +2081,8 @@ void GameScreen::setupGame(App& app, const std::string& scenario, int eventFrequ
     gs.industryMapSurf = mapManager_.getIndustryMap();
     gs.cultureMapSurf = mapManager_.getCultureMap();
     gs.regionsMapSurf = mapManager_.getRegionsMap();
+    gs.terrainMapSurf = mapManager_.getTerrainMap();
+    mapRenderer_.setStyleContext(mapManager_.getRegionsMap());
     gs.bakeBiomeDefense(mapManager_.getBiomeMap());
     camera_.x = 0;
     camera_.y = 0;

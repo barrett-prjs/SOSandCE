@@ -19,6 +19,7 @@ private:
         bool exists;
     };
     std::vector<SaveEntry> saves_;
+    int manualCount_ = 0;
     int hoveredIndex_ = -1;
     std::string newSaveName_;
     bool enteringName_ = false;

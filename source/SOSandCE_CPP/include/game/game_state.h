@@ -67,6 +67,7 @@ public:
     SDL_Surface* industryMapSurf = nullptr;
     SDL_Surface* cultureMapSurf = nullptr;
     SDL_Surface* regionsMapSurf = nullptr;
+    SDL_Surface* terrainMapSurf = nullptr;
     bool mapDirty = false;
 
     // Per-region defensive terrain modifier (baked once from the biome map at

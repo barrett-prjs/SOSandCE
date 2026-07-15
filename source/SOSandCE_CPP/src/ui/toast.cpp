@@ -42,11 +42,12 @@ void ToastSystem::render(SDL_Renderer* r, int screenW, int screenH, float uiSize
 
 
         SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-        UIPrim::drawRoundedRect(r, {Theme::surface1.r, Theme::surface1.g, Theme::surface1.b,
-                                    static_cast<uint8_t>(240 * alpha)},
-                                px, yPos, pw, ph, 5,
-                                {Theme::border.r, Theme::border.g, Theme::border.b,
-                                 static_cast<uint8_t>(140 * alpha)});
+        UIPrim::drawGradientV(r, px, yPos, pw, ph,
+                              {50, 54, 50, static_cast<uint8_t>(240 * alpha)},
+                              {32, 35, 33, static_cast<uint8_t>(240 * alpha)});
+        SDL_SetRenderDrawColor(r, 9, 10, 10, static_cast<uint8_t>(255 * alpha));
+        SDL_Rect toastEdge = {(int)px, (int)yPos, (int)pw, (int)ph};
+        SDL_RenderDrawRect(r, &toastEdge);
 
 
         SDL_SetRenderDrawColor(r, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b,

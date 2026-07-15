@@ -36,6 +36,7 @@ public:
 
     SDL_Texture* sprite = nullptr;
     float xBlit = 0, yBlit = 0;
+    float dispX = -1.0f, dispY = -1.0f;
     int   spriteW = 0, spriteH = 0;
     int   borderPx = 1;
     int   flagAreaW = 0;

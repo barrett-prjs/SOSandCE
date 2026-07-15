@@ -1,11 +1,13 @@
-#include "map/map_renderer.h"
+﻿#include "map/map_renderer.h"
 #include "core/engine.h"
 #include "data/region_data.h"
 #include "ui/primitives.h"
+#include "ui/ui_assets.h"
 #include "game/game_state.h"
 #include "game/country.h"
 #include "game/division.h"
 #include "game/battle.h"
+#include "game/puppet.h"
 #include "game/fog_of_war.h"
 #include "map/map_functions.h"
 #include <unordered_set>
@@ -56,6 +58,19 @@ void drawThickLine(SDL_Renderer* r, float x1, float y1, float x2, float y2, floa
 
 bool rectVisible(float x, float y, float w, float h, int screenW, int screenH) {
     return !(x + w < 0.0f || x > (float)screenW || y + h < 0.0f || y > (float)screenH);
+}
+
+SDL_Texture* createStaticRGBA(SDL_Renderer* r, SDL_Surface* s) {
+    if (!s || s->format->format != SDL_PIXELFORMAT_RGBA32) return nullptr;
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+    SDL_Texture* t = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA32,
+                                       SDL_TEXTUREACCESS_STATIC, s->w, s->h);
+    if (!t) return nullptr;
+    if (SDL_UpdateTexture(t, nullptr, s->pixels, s->pitch) != 0) {
+        SDL_DestroyTexture(t);
+        return nullptr;
+    }
+    return t;
 }
 
 template <typename Fn>
@@ -122,96 +137,255 @@ float Camera::normalizeX(float wx) const {
 MapRenderer::MapRenderer() = default;
 
 MapRenderer::~MapRenderer() {
+    if (styleJob_.valid()) {
+        SDL_Surface* leftover = styleJob_.get();
+        if (leftover) SDL_FreeSurface(leftover);
+    }
+    if (styleSnapshot_) SDL_FreeSurface(styleSnapshot_);
+    if (pendingDisplay_) SDL_FreeSurface(pendingDisplay_);
     if (mapTexture_) SDL_DestroyTexture(mapTexture_);
+    if (terrainTexture_) SDL_DestroyTexture(terrainTexture_);
+    if (nightTex_) SDL_DestroyTexture(nightTex_);
+    if (selOverlayTex_) SDL_DestroyTexture(selOverlayTex_);
+    if (hlTex_) SDL_DestroyTexture(hlTex_);
+    if (pupTex_) SDL_DestroyTexture(pupTex_);
 }
 
 
 void MapRenderer::renderWrapped(SDL_Renderer* r, SDL_Surface* mapSurface,
-                                 const Camera& cam, int screenW, int screenH) {
+                                 const Camera& cam, int screenW, int screenH,
+                                 SDL_Surface* terrainSurface) {
     if (!mapSurface) return;
 
     int mw = mapSurface->w;
     int mh = mapSurface->h;
 
 
-    if (!mapTexture_ || lastSurface_ != mapSurface || lastTextureW_ != mw || lastTextureH_ != mh) {
-        if (mapTexture_) SDL_DestroyTexture(mapTexture_);
+    if (terrainSurface && (!terrainTexture_ || lastTerrainSurface_ != terrainSurface)) {
+        if (terrainTexture_) SDL_DestroyTexture(terrainTexture_);
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        terrainTexture_ = SDL_CreateTextureFromSurface(r, terrainSurface);
+        lastTerrainSurface_ = terrainSurface;
+    }
 
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-        mapTexture_ = SDL_CreateTextureFromSurface(r, mapSurface);
+
+    auto buildDisplayTexture = [&](SDL_Surface* source) -> SDL_Texture* {
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        SDL_Texture* tex = nullptr;
+        if (terrainSurface) {
+            SDL_Surface* display = MapFunc::stylizeForDisplay(source, styleMask_, 4);
+            if (display) {
+                tex = createStaticRGBA(r, display);
+                SDL_FreeSurface(display);
+                if (!tex) {
+                    display = MapFunc::stylizeForDisplay(source, styleMask_, 1);
+                    if (display) {
+                        tex = createStaticRGBA(r, display);
+                        SDL_FreeSurface(display);
+                    }
+                }
+            }
+        }
+        if (!tex) {
+            SDL_Surface* conv = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_RGBA32, 0);
+            if (conv) {
+                tex = createStaticRGBA(r, conv);
+                SDL_FreeSurface(conv);
+            }
+            if (!tex) tex = SDL_CreateTextureFromSurface(r, source);
+        }
+        if (tex) SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+        return tex;
+    };
+
+    bool structural = !mapTexture_ || lastSurface_ != mapSurface ||
+                      lastTextureW_ != mw || lastTextureH_ != mh;
+    if (structural) {
+        if (styleJob_.valid()) {
+            SDL_Surface* stale = styleJob_.get();
+            if (stale) SDL_FreeSurface(stale);
+        }
+        if (styleSnapshot_) { SDL_FreeSurface(styleSnapshot_); styleSnapshot_ = nullptr; }
+        if (pendingDisplay_) { SDL_FreeSurface(pendingDisplay_); pendingDisplay_ = nullptr; }
+
+        if (mapTexture_) SDL_DestroyTexture(mapTexture_);
+        mapTexture_ = buildDisplayTexture(mapSurface);
+        mapTextureDirty_ = false;
+        lastStyleBuildTicks_ = SDL_GetTicks();
         lastTextureW_ = mw;
         lastTextureH_ = mh;
         lastSurface_ = mapSurface;
+    } else if (mapTextureDirty_ && !styleJob_.valid() && !pendingDisplay_ && terrainSurface &&
+               SDL_GetTicks() - lastStyleBuildTicks_ >= 250) {
+        styleSnapshot_ = SDL_ConvertSurfaceFormat(mapSurface, SDL_PIXELFORMAT_RGBA32, 0);
+        if (styleSnapshot_) {
+            SDL_Surface* snap = styleSnapshot_;
+            SDL_Surface* maskCopy = styleMask_
+                ? SDL_ConvertSurfaceFormat(styleMask_, SDL_PIXELFORMAT_RGBA32, 0)
+                : nullptr;
+            styleJob_ = std::async(std::launch::async, [snap, maskCopy]() {
+                SDL_Surface* out = MapFunc::stylizeForDisplay(snap, maskCopy, 4);
+                if (maskCopy) SDL_FreeSurface(maskCopy);
+                return out;
+            });
+            mapTextureDirty_ = false;
+            lastStyleBuildTicks_ = SDL_GetTicks();
+        } else {
+            mapTextureDirty_ = false;
+        }
+    } else if (mapTextureDirty_ && !terrainSurface) {
+        if (mapTexture_) SDL_DestroyTexture(mapTexture_);
+        mapTexture_ = buildDisplayTexture(mapSurface);
+        mapTextureDirty_ = false;
+    }
+
+    if (styleJob_.valid() &&
+        styleJob_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+        SDL_Surface* display = styleJob_.get();
+        if (styleSnapshot_) { SDL_FreeSurface(styleSnapshot_); styleSnapshot_ = nullptr; }
+        if (display) {
+            int tw = 0, th = 0;
+            if (mapTexture_) SDL_QueryTexture(mapTexture_, nullptr, nullptr, &tw, &th);
+            if (mapTexture_ && tw == display->w && th == display->h) {
+                pendingDisplay_ = display;
+                pendingRow_ = 0;
+            } else {
+                SDL_Texture* tex = createStaticRGBA(r, display);
+                SDL_FreeSurface(display);
+                if (tex) {
+                    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+                    if (mapTexture_) SDL_DestroyTexture(mapTexture_);
+                    mapTexture_ = tex;
+                }
+            }
+        }
+    }
+
+    if (pendingDisplay_ && mapTexture_) {
+        int bandH = std::min(128, pendingDisplay_->h - pendingRow_);
+        SDL_Rect band = {0, pendingRow_, pendingDisplay_->w, bandH};
+        const uint8_t* src = static_cast<const uint8_t*>(pendingDisplay_->pixels) +
+                             static_cast<size_t>(pendingRow_) * pendingDisplay_->pitch;
+        SDL_UpdateTexture(mapTexture_, &band, src, pendingDisplay_->pitch);
+        pendingRow_ += bandH;
+        if (pendingRow_ >= pendingDisplay_->h) {
+            SDL_FreeSurface(pendingDisplay_);
+            pendingDisplay_ = nullptr;
+            pendingRow_ = 0;
+        }
     }
 
 
     if (!mapTexture_) return;
 
 
-    float visW = screenW / cam.zoom;
-    float visH = screenH / cam.zoom;
-    float visX = -cam.x - visW * 0.5f;
-    float visY = -cam.y - visH * 0.5f;
+    int x0 = static_cast<int>(std::lround(cam.worldToScreenX(0, screenW)));
+    int y0 = static_cast<int>(std::lround(cam.worldToScreenY(0, screenH)));
+    int drawW = std::max(1, static_cast<int>(std::lround(mw * cam.zoom)));
+    int drawH = std::max(1, static_cast<int>(std::lround(mh * cam.zoom)));
+    SDL_Rect dsts[3] = {
+        {x0, y0, drawW, drawH},
+        {x0 + drawW, y0, drawW, drawH},
+        {x0 - drawW, y0, drawW, drawH}
+    };
 
 
-    {
-        float mapScreenX = cam.worldToScreenX(0, screenW);
-        float mapScreenY = cam.worldToScreenY(0, screenH);
-        float mapScreenW = mw * cam.zoom;
-        float mapScreenH = mh * cam.zoom;
+    if (terrainTexture_) {
+        float t = std::clamp((cam.zoom - 1.5f) / 4.5f, 0.0f, 1.0f);
+        SDL_SetTextureAlphaMod(mapTexture_, static_cast<Uint8>(245 - t * 85));
+        for (auto& dst : dsts) {
+            if (dst.x + dst.w < 0 || dst.x > screenW) continue;
+            SDL_RenderCopy(r, terrainTexture_, nullptr, &dst);
+        }
+    } else {
+        SDL_SetTextureAlphaMod(mapTexture_, 255);
+    }
 
-        SDL_Rect dst;
-        dst.x = static_cast<int>(mapScreenX);
-        dst.y = static_cast<int>(mapScreenY);
-        dst.w = static_cast<int>(mapScreenW);
-        dst.h = static_cast<int>(mapScreenH);
-
+    for (auto& dst : dsts) {
+        if (dst.x + dst.w < 0 || dst.x > screenW) continue;
         SDL_RenderCopy(r, mapTexture_, nullptr, &dst);
     }
 
-
-    {
-        float mapScreenX = cam.worldToScreenX(static_cast<float>(mw), screenW);
-        float mapScreenY = cam.worldToScreenY(0, screenH);
-        float mapScreenW = mw * cam.zoom;
-        float mapScreenH = mh * cam.zoom;
-
-        SDL_Rect dst;
-        dst.x = static_cast<int>(mapScreenX);
-        dst.y = static_cast<int>(mapScreenY);
-        dst.w = static_cast<int>(mapScreenW);
-        dst.h = static_cast<int>(mapScreenH);
-
-        SDL_RenderCopy(r, mapTexture_, nullptr, &dst);
+    if (clockHours_ >= 0.0f && terrainTexture_) {
+        const int NW = 256, NH = 128;
+        if (!nightTex_) {
+            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+            nightTex_ = SDL_CreateTexture(r, SDL_PIXELFORMAT_RGBA32,
+                                          SDL_TEXTUREACCESS_STREAMING, NW, NH);
+            if (nightTex_) SDL_SetTextureBlendMode(nightTex_, SDL_BLENDMODE_BLEND);
+        }
+        uint32_t nowTicks = SDL_GetTicks();
+        if (nightTex_ &&
+            (std::fabs(clockHours_ - nightTexHours_) > 0.02f ||
+             std::fabs(clockAnchorX_ - nightTexAnchor_) > 1.0f) &&
+            (nightTexHours_ < -100.0f || nowTicks - nightTexBuiltTicks_ >= 50)) {
+            nightTexHours_ = clockHours_;
+            nightTexAnchor_ = clockAnchorX_;
+            nightTexBuiltTicks_ = nowTicks;
+            static std::vector<uint8_t> nightPx;
+            nightPx.resize(NW * NH * 4);
+            const float pi = 3.14159265f;
+            float sunX = clockAnchorX_ + (12.0f - clockHours_) / 24.0f * mw;
+            float decl = -23.44f * (pi / 180.0f) *
+                         std::cos(2.0f * pi * (clockDayOfYear_ + 10) / 365.24f);
+            float sinD = std::sin(decl), cosD = std::cos(decl);
+            float rowA[NH], rowB[NH], colC[NW];
+            for (int ty = 0; ty < NH; ty++) {
+                float lat = (0.5f - (ty + 0.5f) / NH) * pi;
+                rowA[ty] = std::sin(lat) * sinD;
+                rowB[ty] = std::cos(lat) * cosD;
+            }
+            for (int tx = 0; tx < NW; tx++) {
+                float worldX = (tx + 0.5f) / NW * mw;
+                colC[tx] = std::cos(2.0f * pi * (worldX - sunX) / mw);
+            }
+            for (int ty = 0; ty < NH; ty++) {
+                for (int tx = 0; tx < NW; tx++) {
+                    float sinAlt = rowA[ty] + rowB[ty] * colC[tx];
+                    float nightT = std::clamp((0.03f - sinAlt) / 0.24f, 0.0f, 1.0f);
+                    int i = (ty * NW + tx) * 4;
+                    nightPx[i] = 7;
+                    nightPx[i + 1] = 11;
+                    nightPx[i + 2] = 27;
+                    nightPx[i + 3] = static_cast<uint8_t>(nightT * 118.0f);
+                }
+            }
+            SDL_UpdateTexture(nightTex_, nullptr, nightPx.data(), NW * 4);
+        }
+        if (nightTex_) {
+            for (auto& dst : dsts) {
+                if (dst.x + dst.w < 0 || dst.x > screenW) continue;
+                SDL_RenderCopy(r, nightTex_, nullptr, &dst);
+            }
+        }
     }
+}
 
-
-    {
-        float mapScreenX = cam.worldToScreenX(static_cast<float>(-mw), screenW);
-        float mapScreenY = cam.worldToScreenY(0, screenH);
-        float mapScreenW = mw * cam.zoom;
-        float mapScreenH = mh * cam.zoom;
-
-        SDL_Rect dst;
-        dst.x = static_cast<int>(mapScreenX);
-        dst.y = static_cast<int>(mapScreenY);
-        dst.w = static_cast<int>(mapScreenW);
-        dst.h = static_cast<int>(mapScreenH);
-
-        SDL_RenderCopy(r, mapTexture_, nullptr, &dst);
-    }
+void MapRenderer::setClock(float hours, float anchorWorldX, int month, int day) {
+    clockHours_ = hours;
+    clockAnchorX_ = anchorWorldX;
+    static const int cumDays[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+    int m = std::clamp(month - 1, 0, 11);
+    clockDayOfYear_ = cumDays[m] + std::clamp(day, 1, 31);
 }
 
 
 void MapRenderer::renderMap(SDL_Renderer* r, SDL_Surface* mapSurface,
-                             const Camera& cam, int screenW, int screenH) {
-    renderWrapped(r, mapSurface, cam, screenW, screenH);
+                             const Camera& cam, int screenW, int screenH,
+                             SDL_Surface* terrainSurface) {
+    renderWrapped(r, mapSurface, cam, screenW, screenH, terrainSurface);
 }
 
 
 void MapRenderer::renderDivisions(SDL_Renderer* r, GameState& gs,
                                    const Camera& cam, int screenW, int screenH,
                                    const std::vector<Division*>* highlightedDivisions) {
+    static Uint32 lastSmoothTicks = 0;
+    Uint32 nowTicks = SDL_GetTicks();
+    float smoothDt = lastSmoothTicks ? std::min(0.1f, (nowTicks - lastSmoothTicks) / 1000.0f) : 0.016f;
+    lastSmoothTicks = nowTicks;
+    float smoothK = std::min(1.0f, smoothDt * 7.0f);
+    const float mapWf = cam.mapWidth;
 
     std::unordered_map<int, int> divsPerRegion;
     std::unordered_map<int, int> regionDrawCount;
@@ -252,12 +426,33 @@ void MapRenderer::renderDivisions(SDL_Renderer* r, GameState& gs,
         for (auto& div : country->divisions) {
             if (!div) continue;
 
+            if (div->dispX < 0.0f) {
+                div->dispX = div->xBlit;
+                div->dispY = div->yBlit;
+            } else {
+                float ddx = div->xBlit - div->dispX;
+                if (mapWf > 0.0f && std::fabs(ddx) > mapWf * 0.5f) {
+                    ddx += (ddx > 0.0f) ? -mapWf : mapWf;
+                }
+                float ddy = div->yBlit - div->dispY;
+                if (std::fabs(ddx) > 90.0f || std::fabs(ddy) > 90.0f) {
+                    div->dispX = div->xBlit;
+                    div->dispY = div->yBlit;
+                } else {
+                    div->dispX += ddx * smoothK;
+                    div->dispY += ddy * smoothK;
+                    if (mapWf > 0.0f) {
+                        while (div->dispX < 0.0f) div->dispX += mapWf;
+                        while (div->dispX >= mapWf) div->dispX -= mapWf;
+                    }
+                }
+            }
 
             int totalInRegion = divsPerRegion[div->region];
             int myIndex = regionDrawCount[div->region]++;
             float stackOffset = div->spriteH * myIndex - div->spriteH * totalInRegion / 2.0f;
 
-            float sy = cam.worldToScreenY(div->yBlit, screenH) + stackOffset;
+            float sy = cam.worldToScreenY(div->dispY, screenH) + stackOffset;
 
             int w = div->spriteW;
             int h = div->spriteH;
@@ -366,9 +561,10 @@ void MapRenderer::renderDivisions(SDL_Renderer* r, GameState& gs,
                 }
             };
 
-            forEachWrappedScreenX(cam, div->xBlit, screenW, drawDiv);
+            forEachWrappedScreenX(cam, div->dispX, screenW, drawDiv);
         }
     }
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 }
 
 
@@ -453,45 +649,84 @@ void MapRenderer::renderCities(SDL_Renderer* r, GameState& gs,
     const auto& cities = regData.getCities();
 
 
-    std::unordered_set<std::string> capitalCities;
+    std::unordered_map<std::string, std::string> capitalOf;
     for (auto& [name, country] : gs.countries) {
-        if (!country->capital.empty()) {
-            capitalCities.insert(country->capital);
+        if (country && !country->capital.empty()) {
+            capitalOf[country->capital] = name;
         }
+    }
+
+    Country* pc = gs.controlledCountry.empty() ? nullptr : gs.getCountry(gs.controlledCountry);
+    const Color cOwn   = {82, 128, 78, 255};
+    const Color cOther = {150, 148, 140, 255};
+    const Color cEnemy = {196, 68, 55, 255};
+    auto relationColor = [&](const std::string& owner) -> Color {
+        if (!pc || owner.empty() || owner == "Error") return cOther;
+        if (owner == pc->name) return cOwn;
+        if (std::find(pc->atWarWith.begin(), pc->atWarWith.end(), owner) != pc->atWarWith.end())
+            return cEnemy;
+        return cOther;
+    };
+
+    auto fillCircleAt = [&](float cx, float cy, float rad, Color c) {
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(r, c.r, c.g, c.b, c.a);
+        int ir = static_cast<int>(std::ceil(rad));
+        for (int dy = -ir; dy <= ir; dy++) {
+            float span = rad * rad - static_cast<float>(dy) * dy;
+            if (span < 0.0f) continue;
+            int dx = static_cast<int>(std::sqrt(span));
+            SDL_RenderDrawLine(r, static_cast<int>(cx) - dx, static_cast<int>(cy) + dy,
+                               static_cast<int>(cx) + dx, static_cast<int>(cy) + dy);
+        }
+    };
+
+    const float pi = 3.14159265f;
+    float sunX = 0.0f, sinD = 0.0f, cosD = 1.0f;
+    bool nightLights = clockHours_ >= 0.0f && cam.mapWidth > 0.0f && cam.mapHeight > 0.0f;
+    if (nightLights) {
+        sunX = clockAnchorX_ + (12.0f - clockHours_) / 24.0f * cam.mapWidth;
+        float decl = -23.44f * (pi / 180.0f) *
+                     std::cos(2.0f * pi * (clockDayOfYear_ + 10) / 365.24f);
+        sinD = std::sin(decl);
+        cosD = std::cos(decl);
     }
 
     for (auto& [cityName, info] : cities) {
         Vec2 loc = regData.getLocation(info.region);
         float sy = cam.worldToScreenY(loc.y, screenH);
 
-        bool isCapital = capitalCities.count(cityName) > 0;
+        auto capIt = capitalOf.find(cityName);
+        bool isCapital = capIt != capitalOf.end();
+        Color statusC = relationColor(isCapital ? capIt->second : regData.getOwner(info.region));
+
+        float lightT = 0.0f;
+        if (nightLights) {
+            float lat = (0.5f - loc.y / cam.mapHeight) * pi;
+            float hourAngle = 2.0f * pi * (loc.x - sunX) / cam.mapWidth;
+            float sinAlt = std::sin(lat) * sinD + std::cos(lat) * cosD * std::cos(hourAngle);
+            lightT = std::clamp(-sinAlt / 0.12f, 0.0f, 1.0f);
+        }
+
         forEachWrappedScreenX(cam, loc.x, screenW, [&](float sx) {
             if (sx < -50.0f || sx > screenW + 50.0f || sy < -50.0f || sy > screenH + 50.0f) return;
 
+            if (lightT > 0.0f) {
+                float glowR = std::clamp(2.6f * cam.zoom, 2.2f, 9.0f);
+                fillCircleAt(sx, sy, glowR, {255, 208, 128, static_cast<uint8_t>(46.0f * lightT)});
+                fillCircleAt(sx, sy, glowR * 0.45f, {255, 222, 160, static_cast<uint8_t>(120.0f * lightT)});
+            }
+
             if (isCapital) {
-                float starOuter = std::max(4.0f, std::min(12.0f, 6.0f * cam.zoom));
+                float starOuter = std::clamp(3.6f * cam.zoom, 2.4f, 14.0f);
                 float starInner = starOuter * 0.4f;
-                drawStar(r, sx, sy, starOuter + 1.5f, starInner + 0.8f, 20, 20, 20, 255);
-                drawStar(r, sx, sy, starOuter, starInner, 230, 210, 140, 255);
+                drawStar(r, sx, sy, starOuter + 1.2f, starInner + 0.6f, 14, 15, 14, 255);
+                drawStar(r, sx, sy, starOuter, starInner, statusC.r, statusC.g, statusC.b, 255);
             } else {
-                int dotSize = std::max(2, static_cast<int>(3 * cam.zoom));
-                if (dotSize > 8) dotSize = 8;
-
-                SDL_SetRenderDrawColor(r, 20, 20, 20, 255);
-                SDL_Rect dot = {
-                    static_cast<int>(sx - dotSize / 2) - 1,
-                    static_cast<int>(sy - dotSize / 2) - 1,
-                    dotSize + 2, dotSize + 2
-                };
-                SDL_RenderFillRect(r, &dot);
-
-                SDL_SetRenderDrawColor(r, 210, 200, 172, 255);
-                dot = {
-                    static_cast<int>(sx - dotSize / 2),
-                    static_cast<int>(sy - dotSize / 2),
-                    dotSize, dotSize
-                };
-                SDL_RenderFillRect(r, &dot);
+                float rad = std::clamp(1.9f * cam.zoom, 1.4f, 8.0f);
+                fillCircleAt(sx, sy, rad + 1.0f, {14, 15, 14, 255});
+                fillCircleAt(sx, sy, rad, statusC);
+                fillCircleAt(sx, sy, rad * 0.45f, {14, 15, 14, 235});
             }
         });
     }
@@ -499,22 +734,34 @@ void MapRenderer::renderCities(SDL_Renderer* r, GameState& gs,
     if (onlyCities) return;
 
 
+    SDL_Texture* anchorTex = UIAssets::instance().icon("Anchor");
     for (int portRegion : gs.ports) {
         Vec2 loc = regData.getLocation(portRegion);
         float sy = cam.worldToScreenY(loc.y, screenH);
         forEachWrappedScreenX(cam, loc.x, screenW, [&](float sx) {
             if (sx < -50.0f || sx > screenW + 50.0f || sy < -50.0f || sy > screenH + 50.0f) return;
 
-            int size = std::max(3, static_cast<int>(4 * cam.zoom));
-            if (size > 10) size = 10;
-
-            SDL_SetRenderDrawColor(r, 40, 100, 180, 220);
-            SDL_Rect anchor = {
+            int size = std::clamp(static_cast<int>(4.5f * cam.zoom), 5, 24);
+            SDL_Rect dst = {
                 static_cast<int>(sx - size / 2),
                 static_cast<int>(sy - size / 2 + size),
                 size, size
             };
-            SDL_RenderFillRect(r, &anchor);
+
+            if (anchorTex) {
+                SDL_SetTextureColorMod(anchorTex, 8, 10, 12);
+                SDL_SetTextureAlphaMod(anchorTex, 190);
+                SDL_Rect sh = {dst.x + 1, dst.y + 1, dst.w, dst.h};
+                SDL_RenderCopy(r, anchorTex, nullptr, &sh);
+                SDL_SetTextureColorMod(anchorTex, 92, 170, 255);
+                SDL_SetTextureAlphaMod(anchorTex, 245);
+                SDL_RenderCopy(r, anchorTex, nullptr, &dst);
+                SDL_SetTextureColorMod(anchorTex, 255, 255, 255);
+                SDL_SetTextureAlphaMod(anchorTex, 255);
+            } else {
+                SDL_SetRenderDrawColor(r, 40, 100, 180, 220);
+                SDL_RenderFillRect(r, &dst);
+            }
         });
     }
 
@@ -547,35 +794,46 @@ void MapRenderer::renderCommands(SDL_Renderer* r, GameState& gs,
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 
     if (!selectedRegions.empty() && gs.regionsMapSurf) {
-        SDL_Surface* overlay = SDL_CreateRGBSurfaceWithFormat(0, gs.regionsMapSurf->w, gs.regionsMapSurf->h, 32, SDL_PIXELFORMAT_RGBA32);
-        if (overlay) {
-            SDL_FillRect(overlay, nullptr, SDL_MapRGBA(overlay->format, 0, 0, 0, 0));
+        if (!selOverlayTex_ || selOverlayKey_ != selectedRegions ||
+            selOverlayMask_ != gs.regionsMapSurf) {
+            SDL_Surface* overlay = SDL_CreateRGBSurfaceWithFormat(0, gs.regionsMapSurf->w, gs.regionsMapSurf->h, 32, SDL_PIXELFORMAT_RGBA32);
+            if (overlay) {
+                SDL_FillRect(overlay, nullptr, SDL_MapRGBA(overlay->format, 0, 0, 0, 0));
 
-            auto& rd = RegionData::instance();
-            for (int regId : selectedRegions) {
-                if (regId <= 0) continue;
-                Vec2 loc = rd.getLocation(regId);
-                MapFunc::fillRegionMask(overlay, gs.regionsMapSurf, regId, loc.x, loc.y, {175, 40, 40, 110});
+                auto& rd = RegionData::instance();
+                for (int regId : selectedRegions) {
+                    if (regId <= 0) continue;
+                    Vec2 loc = rd.getLocation(regId);
+                    MapFunc::fillRegionMask(overlay, gs.regionsMapSurf, regId, loc.x, loc.y, {175, 40, 40, 110});
+                }
+                MapFunc::expandFillToLines(overlay, gs.regionsMapSurf);
+
+                SDL_Texture* overlayTex = SDL_CreateTextureFromSurface(r, overlay);
+                SDL_FreeSurface(overlay);
+                if (overlayTex) {
+                    SDL_SetTextureBlendMode(overlayTex, SDL_BLENDMODE_BLEND);
+                    if (selOverlayTex_) SDL_DestroyTexture(selOverlayTex_);
+                    selOverlayTex_ = overlayTex;
+                    selOverlayKey_ = selectedRegions;
+                    selOverlayMask_ = gs.regionsMapSurf;
+                }
             }
+        }
 
-            SDL_Texture* overlayTex = SDL_CreateTextureFromSurface(r, overlay);
-            if (overlayTex) {
-                SDL_SetTextureBlendMode(overlayTex, SDL_BLENDMODE_BLEND);
-                auto drawOverlayCopy = [&](float offsetX) {
-                    SDL_Rect dst;
-                    dst.x = static_cast<int>(cam.worldToScreenX(offsetX, screenW));
-                    dst.y = static_cast<int>(cam.worldToScreenY(0.0f, screenH));
-                    dst.w = static_cast<int>(overlay->w * cam.zoom);
-                    dst.h = static_cast<int>(overlay->h * cam.zoom);
-                    SDL_RenderCopy(r, overlayTex, nullptr, &dst);
-                };
-                drawOverlayCopy(0.0f);
-                drawOverlayCopy((float)overlay->w);
-                drawOverlayCopy((float)-overlay->w);
-                SDL_DestroyTexture(overlayTex);
-            }
-
-            SDL_FreeSurface(overlay);
+        if (selOverlayTex_) {
+            int mw = gs.regionsMapSurf->w;
+            int mh = gs.regionsMapSurf->h;
+            auto drawOverlayCopy = [&](float offsetX) {
+                SDL_Rect dst;
+                dst.x = static_cast<int>(std::lround(cam.worldToScreenX(offsetX, screenW)));
+                dst.y = static_cast<int>(std::lround(cam.worldToScreenY(0.0f, screenH)));
+                dst.w = static_cast<int>(std::lround(mw * cam.zoom));
+                dst.h = static_cast<int>(std::lround(mh * cam.zoom));
+                SDL_RenderCopy(r, selOverlayTex_, nullptr, &dst);
+            };
+            drawOverlayCopy(0.0f);
+            drawOverlayCopy(static_cast<float>(mw));
+            drawOverlayCopy(static_cast<float>(-mw));
         }
     }
 
@@ -642,6 +900,149 @@ void MapRenderer::renderCommands(SDL_Renderer* r, GameState& gs,
 }
 
 
+namespace {
+
+void drawWrappedOverlay(SDL_Renderer* r, SDL_Texture* tex, const Camera& cam,
+                        int screenW, int screenH, int mw, int mh) {
+    int x0 = static_cast<int>(std::lround(cam.worldToScreenX(0, screenW)));
+    int y0 = static_cast<int>(std::lround(cam.worldToScreenY(0, screenH)));
+    int drawW = std::max(1, static_cast<int>(std::lround(mw * cam.zoom)));
+    int drawH = std::max(1, static_cast<int>(std::lround(mh * cam.zoom)));
+    SDL_Rect dsts[3] = {
+        {x0, y0, drawW, drawH},
+        {x0 + drawW, y0, drawW, drawH},
+        {x0 - drawW, y0, drawW, drawH}
+    };
+    for (auto& dst : dsts) {
+        if (dst.x + dst.w < 0 || dst.x > screenW) continue;
+        SDL_RenderCopy(r, tex, nullptr, &dst);
+    }
+}
+
+}
+
+void MapRenderer::renderCountryHighlight(SDL_Renderer* r, GameState& gs, const Camera& cam,
+                                         int screenW, int screenH, const std::string& countryName) {
+    if (countryName.empty() || !gs.regionsMapSurf) return;
+    Country* c = gs.getCountry(countryName);
+    if (!c || c->regions.empty()) return;
+
+    std::string key = countryName + ":" + std::to_string(c->regions.size());
+    if (!hlTex_ || key != hlKey_ || hlMask_ != gs.regionsMapSurf) {
+        SDL_Surface* overlay = SDL_CreateRGBSurfaceWithFormat(0, gs.regionsMapSurf->w, gs.regionsMapSurf->h,
+                                                              32, SDL_PIXELFORMAT_RGBA32);
+        if (!overlay) return;
+        SDL_FillRect(overlay, nullptr, SDL_MapRGBA(overlay->format, 0, 0, 0, 0));
+
+        auto& rd = RegionData::instance();
+        for (int regId : c->regions) {
+            if (regId <= 0) continue;
+            Vec2 loc = rd.getLocation(regId);
+            MapFunc::fillRegionMask(overlay, gs.regionsMapSurf, regId, loc.x, loc.y, {255, 248, 228, 30});
+        }
+        MapFunc::expandFillToLines(overlay, gs.regionsMapSurf);
+
+        SDL_LockSurface(overlay);
+        int ow = overlay->w, oh = overlay->h;
+        int pitch = overlay->pitch;
+        uint8_t* px = static_cast<uint8_t*>(overlay->pixels);
+        for (int y = 0; y < oh; y++) {
+            for (int x = 0; x < ow; x++) {
+                uint8_t* p = px + y * pitch + x * 4;
+                if (p[3] == 0) continue;
+                bool edge = false;
+                if (x == 0 || px[y * pitch + (x - 1) * 4 + 3] == 0) edge = true;
+                else if (x == ow - 1 || px[y * pitch + (x + 1) * 4 + 3] == 0) edge = true;
+                else if (y == 0 || px[(y - 1) * pitch + x * 4 + 3] == 0) edge = true;
+                else if (y == oh - 1 || px[(y + 1) * pitch + x * 4 + 3] == 0) edge = true;
+                if (edge && p[3] != 0 && p[3] != 215) {
+                    p[0] = 216; p[1] = 195; p[2] = 134; p[3] = 214;
+                }
+            }
+        }
+        SDL_UnlockSurface(overlay);
+
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(r, overlay);
+        SDL_FreeSurface(overlay);
+        if (!tex) return;
+        SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+        if (hlTex_) SDL_DestroyTexture(hlTex_);
+        hlTex_ = tex;
+        hlKey_ = key;
+        hlMask_ = gs.regionsMapSurf;
+    }
+
+    if (hlTex_) {
+        float pulse = 0.72f + 0.28f * std::sin(SDL_GetTicks() * 0.004f);
+        SDL_SetTextureAlphaMod(hlTex_, static_cast<Uint8>(255.0f * pulse));
+        drawWrappedOverlay(r, hlTex_, cam, screenW, screenH,
+                           gs.regionsMapSurf->w, gs.regionsMapSurf->h);
+        SDL_SetTextureAlphaMod(hlTex_, 255);
+    }
+}
+
+void MapRenderer::renderPuppetStripes(SDL_Renderer* r, GameState& gs, const Camera& cam,
+                                      int screenW, int screenH) {
+    if (!gs.regionsMapSurf) return;
+
+    std::string key;
+    for (auto& ps : gs.puppetStates) {
+        if (!ps.active) continue;
+        Country* pc = gs.getCountry(ps.puppet);
+        if (!pc || pc->regions.empty()) continue;
+        key += ps.puppet + ":" + std::to_string(pc->regions.size()) + ";";
+    }
+    if (key.empty()) {
+        if (pupTex_) { SDL_DestroyTexture(pupTex_); pupTex_ = nullptr; }
+        pupKey_.clear();
+        return;
+    }
+
+    if (!pupTex_ || key != pupKey_ || pupMask_ != gs.regionsMapSurf) {
+        SDL_Surface* overlay = SDL_CreateRGBSurfaceWithFormat(0, gs.regionsMapSurf->w, gs.regionsMapSurf->h,
+                                                              32, SDL_PIXELFORMAT_RGBA32);
+        if (!overlay) return;
+        SDL_FillRect(overlay, nullptr, SDL_MapRGBA(overlay->format, 0, 0, 0, 0));
+
+        auto& rd = RegionData::instance();
+        for (auto& ps : gs.puppetStates) {
+            if (!ps.active) continue;
+            Country* pc = gs.getCountry(ps.puppet);
+            if (!pc) continue;
+            for (int regId : pc->regions) {
+                if (regId <= 0) continue;
+                Vec2 loc = rd.getLocation(regId);
+                MapFunc::fillRegionMask(overlay, gs.regionsMapSurf, regId, loc.x, loc.y, {12, 12, 16, 88});
+            }
+        }
+
+        SDL_LockSurface(overlay);
+        int ow = overlay->w, oh = overlay->h;
+        int pitch = overlay->pitch;
+        uint8_t* px = static_cast<uint8_t*>(overlay->pixels);
+        for (int y = 0; y < oh; y++) {
+            for (int x = 0; x < ow; x++) {
+                if (((x + y) % 7) >= 3) px[y * pitch + x * 4 + 3] = 0;
+            }
+        }
+        SDL_UnlockSurface(overlay);
+
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(r, overlay);
+        SDL_FreeSurface(overlay);
+        if (!tex) return;
+        SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+        if (pupTex_) SDL_DestroyTexture(pupTex_);
+        pupTex_ = tex;
+        pupKey_ = key;
+        pupMask_ = gs.regionsMapSurf;
+    }
+
+    if (pupTex_) {
+        drawWrappedOverlay(r, pupTex_, cam, screenW, screenH,
+                           gs.regionsMapSurf->w, gs.regionsMapSurf->h);
+    }
+}
+
 void MapRenderer::renderFogOverlay(SDL_Renderer* r, FogOfWar& fog,
                                     const Camera& cam, int screenW, int screenH) {
     if (!fog.enabled) return;
@@ -692,8 +1093,8 @@ int MapRenderer::regionAtScreen(int sx, int sy, const Camera& cam,
     int mapW = regionsMap->w;
     int mapH = regionsMap->h;
 
-    int wx = static_cast<int>(world.x);
-    int wy = static_cast<int>(world.y);
+    int wx = static_cast<int>(std::floor(world.x));
+    int wy = static_cast<int>(std::floor(world.y));
 
 
     while (wx < 0) wx += mapW;
@@ -701,9 +1102,31 @@ int MapRenderer::regionAtScreen(int sx, int sy, const Camera& cam,
 
     if (wy < 0 || wy >= mapH) return -1;
 
+    auto& rd = RegionData::instance();
     SDL_LockSurface(regionsMap);
-    Color c = getPixel(regionsMap, wx, wy);
+    int found = rd.getRegion(getPixel(regionsMap, wx, wy));
+
+    if (found <= 0) {
+        int maxR = std::clamp(static_cast<int>(std::ceil(2.0f / std::max(0.25f, cam.zoom))) + 1, 2, 6);
+        for (int radius = 1; radius <= maxR && found <= 0; radius++) {
+            for (int dy = -radius; dy <= radius && found <= 0; dy++) {
+                int ny = wy + dy;
+                if (ny < 0 || ny >= mapH) continue;
+                for (int dx = -radius; dx <= radius; dx++) {
+                    if (std::max(std::abs(dx), std::abs(dy)) != radius) continue;
+                    int nx = wx + dx;
+                    while (nx < 0) nx += mapW;
+                    while (nx >= mapW) nx -= mapW;
+                    int cand = rd.getRegion(getPixel(regionsMap, nx, ny));
+                    if (cand > 0) {
+                        found = cand;
+                        break;
+                    }
+                }
+            }
+        }
+    }
     SDL_UnlockSurface(regionsMap);
 
-    return RegionData::instance().getRegion(c);
+    return found;
 }

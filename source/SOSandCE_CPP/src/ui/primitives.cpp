@@ -3,6 +3,7 @@
 #include "ui/text_cache.h"
 #include "ui/ui_assets.h"
 #include "ui/anim.h"
+#include "ui/hoi4.h"
 #include "core/engine.h"
 #include <sstream>
 
@@ -18,17 +19,7 @@ std::string buttonSpringKey(const char* kind, const std::string& label, float x,
 void drawHeadlessButtonBase(SDL_Renderer* r, float x, float y, float w, float h,
                             bool hovered, bool pressed, bool enabled) {
     float drawY = (pressed && hovered && enabled) ? y + 1.0f : y;
-
-    Color bg = !enabled ? Theme::btn_disabled
-             : (hovered ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2);
-    if (pressed && hovered && enabled) bg = Theme::btn_press;
-    Color brd = hovered && enabled ? Theme::gold_dim : Theme::hairline();
-    drawRoundedRect(r, bg, x, drawY, w, h, 5, brd);
-
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, hovered && enabled ? 14 : 7);
-    SDL_Rect hl = {(int)x + 3, (int)drawY + 1, std::max(0, (int)w - 6), 1};
-    SDL_RenderFillRect(r, &hl);
+    HOI4::button(r, x, drawY, w, h, hovered, pressed, enabled);
 }
 
 }
@@ -152,6 +143,7 @@ SDL_Rect drawRect(SDL_Renderer* r, Color color, float x, float y, float w, float
                    static_cast<int>(std::max(0.0f, w)), static_cast<int>(std::max(0.0f, h))};
     if (rc.w <= 0 || rc.h <= 0) return rc;
 
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     if (borderWidth > 0) {
         SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
         for (int i = 0; i < borderWidth; i++) {
@@ -172,6 +164,7 @@ SDL_Rect drawRect(SDL_Renderer* r, Color color, float x, float y, float w, float
 void drawRectFilled(SDL_Renderer* r, Color color, float x, float y, float w, float h) {
     SDL_Rect rc = {static_cast<int>(x), static_cast<int>(y),
                    static_cast<int>(w), static_cast<int>(h)};
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(r, &rc);
 }
@@ -249,6 +242,7 @@ void drawRoundedRect(SDL_Renderer* r, Color color, float x, float y, float w, fl
 }
 
 void drawHLine(SDL_Renderer* r, Color color, float x1, float x2, float y, int width) {
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
     for (int i = 0; i < width; i++) {
         SDL_RenderDrawLine(r, static_cast<int>(x1), static_cast<int>(y) + i,
@@ -257,6 +251,7 @@ void drawHLine(SDL_Renderer* r, Color color, float x1, float x2, float y, int wi
 }
 
 void drawVLine(SDL_Renderer* r, Color color, float x, float y1, float y2, int width) {
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, color.r, color.g, color.b, color.a);
     for (int i = 0; i < width; i++) {
         SDL_RenderDrawLine(r, static_cast<int>(x) + i, static_cast<int>(y1),
@@ -330,12 +325,7 @@ void drawVignette(SDL_Renderer* r, int screenW, int screenH, int strength) {
 }
 
 void drawBeveledRect(SDL_Renderer* r, Color color, float x, float y, float w, float h) {
-    drawRoundedRect(r, Theme::surface2, x, y, w, h, 4, Theme::hairline());
-
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, 7);
-    SDL_Rect hl = {(int)x + 3, (int)y + 1, std::max(0, (int)w - 6), 1};
-    SDL_RenderFillRect(r, &hl);
+    HOI4::plate(r, x, y, w, h);
 }
 
 void drawOrnamentalFrame(SDL_Renderer* r, float x, float y, float w, float h, int thick) {
@@ -411,22 +401,20 @@ void drawMenuWindow(SDL_Renderer* r, float x, float y, float w, float h, const s
     drawShadow(r, x, y, w, h, 70, 10);
     drawShadow(r, x, y, w, h, 100, 3);
 
-    drawRoundedRect(r, Theme::surface1, x, y, w, h, 8, Theme::hairlineStrong());
-
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, 5);
-    SDL_Rect topGrad = {(int)(x + 4), (int)(y + 2), (int)(w - 8), 2};
-    SDL_RenderFillRect(r, &topGrad);
+    HOI4::panel(r, x, y, w, h);
 
     if (!title.empty()) {
-        int hh = Theme::si(32);
-        drawRectFilled(r, Theme::header, x + 1, y + 1, w - 2, static_cast<float>(hh + 6));
-        drawHLine(r, Theme::gold_dim, x + 8, x + w - 8, y + hh + 6, 1);
-        drawText(r, title, Theme::si(14), x + w / 2, y + (hh + 6) / 2.0f, "center", Theme::gold, true);
+        int hh = Theme::si(34);
+        drawGradientV(r, x + 2, y + 2, w - 4, (float)hh, {54, 58, 52, 255}, {34, 37, 33, 255});
+        HOI4::goldDivider(r, x + 6, x + w - 6, y + hh + 2);
+
+        int fs = Theme::si(13);
+        drawText(r, fitText(HOI4::tracked(title), fs, w - Theme::s(24)), fs,
+                 x + w * 0.5f, y + 2 + hh * 0.5f, "center", Theme::gold_bright, true);
     }
 
     if (ornate) {
-        drawOrnamentalFrame(r, x, y, w, h);
+        HOI4::frame(r, x + 4, y + 4, w - 8, h - 8, true);
     }
 }
 
@@ -492,22 +480,7 @@ void drawActionRow(SDL_Renderer* r, float x, float y, float w, float h, const st
 }
 
 float drawSectionHeader(SDL_Renderer* r, float x, float y, float w, float h, const std::string& label) {
-
-    drawRectFilled(r, Theme::header, x, y, w, h);
-
-
-    drawHLine(r, Theme::gold_dim, x, x + w, y, 1);
-
-    drawHLine(r, {Theme::border.r, Theme::border.g, Theme::border.b, 60}, x, x + w, y + h - 1, 1);
-
-
-    SDL_SetRenderDrawColor(r, Theme::accent_yellow.r, Theme::accent_yellow.g, Theme::accent_yellow.b, 200);
-    SDL_Rect leftBar = {(int)x, (int)y + 1, 3, (int)h - 2};
-    SDL_RenderFillRect(r, &leftBar);
-
-    int fs = std::max(14, static_cast<int>(h * 0.52f));
-    drawText(r, fitText(label, fs, w - 12.0f), fs, x + w / 2, y + h / 2, "center", Theme::accent_yellow, true);
-    return y + h;
+    return HOI4::sectionHeader(r, x, y, w, h, label);
 }
 
 float drawInfoRow(SDL_Renderer* r, float x, float y, float w, float h, const std::string& label,
@@ -516,14 +489,13 @@ float drawInfoRow(SDL_Renderer* r, float x, float y, float w, float h, const std
     if (vc.a == 0) vc = Theme::grey;
 
 
-    static int rowCounter = 0;
-    if (rowCounter % 2 == 0) {
+    int rowIndex = static_cast<int>(y / std::max(1.0f, h));
+    if (rowIndex % 2 == 0) {
         SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(r, 255, 255, 255, 4);
         SDL_Rect rowBg = {(int)x, (int)y, (int)w, (int)h};
         SDL_RenderFillRect(r, &rowBg);
     }
-    rowCounter++;
 
 
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
@@ -560,8 +532,7 @@ bool drawIconButton(SDL_Renderer* r, const std::string& iconName,
     bool hovered = mouseX >= x && mouseX <= x + size && mouseY >= y && mouseY <= y + size;
     float drawYBase = y + UIAnim::springOffset(buttonSpringKey("ibtn", iconName, x, y), hovered);
 
-    Color bg = hovered ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2;
-    drawRoundedRect(r, bg, x, drawYBase, size, size, 5, hovered ? Theme::gold_dim : Theme::hairline());
+    HOI4::button(r, x, drawYBase, size, size, hovered, mouseDown, true);
     SDL_Texture* iconTex = assets.icon(iconName);
     if (iconTex) {
         float pad = size * 0.25f;

@@ -28,4 +28,6 @@ private:
     bool tempFog_ = true;
     bool tempSidebarLeft_ = false;
     bool tempFullscreen_ = true;
+    bool tempOcean_ = true;
+    bool tempDayNight_ = true;
 };

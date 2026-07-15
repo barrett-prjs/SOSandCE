@@ -2,6 +2,7 @@
 #include "ui/primitives.h"
 #include "ui/theme.h"
 #include "ui/ui_assets.h"
+#include "ui/hoi4.h"
 
 
 void Tooltip::show(const std::vector<std::string>& lines, float x, float y) {
@@ -46,11 +47,7 @@ void Tooltip::render(SDL_Renderer* r, int screenW, int screenH) {
     UIPrim::drawShadow(r, tipX, tipY, tipW, tipH, 60, 6);
 
 
-    UIPrim::drawRoundedRect(r, Theme::surface1, tipX, tipY, tipW, tipH, 5,
-                            {Theme::border.r, Theme::border.g, Theme::border.b, 140});
-
-
-    UIPrim::drawHLine(r, Theme::gold_dim, tipX + 4, tipX + tipW - 4, tipY + 1, 1);
+    HOI4::plate(r, tipX, tipY, tipW, tipH);
 
 
     float drawY = tipY + padding;
@@ -113,11 +110,7 @@ void RegionTooltip::render(SDL_Renderer* r) {
     UIPrim::drawShadow(r, x_, y_, w_, h_, 60, 8);
 
 
-    UIPrim::drawRoundedRect(r, Theme::surface1, x_, y_, w_, h_, 5,
-                            {Theme::border.r, Theme::border.g, Theme::border.b, 140});
-
-
-    UIPrim::drawHLine(r, Theme::gold_dim, x_ + 4, x_ + w_ - 4, y_ + 1, 1);
+    HOI4::plate(r, x_, y_, w_, h_);
 
     float drawX = x_ + padding;
     float drawY = y_ + padding;

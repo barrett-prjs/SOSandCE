@@ -7,5 +7,8 @@
   "sidebarLeft": false,
   "fullscreen": true,
   "windowWidth": 1280,
-  "windowHeight": 720
+  "windowHeight": 720,
+  "aiAggression": 1,
+  "oceanDetail": true,
+  "dayNight": true
 }

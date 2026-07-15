@@ -6,6 +6,7 @@
 #include "core/input.h"
 #include "ui/primitives.h"
 #include "ui/anim.h"
+#include "ui/hoi4.h"
 #include "ui/theme.h"
 #include "ui/toast.h"
 #include "ui/ui_assets.h"
@@ -72,10 +73,19 @@ void SaveLoadScreen::enter(App& app) {
         saves_.push_back(se);
     }
 
+    auto isAuto = [](const SaveEntry& e) {
+        return e.name.rfind("autosave_", 0) == 0;
+    };
     std::sort(saves_.begin(), saves_.end(),
-              [](const SaveEntry& a, const SaveEntry& b) {
+              [&](const SaveEntry& a, const SaveEntry& b) {
+                  bool aa = isAuto(a), ab = isAuto(b);
+                  if (aa != ab) return !aa;
                   return a.date > b.date;
               });
+    manualCount_ = 0;
+    for (auto& se : saves_) {
+        if (!isAuto(se)) manualCount_++;
+    }
 }
 
 
@@ -137,8 +147,11 @@ void SaveLoadScreen::handleInput(App& app, const InputState& input) {
 
         if (mode == Mode::LOAD) {
             float startY = listY;
+            float u2 = H / 100.0f * eng.uiScaleFactor();
+            float secH = std::round(u2 * 2.8f) + std::round(u2 * 0.6f);
             for (int i = 0; i < static_cast<int>(saves_.size()); i++) {
-                float by = startY + i * (L.rowH + L.rowGap);
+                float by = startY + secH + i * (L.rowH + L.rowGap);
+                if (i >= manualCount_) by += secH;
                 if (by + L.rowH > listBottom) break;
                 SDL_Point pt = {mx, my};
 
@@ -254,19 +267,15 @@ void SaveLoadScreen::render(App& app) {
         SDL_Rect sh = {(int)L.winX - s/2, (int)L.winY + s, (int)L.winW + s, (int)L.winH};
         SDL_RenderFillRect(r, &sh);
     }
-    UIPrim::drawRoundedRect(r, Theme::surface1, L.winX, L.winY, L.winW, L.winH, 8, Theme::hairlineStrong());
+    HOI4::panel(r, L.winX, L.winY, L.winW, L.winH);
 
-    std::string title = (mode == Mode::SAVE) ? "SAVE GAME" : "LOAD GAME";
-    UIPrim::drawRectFilled(r, Theme::header, L.winX + 2, L.winY + 2, L.winW - 4, L.headerH);
+    std::string title = (mode == Mode::SAVE) ? "Save Game" : "Load Game";
+    UIPrim::drawGradientV(r, L.winX + 2, L.winY + 2, L.winW - 4, L.headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(L.headerH * 0.42f));
-    UIPrim::drawText(r, title, titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold_dim, L.winX + 8, L.winX + L.winW - 8, L.winY + L.headerH + 2, 1);
+    UIPrim::drawText(r, HOI4::tracked(title), titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, L.winX + 6, L.winX + L.winW - 6, L.winY + L.headerH + 2);
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, L.contentX, L.contentY, L.contentW, L.contentH, 6);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 35);
-    SDL_Rect wellRect = {(int)L.contentX, (int)L.contentY, (int)L.contentW, (int)L.contentH};
-    SDL_RenderDrawRect(r, &wellRect);
+    HOI4::inset(r, L.contentX, L.contentY, L.contentW, L.contentH);
 
     auto& slAssets = UIAssets::instance();
     int bodyFs = std::max(13, (int)(u * 1.0f));
@@ -278,7 +287,7 @@ void SaveLoadScreen::render(App& app) {
         float inputY = L.contentY;
         float inputH = L.inputH;
 
-        UIPrim::drawRoundedRect(r, Theme::slot, L.contentX, inputY, L.contentW, inputH, 5, Theme::border);
+        HOI4::inset(r, L.contentX, inputY, L.contentW, inputH);
 
         std::string displayText = newSaveName_.empty() ? "Enter save name..." : newSaveName_ + "_";
         Color textColor = newSaveName_.empty() ? Theme::dark_grey : Theme::cream;
@@ -301,7 +310,7 @@ void SaveLoadScreen::render(App& app) {
             float by = listY + i * (L.rowH + L.rowGap);
             if (by + L.rowH > L.contentY + L.contentH) break;
 
-            UIPrim::drawRoundedRect(r, Theme::panel_alt, L.contentX, by, L.contentW, L.rowH, 4, Theme::border);
+            HOI4::plate(r, L.contentX, by, L.contentW, L.rowH);
 
 
             SDL_Texture* sFileIcon = slAssets.icon("File-Alt");
@@ -324,21 +333,35 @@ void SaveLoadScreen::render(App& app) {
     } else {
 
         float startY = L.contentY;
+        float secHdrH = std::round(u * 2.8f);
+        float secPad = std::round(u * 0.6f);
+        float secH = secHdrH + secPad;
 
         if (saves_.empty()) {
             UIPrim::drawText(r, "No saves found", emptyFs,
                              W * 0.5f, L.contentY + L.contentH * 0.40f, "center", Theme::grey);
             UIPrim::drawText(r, "Create one from the in-game pause menu.", metaFs,
                              W * 0.5f, L.contentY + L.contentH * 0.48f, "center", Theme::dark_grey);
+        } else {
+            UIPrim::drawSectionHeader(r, L.contentX, startY, L.contentW, secHdrH, "Manual Saves");
+            float autoHdrY = startY + secH + manualCount_ * (L.rowH + L.rowGap);
+            if (autoHdrY + secHdrH < L.contentY + L.contentH) {
+                UIPrim::drawSectionHeader(r, L.contentX, autoHdrY, L.contentW, secHdrH, "Autosaves");
+                if (manualCount_ == static_cast<int>(saves_.size())) {
+                    UIPrim::drawText(r, "No autosaves yet", metaFs,
+                                     L.contentX + L.contentW * 0.5f, autoHdrY + secH + L.rowH * 0.4f,
+                                     "center", Theme::dark_grey);
+                }
+            }
         }
 
         for (int i = 0; i < static_cast<int>(saves_.size()); i++) {
-            float by = startY + i * (L.rowH + L.rowGap);
+            float by = startY + secH + i * (L.rowH + L.rowGap);
+            if (i >= manualCount_) by += secH;
             if (by + L.rowH > L.contentY + L.contentH) break;
 
             bool hovered = (mx >= L.contentX && mx <= L.contentX + L.contentW && my >= by && my <= by + L.rowH);
-            Color bgColor = hovered ? Theme::btn_hover : Theme::btn;
-            UIPrim::drawRoundedRect(r, bgColor, L.contentX, by, L.contentW, L.rowH, 4, Theme::border);
+            HOI4::button(r, L.contentX, by, L.contentW, L.rowH, hovered, false, true);
 
 
             SDL_Texture* fileIcon = slAssets.icon("File-Alt");
@@ -365,10 +388,7 @@ void SaveLoadScreen::render(App& app) {
             float delBtnY = by + (L.rowH - delBtnH) * 0.5f;
             bool delHov = (mx >= delBtnX && mx <= delBtnX + delBtnW &&
                            my >= delBtnY && my <= delBtnY + delBtnH);
-            UIPrim::drawRoundedRect(r,
-                                    delHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2,
-                                    delBtnX, delBtnY, delBtnW, delBtnH, 4,
-                                    delHov ? Theme::gold_dim : Theme::hairline());
+            HOI4::button(r, delBtnX, delBtnY, delBtnW, delBtnH, delHov, false, true);
             UIPrim::drawText(r, "Del", metaFs,
                              delBtnX + delBtnW * 0.5f, delBtnY + delBtnH * 0.5f,
                              "center", Theme::grey);

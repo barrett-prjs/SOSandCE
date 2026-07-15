@@ -213,6 +213,7 @@ void GameState::clear() {
     industryMapSurf = nullptr;
     cultureMapSurf = nullptr;
     regionsMapSurf = nullptr;
+    terrainMapSurf = nullptr;
 
     canals = {1802, 1868, 2567, 1244, 1212, 1485, 1502, 418};
 

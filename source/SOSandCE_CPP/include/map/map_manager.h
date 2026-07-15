@@ -34,6 +34,8 @@ public:
     SDL_Surface* getCultureMap() const { return cultureMap_; }
     SDL_Surface* getWorldRegionsMap() const { return worldRegionsMap_; }
     SDL_Surface* getModifiedIndustryMap() const { return modifiedIndustryMap_; }
+    SDL_Surface* getTerrainMap() const { return terrainMap_; }
+    void rebuildTerrain();
 
 
     void markDirty() { textureDirty_ = true; }
@@ -58,6 +60,7 @@ private:
     SDL_Surface* cultureMap_ = nullptr;
     SDL_Surface* worldRegionsMap_ = nullptr;
     SDL_Surface* modifiedIndustryMap_ = nullptr;
+    SDL_Surface* terrainMap_ = nullptr;
 
     SDL_Texture* cachedTexture_ = nullptr;
     MapMode currentMode_ = MapMode::POLITICAL;

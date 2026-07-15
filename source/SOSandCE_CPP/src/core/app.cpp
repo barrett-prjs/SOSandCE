@@ -138,6 +138,8 @@ void App::initSDL() {
 
     engine.FPS = settings_.fps;
     engine.aiAggression = settings_.aiAggression;
+    engine.oceanDetail = settings_.oceanDetail;
+    engine.dayNight = settings_.dayNight;
     engine.recalcUI(settings_.uiSize);
     Theme::setScale(engine.uiScale);
 
@@ -257,10 +259,18 @@ void App::mainLoop() {
         }
 
 
-        uint32_t frameTime = SDL_GetTicks() - now;
-        uint32_t targetFrame = 1000 / engine.FPS;
-        if (frameTime < targetFrame) {
-            SDL_Delay(targetFrame - frameTime);
+        static int displayHz = 0;
+        if (displayHz == 0) {
+            SDL_DisplayMode dm;
+            displayHz = (SDL_GetCurrentDisplayMode(0, &dm) == 0 && dm.refresh_rate > 0)
+                      ? dm.refresh_rate : 60;
+        }
+        if (engine.FPS < displayHz) {
+            uint32_t frameTime = SDL_GetTicks() - now;
+            uint32_t targetFrame = 1000 / engine.FPS;
+            if (frameTime < targetFrame) {
+                SDL_Delay(targetFrame - frameTime);
+            }
         }
     }
 }

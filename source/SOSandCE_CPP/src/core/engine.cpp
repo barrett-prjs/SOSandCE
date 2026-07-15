@@ -1,4 +1,5 @@
 #include "core/engine.h"
+#include <unordered_set>
 
 Engine& Engine::instance() {
     static Engine eng;
@@ -148,9 +149,18 @@ TTF_Font* Engine::getFont(int size) {
 SDL_Texture* Engine::loadTexture(const std::string& path) {
     auto it = textureCache.find(path);
     if (it != textureCache.end()) return it->second;
+    static std::unordered_set<std::string> missCache;
+    if (missCache.count(path)) return nullptr;
     SDL_Surface* s = IMG_Load(path.c_str());
-    if (!s) return nullptr;
+    if (!s) {
+        missCache.insert(path);
+        return nullptr;
+    }
+    bool nearest = path.find("flags/") != std::string::npos ||
+                   path.find("flags\\") != std::string::npos;
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, nearest ? "0" : "1");
     SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
     SDL_FreeSurface(s);
     if (t) textureCache[path] = t;
     return t;

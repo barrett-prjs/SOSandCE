@@ -92,6 +92,7 @@ bool SaveSystem::loadGame(GameState& gs, MapManager& maps, const std::string& na
     gs.industryMapSurf = maps.getIndustryMap();
     gs.cultureMapSurf = maps.getCultureMap();
     gs.regionsMapSurf = maps.getRegionsMap();
+    gs.terrainMapSurf = maps.getTerrainMap();
     gs.bakeBiomeDefense(maps.getBiomeMap());
 
     auto restoreSurface = [&](SDL_Surface* target, const std::string& path) {

@@ -33,6 +33,7 @@ public:
         SDL_Texture* texture = nullptr;
         int w = 0;
         int h = 0;
+        uint64_t lastUsed = 0;
     };
 
 
@@ -69,6 +70,7 @@ private:
     std::unordered_map<TextCacheKey, Entry, TextCacheKeyHash> cache_;
     std::deque<TextCacheKey> lru_;
     size_t maxEntries_;
+    uint64_t useCounter_ = 0;
 };
 
 

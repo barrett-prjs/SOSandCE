@@ -11,6 +11,7 @@
 #include "core/audio.h"
 #include "core/engine.h"
 #include "ui/toast.h"
+#include "ui/notification_log.h"
 
 namespace {
 
@@ -121,7 +122,14 @@ void Country::update(GameState& gs) {
     if (lastDayTrained != gs.time.totalDays) {
 
         for (auto& cycle : training) {
-            if (cycle[1] > 0) cycle[1]--;
+            if (cycle[1] > 0) {
+                cycle[1]--;
+                if (cycle[1] == 0 && name == gs.controlledCountry) {
+                    notifyLog().add(NoteCat::Military,
+                                    std::to_string(cycle[0]) + (cycle[0] > 1 ? " divisions ready to deploy"
+                                                                             : " division ready to deploy"), gs);
+                }
+            }
         }
 
 
@@ -135,6 +143,7 @@ void Country::update(GameState& gs) {
                 focusTreeEngine.completeFocus(focusName, gs, name);
                 if (name == gs.controlledCountry) {
                     toasts().show("Focus completed: " + focusName, 3000);
+                    notifyLog().add(NoteCat::Focus, "Focus completed: " + replaceAll(focusName, "_", " "), gs);
                 }
             }
         }
@@ -148,6 +157,13 @@ void Country::update(GameState& gs) {
                         buildingManager.countAll(BuildingType::MilitaryFactory);
 
             for (auto& jb : justBuilt) {
+
+                if (name == gs.controlledCountry) {
+                    std::string place = rd.getCity(jb.regionId);
+                    notifyLog().add(NoteCat::Construction,
+                                    std::string(buildingTypeName(jb.type)) + " completed" +
+                                    (place.empty() ? "" : " in " + replaceAll(place, "_", " ")), gs);
+                }
 
                 if (jb.type == BuildingType::Dockyard || jb.type == BuildingType::Port) {
                     if (std::find(gs.ports.begin(), gs.ports.end(), jb.regionId) == gs.ports.end()) {
@@ -311,6 +327,7 @@ void Country::update(GameState& gs) {
         if (!gs.controlledCountry.empty()) {
             toasts().show(replaceAll(name, "_", " ") + " has capitulated!", 3000);
         }
+        notifyLog().add(NoteCat::War, replaceAll(name, "_", " ") + " has capitulated", gs);
     }
 
 
@@ -763,6 +780,9 @@ std::vector<int> Country::getAccess(GameState& gs) const {
 void Country::declareWar(const std::string& enemy, GameState& gs, bool ignoreFaction, bool popup) {
     auto* ec = gs.getCountry(enemy);
     if (!ec || std::find(atWarWith.begin(), atWarWith.end(), enemy) != atWarWith.end()) return;
+
+    notifyLog().add(NoteCat::War, replaceAll(name, "_", " ") + " declared war on " +
+                    replaceAll(enemy, "_", " "), gs);
 
     checkBordering = true;
     ec->checkBordering = true;

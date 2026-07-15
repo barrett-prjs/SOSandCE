@@ -21,6 +21,10 @@ public:
     SDL_Texture* btnRectDefault()   const;
     SDL_Texture* btnRectHover()     const;
 
+    SDL_Texture* hoi4Panel()  const;
+    SDL_Texture* hoi4Button() const;
+    SDL_Texture* hoi4TopBar() const;
+
     SDL_Texture* btnSquare(const std::string& name, bool hover = false) const;
 
 

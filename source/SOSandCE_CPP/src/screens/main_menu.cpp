@@ -10,6 +10,8 @@
 #include "ui/theme.h"
 #include "ui/anim.h"
 #include "ui/ui_assets.h"
+#include "ui/hoi4.h"
+#include "map/map_functions.h"
 #include "data/data_loader.h"
 #include "data/country_data.h"
 #include "data/region_data.h"
@@ -23,86 +25,104 @@
 
 
 struct MenuBG {
-    SDL_Surface* mapSurf = nullptr;
     SDL_Texture* cachedTex = nullptr;
-    float camx = 0, camy = 0, zoom = 3.0f;
-    float speed = 0;
-    float angle = 0;
-    float time = 0;
-    float maxTime = 600;
+    float mapW = 0, mapH = 0;
+    float texScale = 2.0f;
+    float camx = 0, camy = 0, zoom = 2.6f;
+    float driftSpeed = 2.4f;
+    double phase = 0;
+    Uint32 lastTicks = 0;
     bool initted = false;
 
-    void init(SDL_Surface* m) {
-        mapSurf = m;
-        if (!m) return;
+    void init(SDL_Renderer* r, SDL_Surface* composite, float scaleUsed) {
         if (cachedTex) { SDL_DestroyTexture(cachedTex); cachedTex = nullptr; }
-        camx = m->w * 0.3f;
-        camy = m->h * 0.3f;
-        zoom = 3.0f;
-        speed = 0.3f;
-        angle = randFloat(0, 6.28318f);
-        time = 0;
-        maxTime = 600;
+        initted = false;
+        if (!composite) return;
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        cachedTex = SDL_CreateTextureFromSurface(r, composite);
+        if (!cachedTex) return;
+        texScale = scaleUsed;
+        mapW = composite->w / texScale;
+        mapH = composite->h / texScale;
+        camx = mapW * randFloat(0.2f, 0.8f);
+        camy = mapH * 0.42f;
+        phase = randFloat(0.0f, 6.28318f);
+        lastTicks = SDL_GetTicks();
         initted = true;
     }
 
     void update(SDL_Renderer* r, int W, int H, int fps) {
-        if (!mapSurf || !initted) return;
-        float dt = 1.0f / std::max(1, fps);
-        camx += std::cos(angle) * speed * dt * 60.0f;
-        camy += std::sin(angle) * speed * dt * 60.0f;
-        time += dt * 60.0f;
-        if (time > maxTime) {
+        if (!initted || !cachedTex) return;
+        Uint32 now = SDL_GetTicks();
+        float dt = std::min(0.1f, (now - lastTicks) / 1000.0f);
+        lastTicks = now;
 
-            camx = randFloat(mapSurf->w * 0.1f, mapSurf->w * 0.7f);
-            camy = randFloat(mapSurf->h * 0.15f, mapSurf->h * 0.65f);
-            angle = randFloat(0, 6.28318f);
-            time = 0;
-        }
+        camx += driftSpeed * dt;
+        while (camx >= mapW) camx -= mapW;
+        phase += dt * 0.045;
 
-
-        if (!cachedTex) {
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-            cachedTex = SDL_CreateTextureFromSurface(r, mapSurf);
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-        }
-        if (!cachedTex) return;
-
-
-        float visW = W / zoom;
         float visH = H / zoom;
-        float srcXf = camx - visW / 2.0f;
-        float srcYf = camy - visH / 2.0f;
+        float minY = visH * 0.5f + mapH * 0.04f;
+        float maxY = mapH * 0.96f - visH * 0.5f;
+        if (maxY < minY) maxY = minY;
+        float midY = (minY + maxY) * 0.5f;
+        float amp = (maxY - minY) * 0.5f;
+        camy = midY + std::sin(static_cast<float>(phase)) * amp;
 
+        SDL_FRect dst;
+        dst.w = mapW * zoom;
+        dst.h = mapH * zoom;
+        dst.x = W * 0.5f - camx * zoom;
+        dst.y = H * 0.5f - camy * zoom;
+        SDL_RenderCopyF(r, cachedTex, nullptr, &dst);
+        SDL_FRect dstE = dst; dstE.x += dst.w;
+        SDL_RenderCopyF(r, cachedTex, nullptr, &dstE);
+        SDL_FRect dstW2 = dst; dstW2.x -= dst.w;
+        SDL_RenderCopyF(r, cachedTex, nullptr, &dstW2);
 
-        srcXf = std::max(0.0f, std::min(srcXf, mapSurf->w - visW));
-        srcYf = std::max(0.0f, std::min(srcYf, mapSurf->h - visH));
-
-
-        SDL_Rect src = {(int)srcXf, (int)srcYf, (int)std::ceil(visW), (int)std::ceil(visH)};
-
-        if (src.x + src.w > mapSurf->w) src.w = mapSurf->w - src.x;
-        if (src.y + src.h > mapSurf->h) src.h = mapSurf->h - src.y;
-        if (src.w <= 0 || src.h <= 0) return;
-
-        SDL_Rect dst = {0, 0, W, H};
-        SDL_RenderCopy(r, cachedTex, &src, &dst);
-
-
-        float fadeLen = maxTime * 0.12f;
-        if (time < fadeLen) {
-            int alpha = static_cast<int>((1.0f - time / fadeLen) * 200);
-            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(r, 0, 0, 0, (uint8_t)std::min(255, alpha));
-            SDL_RenderFillRect(r, &dst);
-        } else if (time > maxTime - fadeLen) {
-            int alpha = static_cast<int>(((time - (maxTime - fadeLen)) / fadeLen) * 200);
-            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(r, 0, 0, 0, (uint8_t)std::min(255, alpha));
-            SDL_RenderFillRect(r, &dst);
-        }
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(r, 4, 6, 8, 48);
+        SDL_Rect dim = {0, 0, W, H};
+        SDL_RenderFillRect(r, &dim);
     }
+
 };
+
+static SDL_Surface* buildMenuComposite(const std::string& mapPath) {
+    auto& eng = Engine::instance();
+    SDL_Surface* map = eng.loadSurface(mapPath);
+    if (!map) return nullptr;
+
+    std::string mapsDir = eng.assetsPath + "maps/";
+    SDL_Surface* biome = eng.loadSurface(mapsDir + "biomeMap.png");
+    if (!biome) biome = eng.loadSurface(mapsDir + "biomes.png");
+    SDL_Surface* mask = eng.loadSurface(mapsDir + "regionsMap.png");
+    if (!mask) mask = eng.loadSurface(mapsDir + "regions.png");
+    SDL_Surface* grain = eng.loadSurface(mapsDir + "terrain_grain.png");
+
+    SDL_Surface* composite = nullptr;
+    if (biome) {
+        SDL_Surface* terrain = MapFunc::buildTerrainSurface(biome, grain, 2);
+        SDL_Surface* styled = MapFunc::stylizeForDisplay(map, mask, 2);
+        if (terrain && styled) {
+            SDL_SetSurfaceBlendMode(styled, SDL_BLENDMODE_BLEND);
+            SDL_SetSurfaceAlphaMod(styled, 215);
+            SDL_Rect full = {0, 0, terrain->w, terrain->h};
+            SDL_BlitScaled(styled, nullptr, terrain, &full);
+            composite = terrain;
+            terrain = nullptr;
+        }
+        if (terrain) SDL_FreeSurface(terrain);
+        if (styled) SDL_FreeSurface(styled);
+    }
+    if (!composite) composite = SDL_ConvertSurfaceFormat(map, SDL_PIXELFORMAT_RGBA32, 0);
+
+    if (grain) SDL_FreeSurface(grain);
+    if (mask) SDL_FreeSurface(mask);
+    if (biome) SDL_FreeSurface(biome);
+    SDL_FreeSurface(map);
+    return composite;
+}
 
 static MenuBG s_menuBG;
 
@@ -153,19 +173,20 @@ MainLayout computeMainLayout(int W, int H) {
     MainLayout L{};
     L.logoH = H * 0.18f;
     L.logoY = u * 4;
-    L.panelW = std::clamp(std::round(W * 0.42f), 500.0f, 1100.0f);
+    L.panelW = std::clamp(std::round(W * 0.20f), 300.0f, 440.0f);
     L.panelX = std::round((W - L.panelW) / 2.0f);
-    float outerPad = std::round(u * 2.0f);
-    float sectionGap = std::round(u * 1.5f);
-    L.headerH = std::round(u * 5.5f);
-    L.btnH = std::round(u * 6.5f);
-    L.btnGap = std::round(u * 1.2f);
-    float btnRegionPad = std::round(u * 2.2f);
-    L.versionH = std::round(u * 3.0f);
+    float outerPad = std::round(u * 1.2f);
+    float sectionGap = std::round(u * 1.0f);
+    L.headerH = std::round(u * 4.2f);
+    L.btnH = std::round(u * 3.8f);
+    L.btnGap = std::round(u * 0.8f);
+    float btnRegionPad = std::round(u * 1.4f);
+    L.versionH = std::round(u * 2.4f);
     float btnGroupH = 4 * L.btnH + 3 * L.btnGap;
     float bodyH = btnRegionPad + btnGroupH + btnRegionPad;
     L.totalH = L.headerH + bodyH + L.versionH + sectionGap;
-    L.panelY = std::round(L.logoY + L.logoH + u * 3.5f);
+    L.panelY = std::round((H - L.totalH) / 2.0f);
+    L.panelY = std::max(L.panelY, std::round(L.logoY + L.logoH + u * 1.5f));
     if (L.panelY + L.totalH > H - u * 6) L.panelY = H - u * 6 - L.totalH;
     L.goldLineY = L.panelY + L.headerH + 2;
     float versionY = L.panelY + L.totalH - L.versionH;
@@ -316,10 +337,11 @@ void MainMenuScreen::enter(App& app) {
 
 
     if (!s_menuBG.initted) {
-
-        std::string mapPath = eng.assetsPath + "starts/Modern Day/map.png";
-        SDL_Surface* m = eng.loadSurface(mapPath);
-        if (m) s_menuBG.init(m);
+        SDL_Surface* comp = buildMenuComposite(eng.assetsPath + "starts/Modern Day/map.png");
+        if (comp) {
+            s_menuBG.init(eng.renderer, comp, comp->w >= 2000 ? 2.0f : 1.0f);
+            SDL_FreeSurface(comp);
+        }
     }
 
 
@@ -386,8 +408,11 @@ void MainMenuScreen::handleInput(App& app, const InputState& input) {
                     selectedMap_ = mapList_[m2];
                     Audio::instance().playSound("clickedSound");
                     std::string mapPath = Engine::instance().assetsPath + "starts/" + selectedMap_ + "/map.png";
-                    SDL_Surface* m3 = Engine::instance().loadSurface(mapPath);
-                    if (m3) { if (s_menuBG.mapSurf) SDL_FreeSurface(s_menuBG.mapSurf); s_menuBG.init(m3); }
+                    SDL_Surface* comp = buildMenuComposite(mapPath);
+                    if (comp) {
+                        s_menuBG.init(Engine::instance().renderer, comp, comp->w >= 2000 ? 2.0f : 1.0f);
+                        SDL_FreeSurface(comp);
+                    }
                 }
             }
 
@@ -544,13 +569,13 @@ void MainMenuScreen::renderMainMenu(App& app) {
 
     UIPrim::drawMapDim(r, W, H, 190);
 
-    UIPrim::drawVignette(r, W, H, 200);
+    UIPrim::drawVignette(r, W, H, 110);
 
     UIPrim::drawGradientV(r, 0, 0, (float)W, H * 0.35f,
-                          {0, 0, 0, 160}, {0, 0, 0, 0});
+                          {0, 0, 0, 110}, {0, 0, 0, 0});
 
     UIPrim::drawGradientV(r, 0, H * 0.80f, (float)W, H * 0.20f,
-                          {0, 0, 0, 0}, {0, 0, 0, 180});
+                          {0, 0, 0, 0}, {0, 0, 0, 120});
 
 
     MainLayout L = computeMainLayout(W, H);
@@ -587,26 +612,16 @@ void MainMenuScreen::renderMainMenu(App& app) {
     }
 
 
-    UIPrim::drawRoundedRect(r, Theme::surface1, panelX, panelY, panelW, totalH, 8, Theme::hairlineStrong());
+    HOI4::panel(r, panelX, panelY, panelW, totalH);
 
 
-    UIPrim::drawRectFilled(r, Theme::header, panelX + 2, panelY + 2, panelW - 4, headerH);
-
-
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 255, 255, 255, 8);
-    SDL_Rect hdrHl = {(int)panelX + 6, (int)panelY + 4, (int)panelW - 12, (int)(headerH * 0.3f)};
-    SDL_RenderFillRect(r, &hdrHl);
-
-
-    float goldLineY = panelY + headerH + 2;
-    UIPrim::drawHLine(r, Theme::gold, panelX + 8, panelX + panelW - 8, goldLineY, 2);
-    UIPrim::drawHLine(r, {Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 60},
-                      panelX + 16, panelX + panelW - 16, goldLineY + 3, 1);
+    UIPrim::drawGradientV(r, panelX + 2, panelY + 2, panelW - 4, headerH,
+                          {54, 58, 52, 255}, {34, 37, 33, 255});
+    HOI4::goldDivider(r, panelX + 6, panelX + panelW - 6, panelY + headerH + 2);
 
 
     int headerFs = std::max(16, (int)(headerH * 0.38f));
-    UIPrim::drawText(r, "COMMUNITY EDITION", headerFs,
+    UIPrim::drawText(r, HOI4::tracked("Community Edition"), headerFs,
                      panelX + panelW / 2, panelY + headerH * 0.38f, "center", Theme::gold_bright, true);
     int subFs = std::max(12, (int)(headerH * 0.24f));
     UIPrim::drawText(r, "Version 2.0", subFs,
@@ -619,16 +634,7 @@ void MainMenuScreen::renderMainMenu(App& app) {
     float wellH = L.wellH;
 
 
-    UIPrim::drawRoundedRect(r, {12, 14, 18}, wellX, wellY, wellW, wellH, 6);
-
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, 0, 0, 0, 30);
-    SDL_Rect wellShadow = {(int)wellX + 2, (int)wellY + 1, (int)wellW - 4, 4};
-    SDL_RenderFillRect(r, &wellShadow);
-
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 80);
-    SDL_Rect wellBorder = {(int)wellX, (int)wellY, (int)wellW, (int)wellH};
-    SDL_RenderDrawRect(r, &wellBorder);
+    HOI4::inset(r, wellX, wellY, wellW, wellH);
 
 
     float btnW = L.btnW;
@@ -662,82 +668,18 @@ void MainMenuScreen::renderMainMenu(App& app) {
         float drawY = (isPress ? by + 2 : by) + lift;
 
 
-        Color bg = isPress ? Theme::btn_press
-                 : (hov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2);
-        UIPrim::drawRoundedRect(r, bg, btnX, drawY, btnW, btnH, 5, hov ? Theme::gold_dim : Theme::hairline());
+        HOI4::button(r, btnX, drawY, btnW, btnH, hov, isPress, true);
 
-
-        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(r, 255, 255, 255, hov ? 14 : 6);
-        SDL_Rect btnHl = {(int)btnX + 4, (int)drawY + 1, (int)btnW - 8, 1};
-        SDL_RenderFillRect(r, &btnHl);
-
-
-        {
-            uint8_t barAlpha = isPress ? 255 : (hov ? 240 : 100);
-            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, barAlpha);
-            SDL_Rect bar = {(int)btnX + 5, (int)drawY + 6, 5, (int)btnH - 12};
-            SDL_RenderFillRect(r, &bar);
-        }
-
-
-        if (hov) {
-            UIPrim::drawHLine(r, Theme::gold, btnX + 10, btnX + btnW - 10, drawY + 2, 1);
-        }
-
-
-        SDL_SetRenderDrawColor(r, 0, 0, 0, 40);
-        SDL_RenderDrawLine(r, (int)btnX + 6, (int)(drawY + btnH - 2),
-                          (int)(btnX + btnW - 6), (int)(drawY + btnH - 2));
-
-
-        SDL_Texture* iconTex = assets.icon(btns[i].icon);
-        float iconSz = std::round(btnH * 0.48f);
-        float iconAreaW = btnH;
-        if (iconTex) {
-            float iconX = std::round(btnX + iconAreaW * 0.55f - iconSz / 2);
-            float iconY2 = std::round(drawY + (btnH - iconSz) / 2.0f);
-            SDL_SetTextureAlphaMod(iconTex, hov ? 255 : 150);
-            if (isPress) SDL_SetTextureColorMod(iconTex, Theme::gold.r, Theme::gold.g, Theme::gold.b);
-            else if (hov) SDL_SetTextureColorMod(iconTex, Theme::gold_bright.r, Theme::gold_bright.g, Theme::gold_bright.b);
-            else SDL_SetTextureColorMod(iconTex, 180, 175, 165);
-            SDL_Rect idst = {(int)iconX, (int)iconY2, (int)iconSz, (int)iconSz};
-            SDL_RenderCopy(r, iconTex, nullptr, &idst);
-            SDL_SetTextureColorMod(iconTex, 255, 255, 255);
-            SDL_SetTextureAlphaMod(iconTex, 255);
-        }
-
-
-        SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, hov ? 100 : 40);
-        float sepX = btnX + iconAreaW;
-        SDL_RenderDrawLine(r, (int)sepX, (int)drawY + 8, (int)sepX, (int)(drawY + btnH - 8));
-
-
-        int fs = std::max(18, (int)(btnH * 0.34f));
+        int fs = std::max(13, (int)(btnH * 0.40f));
         Color tc = isPress ? Theme::gold : (hov ? Theme::gold_bright : Theme::cream);
-        float textX = btnX + iconAreaW + std::round(u * 1.5f);
-        UIPrim::drawText(r, btns[i].label, fs, textX, drawY + btnH / 2, "midleft", tc, true);
-
-
-        SDL_Texture* arrowIcon = assets.icon("SolidArrow-Right");
-        if (arrowIcon) {
-            float arrowSz = std::round(btnH * 0.22f);
-            float arrowX = btnX + btnW - arrowSz - std::round(u * 1.5f);
-            float arrowY = drawY + (btnH - arrowSz) / 2;
-            SDL_SetTextureAlphaMod(arrowIcon, hov ? 180 : 60);
-            SDL_SetTextureColorMod(arrowIcon, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b);
-            SDL_Rect aDst = {(int)arrowX, (int)arrowY, (int)arrowSz, (int)arrowSz};
-            SDL_RenderCopy(r, arrowIcon, nullptr, &aDst);
-            SDL_SetTextureColorMod(arrowIcon, 255, 255, 255);
-            SDL_SetTextureAlphaMod(arrowIcon, 255);
-        }
+        UIPrim::drawText(r, btns[i].label, fs, btnX + btnW * 0.5f, drawY + btnH * 0.5f,
+                         "center", tc, true);
     }
 
 
     float verY = panelY + totalH - versionH;
 
-    UIPrim::drawRectFilled(r, {10, 12, 16}, panelX + 3, verY, panelW - 6, versionH - 3);
+    UIPrim::drawRectFilled(r, {15, 17, 16}, panelX + 3, verY, panelW - 6, versionH - 3);
 
     UIPrim::drawHLine(r, {Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 60},
                       panelX + 16, panelX + panelW - 16, verY, 1);
@@ -791,13 +733,13 @@ void MainMenuScreen::renderMapsMenu(App& app) {
     }
 
 
-    UIPrim::drawRoundedRect(r, Theme::surface1, winX, winY, winW, winH, 8, Theme::hairlineStrong());
+    HOI4::panel(r, winX, winY, winW, winH);
 
 
-    UIPrim::drawRectFilled(r, Theme::header, winX + 2, winY + 2, winW - 4, headerH);
+    UIPrim::drawGradientV(r, winX + 2, winY + 2, winW - 4, headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(headerH * 0.42f));
-    UIPrim::drawText(r, "SELECT SCENARIO", titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold, winX + 8, winX + winW - 8, winY + headerH + 2, 2);
+    UIPrim::drawText(r, HOI4::tracked("Select Scenario"), titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, winX + 6, winX + winW - 6, winY + headerH + 2);
 
 
     float contentY = L.contentY;
@@ -808,18 +750,14 @@ void MainMenuScreen::renderMapsMenu(App& app) {
 
 
     float listX = L.listX;
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, listX, contentY, listW, contentH, 6);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 60);
-    SDL_Rect listBorder = {(int)listX, (int)contentY, (int)listW, (int)contentH};
-    SDL_RenderDrawRect(r, &listBorder);
+    HOI4::inset(r, listX, contentY, listW, contentH);
 
 
     float listHdrH = L.listHdrH;
-    UIPrim::drawRectFilled(r, {14, 16, 22}, listX + 1, contentY + 1, listW - 2, listHdrH);
+    UIPrim::drawGradientV(r, listX + 1, contentY + 1, listW - 2, listHdrH, {44, 48, 43, 255}, {28, 31, 28, 255});
     int listHdrFs = std::max(12, (int)(listHdrH * 0.42f));
-    UIPrim::drawText(r, "AVAILABLE MAPS", listHdrFs, listX + listW / 2, contentY + listHdrH * 0.5f, "center", Theme::gold_dim, false);
-    UIPrim::drawHLine(r, Theme::gold_dim, listX + 8, listX + listW - 8, contentY + listHdrH, 1);
+    UIPrim::drawText(r, HOI4::tracked("Available Maps"), listHdrFs, listX + listW / 2, contentY + listHdrH * 0.5f, "center", Theme::gold, false);
+    HOI4::goldDivider(r, listX + 6, listX + listW - 6, contentY + listHdrH);
 
 
     float row_h = L.rowH;
@@ -840,9 +778,9 @@ void MainMenuScreen::renderMapsMenu(App& app) {
 
 
         if (isSel) {
-            UIPrim::drawRectFilled(r, {35, 38, 48}, listX + 2, ry, listW - 4, row_h);
+            UIPrim::drawRectFilled(r, {52, 56, 50}, listX + 2, ry, listW - 4, row_h);
         } else if (isHov) {
-            UIPrim::drawRectFilled(r, {28, 32, 40}, listX + 2, ry, listW - 4, row_h);
+            UIPrim::drawRectFilled(r, {38, 42, 39}, listX + 2, ry, listW - 4, row_h);
         } else if (m % 2) {
             SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(r, 255, 255, 255, 3);
@@ -870,10 +808,7 @@ void MainMenuScreen::renderMapsMenu(App& app) {
     SDL_RenderSetClipRect(r, nullptr);
 
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, detailX, contentY, detailW, contentH, 6);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 60);
-    SDL_Rect detBorder = {(int)detailX, (int)contentY, (int)detailW, (int)contentH};
-    SDL_RenderDrawRect(r, &detBorder);
+    HOI4::inset(r, detailX, contentY, detailW, contentH);
 
 
     float prevPad = std::round(u * 1.0f);
@@ -967,13 +902,13 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
         SDL_Rect sh = {(int)winX - s/2, (int)winY + s, (int)winW + s, (int)winH};
         SDL_RenderFillRect(r, &sh);
     }
-    UIPrim::drawRoundedRect(r, Theme::surface1, winX, winY, winW, winH, 8, Theme::hairlineStrong());
+    HOI4::panel(r, winX, winY, winW, winH);
 
 
-    UIPrim::drawRectFilled(r, Theme::header, winX + 2, winY + 2, winW - 4, headerH);
+    UIPrim::drawGradientV(r, winX + 2, winY + 2, winW - 4, headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(headerH * 0.42f));
-    UIPrim::drawText(r, "CHOOSE YOUR NATION", titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold, winX + 8, winX + winW - 8, winY + headerH + 2, 2);
+    UIPrim::drawText(r, HOI4::tracked("Choose Your Nation"), titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, winX + 6, winX + winW - 6, winY + headerH + 2);
 
 
     float contentY = L.contentY;
@@ -1001,10 +936,16 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
         SDL_RenderFillRect(r, &csh);
 
 
-        Color cardFill = isSel ? Theme::gold_bg
-                       : (isHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2);
-        Color cardBrd = isSel ? Theme::gold : (isHov ? Theme::gold_dim : Theme::hairline());
-        UIPrim::drawRoundedRect(r, cardFill, cx, cardY, cardW, cardH, 6, cardBrd);
+        HOI4::button(r, cx, cardY, cardW, cardH, isHov, false, true);
+        if (isSel) {
+            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, 235);
+            SDL_Rect selRim = {(int)cx, (int)cardY, (int)cardW, (int)cardH};
+            SDL_RenderDrawRect(r, &selRim);
+            SDL_Rect selRim2 = {(int)cx + 1, (int)cardY + 1, (int)cardW - 2, (int)cardH - 2};
+            SDL_SetRenderDrawColor(r, Theme::gold_dim.r, Theme::gold_dim.g, Theme::gold_dim.b, 160);
+            SDL_RenderDrawRect(r, &selRim2);
+        }
 
 
         if (i < 8) {
@@ -1057,10 +998,7 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
     float listX = L.listX;
 
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, listX, lowerY, listW, listH, 6);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 50);
-    SDL_Rect lb = {(int)listX, (int)lowerY, (int)listW, (int)listH};
-    SDL_RenderDrawRect(r, &lb);
+    HOI4::inset(r, listX, lowerY, listW, listH);
 
 
     SDL_Rect clipList = {(int)listX, (int)lowerY, (int)listW, (int)listH};
@@ -1074,8 +1012,8 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
         bool isSel = (countryNames_[c] == selectedCountry_);
         bool isHov = mx >= listX && mx <= listX + listW && my >= ry && my <= ry + row_h;
 
-        if (isSel) UIPrim::drawRectFilled(r, {35, 38, 48}, listX + 2, ry, listW - 4, row_h);
-        else if (isHov) UIPrim::drawRectFilled(r, {28, 32, 40}, listX + 2, ry, listW - 4, row_h);
+        if (isSel) UIPrim::drawRectFilled(r, {52, 56, 50}, listX + 2, ry, listW - 4, row_h);
+        else if (isHov) UIPrim::drawRectFilled(r, {38, 42, 39}, listX + 2, ry, listW - 4, row_h);
         else if (c % 2) { SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND); SDL_SetRenderDrawColor(r, 255, 255, 255, 3); SDL_Rect a = {(int)listX+2,(int)ry,(int)listW-4,(int)row_h}; SDL_RenderFillRect(r, &a); }
 
         if (isSel) { SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, 255); SDL_Rect sb = {(int)listX+2,(int)ry,4,(int)row_h}; SDL_RenderFillRect(r, &sb); }
@@ -1114,10 +1052,7 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
 
     float detailX = L.detailX;
     float detailW = L.detailW;
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, detailX, lowerY, detailW, listH, 6);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 50);
-    SDL_Rect db = {(int)detailX, (int)lowerY, (int)detailW, (int)listH};
-    SDL_RenderDrawRect(r, &db);
+    HOI4::inset(r, detailX, lowerY, detailW, listH);
 
     if (!selectedCountry_.empty()) {
         float iy = lowerY + std::round(u * 1.2f);
@@ -1190,11 +1125,10 @@ void MainMenuScreen::renderCountriesMenu(App& app) {
         SDL_SetRenderDrawColor(r, 60, 165, 80, startHov ? 50 : 25);
         SDL_Rect glow = {(int)startX - 3, (int)startY - 3, (int)btnW2 + 6, (int)btnH2 + 6};
         SDL_RenderFillRect(r, &glow);
-        Color sBg = startHov ? UIAnim::brighten(Color{38, 95, 52}, 1.3f) : Color{38, 95, 52};
-        UIPrim::drawRoundedRect(r, sBg, startX, startY, btnW2, btnH2, 6, Theme::green);
-        SDL_SetRenderDrawColor(r, 255, 255, 255, startHov ? 12 : 5);
-        SDL_Rect shl = {(int)startX + 4, (int)startY + 2, (int)btnW2 - 8, (int)(btnH2 * 0.25f)};
-        SDL_RenderFillRect(r, &shl);
+        Color sTop = startHov ? UIAnim::brighten(Color{52, 106, 62}, 1.2f) : Color{52, 106, 62};
+        Color sBot = startHov ? UIAnim::brighten(Color{32, 72, 42}, 1.2f) : Color{32, 72, 42};
+        UIPrim::drawGradientV(r, startX, startY, btnW2, btnH2, sTop, sBot);
+        HOI4::frame(r, startX, startY, btnW2, btnH2, startHov);
         Color stc = startHov ? Theme::gold_bright : Theme::cream;
         int sfs = std::max(14, (int)(btnH2 * 0.36f));
         UIPrim::drawText(r, UIPrim::fitText("START GAME", sfs, btnW2 - 12.0f), sfs,
@@ -1427,13 +1361,13 @@ void MainMenuScreen::renderSavesMenu(App& app) {
         SDL_Rect sh = {(int)winX - s/2, (int)winY + s, (int)winW + s, (int)winH};
         SDL_RenderFillRect(r, &sh);
     }
-    UIPrim::drawRoundedRect(r, Theme::surface1, winX, winY, winW, winH, 8, Theme::hairlineStrong());
+    HOI4::panel(r, winX, winY, winW, winH);
 
 
-    UIPrim::drawRectFilled(r, Theme::header, winX + 2, winY + 2, winW - 4, headerH);
+    UIPrim::drawGradientV(r, winX + 2, winY + 2, winW - 4, headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(headerH * 0.42f));
-    UIPrim::drawText(r, "LOAD GAME", titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold, winX + 8, winX + winW - 8, winY + headerH + 2, 2);
+    UIPrim::drawText(r, HOI4::tracked("Load Game"), titleFs, winX + winW / 2, winY + headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, winX + 6, winX + winW - 6, winY + headerH + 2);
 
 
     float footerH = std::round(u * 6.5f);
@@ -1441,11 +1375,7 @@ void MainMenuScreen::renderSavesMenu(App& app) {
     float contentH = winH - headerH - pad - footerH;
     float wellX = winX + pad, wellW = winW - pad * 2;
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, wellX, contentY, wellW, contentH, 6);
-    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(r, Theme::border.r, Theme::border.g, Theme::border.b, 40);
-    SDL_Rect wb = {(int)wellX, (int)contentY, (int)wellW, (int)contentH};
-    SDL_RenderDrawRect(r, &wb);
+    HOI4::inset(r, wellX, contentY, wellW, contentH);
 
 
     float row_h = std::round(u * 4.0f);
@@ -1469,7 +1399,7 @@ void MainMenuScreen::renderSavesMenu(App& app) {
         if (ry + row_h < contentY || ry > contentY + contentH) continue;
 
         bool isHov = mx >= wellX && mx <= wellX + wellW && my >= ry && my <= ry + row_h;
-        if (isHov) UIPrim::drawRectFilled(r, {28, 32, 40}, wellX + 2, ry, wellW - 4, row_h);
+        if (isHov) UIPrim::drawRectFilled(r, {38, 42, 39}, wellX + 2, ry, wellW - 4, row_h);
         else if (i % 2) { SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND); SDL_SetRenderDrawColor(r, 255, 255, 255, 3); SDL_Rect a = {(int)wellX+2,(int)ry,(int)wellW-4,(int)row_h}; SDL_RenderFillRect(r, &a); }
 
         SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);

@@ -6,54 +6,54 @@
 namespace Theme {
 
 
-constexpr Color bg           {  10,  10,  11 };
-constexpr Color bg_dark      {   6,   6,   7 };
+constexpr Color bg           {  24,  25,  26 };
+constexpr Color bg_dark      {  16,  17,  18 };
 
 
-constexpr Color panel        {  16,  16,  18 };
-constexpr Color panel_alt    {  24,  24,  27 };
-constexpr Color header       {   9,   9,  10 };
-constexpr Color panel_header {   9,   9,  10 };
-constexpr Color bar          {  12,  12,  14 };
+constexpr Color panel        {  42,  43,  44 };
+constexpr Color panel_alt    {  53,  54,  55 };
+constexpr Color header       {  30,  31,  32 };
+constexpr Color panel_header {  30,  31,  32 };
+constexpr Color bar          {  27,  28,  29 };
 
 
-constexpr Color surface0     {  10,  10,  11 };
-constexpr Color surface1     {  14,  14,  16 };
-constexpr Color surface2     {  24,  24,  27 };
+constexpr Color surface0     {  33,  34,  35 };
+constexpr Color surface1     {  42,  43,  44 };
+constexpr Color surface2     {  53,  54,  55 };
 
 
-constexpr Color btn          {  24,  24,  27 };
-constexpr Color btn_hover    {  40,  40,  45 };
-constexpr Color btn_press    {  15,  15,  17 };
-constexpr Color btn_disabled {  17,  17,  19 };
-constexpr Color btn_danger   { 120,  40,  40 };
-constexpr Color btn_confirm  {  40, 100,  55 };
+constexpr Color btn          {  60,  61,  63 };
+constexpr Color btn_hover    {  79,  80,  83 };
+constexpr Color btn_press    {  45,  46,  48 };
+constexpr Color btn_disabled {  38,  39,  40 };
+constexpr Color btn_danger   { 122,  48,  44 };
+constexpr Color btn_confirm  {  62, 104,  60 };
 
 
-constexpr Color slot          {  22,  22,  25 };
-constexpr Color slot_hover    {  36,  36,  40 };
-constexpr Color slot_selected {  40,  40,  45 };
-constexpr Color slot_active   {  40,  40,  45 };
+constexpr Color slot          {  46,  47,  48 };
+constexpr Color slot_hover    {  62,  63,  65 };
+constexpr Color slot_selected {  71,  71,  74 };
+constexpr Color slot_active   {  71,  71,  74 };
 
 
-constexpr Color border       { 185, 185, 192 };
-constexpr Color border_light { 215, 215, 220 };
-constexpr Color border_hi    { 215, 215, 220 };
+constexpr Color border       {  95,  92,  72 };
+constexpr Color border_light { 137, 131, 101 };
+constexpr Color border_hi    { 137, 131, 101 };
 
 
-constexpr Color gold         { 228, 228, 232 };
-constexpr Color gold_bright  { 255, 255, 255 };
-constexpr Color gold_dim     { 150, 150, 157 };
-constexpr Color gold_bg      {  44,  44,  49 };
+constexpr Color gold         { 178, 160, 106 };
+constexpr Color gold_bright  { 216, 195, 134 };
+constexpr Color gold_dim     { 118, 108,  76 };
+constexpr Color gold_bg      {  54,  51,  41 };
 
 
-constexpr Color accent_yellow { 233, 208, 120 };
+constexpr Color accent_yellow { 212, 184, 110 };
 
 
-constexpr Color cream        { 226, 226, 230 };
-constexpr Color white        { 240, 240, 243 };
-constexpr Color grey         { 152, 154, 160 };
-constexpr Color dark_grey    {  98, 100, 106 };
+constexpr Color cream        { 214, 208, 186 };
+constexpr Color white        { 235, 230, 214 };
+constexpr Color grey         { 152, 148, 134 };
+constexpr Color dark_grey    { 102, 100,  90 };
 constexpr Color text_shadow  {   0,   0,   0 };
 
 

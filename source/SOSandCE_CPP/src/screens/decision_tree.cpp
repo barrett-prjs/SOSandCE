@@ -6,6 +6,7 @@
 #include "ui/primitives.h"
 #include "ui/anim.h"
 #include "ui/theme.h"
+#include "ui/hoi4.h"
 #include "ui/ui_assets.h"
 #include "ui/toast.h"
 #include "game/game_state.h"
@@ -360,13 +361,14 @@ void DecisionTreeScreen::render(App& app) {
 
 
     float headerH = layout.headerH;
-    UIPrim::drawRectFilled(r, Theme::header, 0, 0, (float)W, headerH);
+    UIPrim::drawGradientV(r, 0, 0, (float)W, headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
 
-    std::string titleStr = "NATIONAL FOCUS TREE - " + replaceAll(player->name, "_", " ");
+    std::string titleStr = HOI4::tracked("National Focus Tree") + "  -  " +
+                           HOI4::caps(replaceAll(player->name, "_", " "));
     int titleFs = std::max(16, (int)(headerH * 0.38f));
     UIPrim::drawText(r, UIPrim::fitText(titleStr, titleFs, W * 0.7f), titleFs,
                      W * 0.5f, headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold_dim, 0, (float)W, headerH - 1, 1);
+    HOI4::goldDivider(r, 0, (float)W, headerH - 1);
 
 
     int mx, my; SDL_GetMouseState(&mx, &my);
@@ -399,8 +401,7 @@ void DecisionTreeScreen::render(App& app) {
     }
 
 
-    UIPrim::drawRoundedRect(r, {6, 8, 12}, layout.contentX, layout.contentY,
-                            layout.contentW, layout.contentH, 8, Theme::border);
+    HOI4::inset(r, layout.contentX, layout.contentY, layout.contentW, layout.contentH);
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, 255, 255, 255, 4);
     SDL_Rect contentHighlight = {
@@ -525,29 +526,28 @@ void DecisionTreeScreen::render(App& app) {
         SDL_Rect nsh = {(int)nodeX + 2, (int)nodeY + 3, (int)layout.nodeW, (int)layout.nodeH};
         SDL_RenderFillRect(r, &nsh);
 
-        Color nodeBg, nodeBrd, nameC, dayC;
+        Color nameC, dayC;
+        HOI4::button(r, nodeX, nodeY, layout.nodeW, layout.nodeH, isHov && canStart, false,
+                     canStart || isCompleted || isActive);
+        if (isCompleted || isActive) {
+            SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, isActive ? 255 : 200);
+            SDL_Rect goldRim = {(int)nodeX, (int)nodeY, (int)layout.nodeW, (int)layout.nodeH};
+            SDL_RenderDrawRect(r, &goldRim);
+        }
         if (isCompleted) {
-            nodeBg = Theme::gold_bg;
-            nodeBrd = Theme::gold;
             nameC = Theme::gold_bright;
             dayC = Theme::gold_dim;
         } else if (isActive) {
-            nodeBg = UIAnim::brighten(Theme::gold_bg, 1.25f);
-            nodeBrd = Theme::gold_bright;
             nameC = Theme::gold_bright;
             dayC = Theme::gold;
         } else if (canStart) {
-            nodeBg = isHov ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2;
-            nodeBrd = isHov ? Theme::gold : Theme::hairlineStrong();
             nameC = isHov ? Theme::gold_bright : Theme::cream;
             dayC = Theme::grey;
         } else {
-            nodeBg = Theme::surface1;
-            nodeBrd = Theme::hairlineStrong();
             nameC = Theme::grey;
             dayC = Theme::dark_grey;
         }
-        UIPrim::drawRoundedRect(r, nodeBg, nodeX, nodeY, layout.nodeW, layout.nodeH, 5, nodeBrd);
 
         if (isActive) {
             SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, 220);
@@ -668,7 +668,7 @@ void DecisionTreeScreen::render(App& app) {
                 tipY = std::clamp(tipY, 4.0f, std::max(4.0f, H - tipH - 4.0f));
 
                 UIPrim::drawShadow(r, tipX, tipY, tipW, tipH, 70, 6);
-                UIPrim::drawRoundedRect(r, Theme::surface1, tipX, tipY, tipW, tipH, 5, Theme::hairlineStrong());
+                HOI4::plate(r, tipX, tipY, tipW, tipH);
 
                 float ty = tipY + tipPad;
                 UIPrim::drawText(r, UIPrim::fitText(titleStr2, tipFs, innerW), tipFs,
@@ -697,8 +697,8 @@ void DecisionTreeScreen::render(App& app) {
 
 
     float footH = layout.footH;
-    UIPrim::drawRectFilled(r, {10, 12, 16, 200}, 0, H - footH, (float)W, footH);
-    UIPrim::drawHLine(r, Theme::border, 0, (float)W, H - footH, 1);
+    UIPrim::drawRectFilled(r, {15, 17, 16, 220}, 0, H - footH, (float)W, footH);
+    HOI4::goldDivider(r, 0, (float)W, H - footH);
     int instFs = std::max(12, (int)(u * 0.9f));
     UIPrim::drawText(r, "WASD / Arrow Keys or middle mouse to pan  |  Scroll to scroll  |  ESC to return",
                      instFs, W * 0.5f, H - footH * 0.5f, "center", Theme::dark_grey);

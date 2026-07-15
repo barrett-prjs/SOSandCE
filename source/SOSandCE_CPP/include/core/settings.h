@@ -16,6 +16,8 @@ struct Settings {
     int   windowWidth  = 1200;
     int   windowHeight = 675;
     float aiAggression = 1.0f;   // 0.5 = passive, 1.0 = normal, 1.5 = aggressive
+    bool  oceanDetail  = true;
+    bool  dayNight     = true;
 
 
     void load(const std::string& path) {
@@ -67,6 +69,8 @@ struct Settings {
             readInt  ("windowWidth",  windowWidth);
             readInt  ("windowHeight", windowHeight);
             readFloat("aiAggression", aiAggression);
+            readBool ("oceanDetail",  oceanDetail);
+            readBool ("dayNight",     dayNight);
         } catch (...) {
             std::cerr << "[Settings] Warning: failed to parse " << path << "\n";
         }
@@ -90,7 +94,9 @@ struct Settings {
         file << "  \"fullscreen\": "   << (fullscreen ? "true" : "false") << ",\n";
         file << "  \"windowWidth\": "  << windowWidth  << ",\n";
         file << "  \"windowHeight\": " << windowHeight << ",\n";
-        file << "  \"aiAggression\": " << aiAggression << "\n";
+        file << "  \"aiAggression\": " << aiAggression << ",\n";
+        file << "  \"oceanDetail\": "  << (oceanDetail ? "true" : "false") << ",\n";
+        file << "  \"dayNight\": "     << (dayNight ? "true" : "false") << "\n";
         file << "}\n";
     }
 };

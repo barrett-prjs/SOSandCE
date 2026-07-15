@@ -6,6 +6,7 @@
 #include "ui/primitives.h"
 #include "ui/anim.h"
 #include "ui/theme.h"
+#include "ui/hoi4.h"
 #include "ui/ui_assets.h"
 #include <algorithm>
 #include <iomanip>
@@ -26,7 +27,7 @@ struct SettingsLayout {
     float labelColW;
     int titleFs, bodyFs, capFs, valueFs;
 
-    void compute(int W, int H) {
+    void compute(int W, int H, int rows = 2) {
         uiUnit = (H / 100.0f) * Engine::instance().uiScaleFactor();
         pad = std::round(uiUnit * 1.2f);
         innerPad = std::round(uiUnit * 1.15f);
@@ -52,7 +53,7 @@ struct SettingsLayout {
         winW = std::clamp(winW, 760.0f, 1220.0f);
         buttonW = std::round(winW * 0.18f);
 
-        contentH = cardHeaderH + innerPad + rowH * 2.0f + rowGap + innerPad;
+        contentH = cardHeaderH + innerPad + rowH * rows + rowGap * (rows - 1) + innerPad;
         winH = std::round(headerH + pad * 0.5f + tabsH + pad + contentH + pad + footerH + pad * 0.5f);
         winX = std::round((W - winW) * 0.5f);
         winY = std::round((H - winH) * 0.5f);
@@ -112,7 +113,7 @@ std::string tabSubtitle(SettingsScreen::SettingsTab tab) {
 
 void drawSettingsCard(SDL_Renderer* r, const SettingsLayout& L, float x, float y, float w, float h,
                       const std::string& title, const std::string& subtitle) {
-    UIPrim::drawRoundedRect(r, Theme::surface1, x, y, w, h, 6, Theme::hairline());
+    HOI4::inset(r, x, y, w, h);
     float ty = y + std::round(L.innerPad * 0.7f);
     UIPrim::drawText(r, UIPrim::fitText(title, L.bodyFs, w - L.innerPad * 2.0f), L.bodyFs,
                      x + L.innerPad, ty, "topleft", Theme::gold_bright, true);
@@ -124,10 +125,13 @@ void drawSettingsCard(SDL_Renderer* r, const SettingsLayout& L, float x, float y
 
 void drawSegmentOption(SDL_Renderer* r, float x, float y, float w, float h,
                        const std::string& label, bool active, bool hovered, int fs) {
-    Color bg = active ? Theme::gold_bg
-             : (hovered ? UIAnim::brighten(Theme::surface2, 1.25f) : Theme::surface2);
-    Color brd = active ? Theme::gold : Theme::hairline();
-    UIPrim::drawRoundedRect(r, bg, x, y, w, h, 5, brd);
+    HOI4::button(r, x, y, w, h, hovered, false, true);
+    if (active) {
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(r, Theme::gold.r, Theme::gold.g, Theme::gold.b, 230);
+        SDL_Rect rim = {(int)x, (int)y, (int)w, (int)h};
+        SDL_RenderDrawRect(r, &rim);
+    }
     UIPrim::drawText(r, UIPrim::fitText(label, fs, w - 10.0f), fs,
                      x + w * 0.5f, y + h * 0.5f, "center",
                      active ? Theme::gold_bright : (hovered ? Theme::cream : Theme::grey), active);
@@ -145,6 +149,8 @@ void SettingsScreen::enter(App& app) {
     tempFog_ = s.fogOfWar;
     tempSidebarLeft_ = s.sidebarLeft;
     tempFullscreen_ = s.fullscreen;
+    tempOcean_ = s.oceanDetail;
+    tempDayNight_ = s.dayNight;
     activeTab_ = SettingsTab::INTERFACE;
 }
 
@@ -159,10 +165,14 @@ void SettingsScreen::applySettings(App& app) {
     s.fogOfWar = tempFog_;
     s.sidebarLeft = tempSidebarLeft_;
     s.fullscreen = tempFullscreen_;
+    s.oceanDetail = tempOcean_;
+    s.dayNight = tempDayNight_;
 
     Audio::instance().setMusicVolume(s.musicVolume);
     Audio::instance().setSoundVolume(s.soundVolume);
     eng.FPS = s.fps;
+    eng.oceanDetail = s.oceanDetail;
+    eng.dayNight = s.dayNight;
 
     if (eng.window) {
         SDL_SetWindowResizable(eng.window, SDL_TRUE);
@@ -189,7 +199,7 @@ void SettingsScreen::applySettings(App& app) {
 void SettingsScreen::handleInput(App& app, const InputState& input) {
     auto& eng = Engine::instance();
     SettingsLayout L;
-    L.compute(eng.WIDTH, eng.HEIGHT);
+    L.compute(eng.WIDTH, eng.HEIGHT, activeTab_ == SettingsTab::VIDEO ? 4 : 2);
     int mx = input.mouseX;
     int my = input.mouseY;
 
@@ -249,6 +259,10 @@ void SettingsScreen::handleInput(App& app, const InputState& input) {
         sliderHit(L.sliderX, sliderTrackY(row0Y), L.sliderW, L.sliderH, 30.0f, 240.0f, fpsValue);
         tempFPS_ = std::clamp((int)std::round(fpsValue), 30, 240);
         toggleHit(row1Y, tempFullscreen_, true);
+        float row2Y = row1Y + L.rowH + L.rowGap;
+        float row3Y = row2Y + L.rowH + L.rowGap;
+        toggleHit(row2Y, tempOcean_, true);
+        toggleHit(row3Y, tempDayNight_, true);
     } else if (activeTab_ == SettingsTab::GAMEPLAY) {
         toggleHit(row0Y, tempFog_, true);
     }
@@ -287,16 +301,18 @@ void SettingsScreen::render(App& app) {
     SDL_GetMouseState(&mx, &my);
 
     SettingsLayout L;
-    L.compute(W, H);
+    L.compute(W, H, activeTab_ == SettingsTab::VIDEO ? 4 : 2);
 
     eng.clear(Theme::bg);
     UIPrim::drawVignette(r, W, H, 95);
     UIAnim::pushMenuTransition(r, "screen:settings", L.winX + L.winW / 2, L.winY + L.winH / 2);
     UIPrim::drawMenuWindow(r, L.winX, L.winY, L.winW, L.winH, "");
 
-    UIPrim::drawText(r, "Settings", L.titleFs, L.winX + L.winW * 0.5f, L.winY + L.headerH * 0.5f,
-                     "center", Theme::gold, true);
-    UIPrim::drawHLine(r, Theme::gold_dim, L.winX + 8, L.winX + L.winW - 8, L.winY + L.headerH, 1);
+    UIPrim::drawGradientV(r, L.winX + 2, L.winY + 2, L.winW - 4, L.headerH - 2,
+                          {54, 58, 52, 255}, {34, 37, 33, 255});
+    UIPrim::drawText(r, HOI4::tracked("Settings"), L.titleFs, L.winX + L.winW * 0.5f, L.winY + L.headerH * 0.5f,
+                     "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, L.winX + 6, L.winX + L.winW - 6, L.winY + L.headerH);
 
     const char* tabLabels[] = {"Interface", "Audio", "Video", "Gameplay"};
     const SettingsTab tabValues[] = {
@@ -332,7 +348,7 @@ void SettingsScreen::render(App& app) {
 
     auto drawSliderRow = [&](float y, const std::string& label, const std::string& help,
                              float value, float minV, float maxV, const std::string& displayValue) {
-        UIPrim::drawRoundedRect(r, Theme::surface2, rowX, y, rowW, L.rowH, 5, Theme::hairline());
+        HOI4::plate(r, rowX, y, rowW, L.rowH);
         drawRowText(y, label, help);
 
         float trackY = y + L.rowH * 0.5f - L.sliderH * 0.5f;
@@ -353,7 +369,7 @@ void SettingsScreen::render(App& app) {
     auto drawToggleRow = [&](float y, const std::string& label, const std::string& help,
                              const std::string& leftLabel, bool leftActive,
                              const std::string& rightLabel, bool rightActive) {
-        UIPrim::drawRoundedRect(r, Theme::surface2, rowX, y, rowW, L.rowH, 5, Theme::hairline());
+        HOI4::plate(r, rowX, y, rowW, L.rowH);
         drawRowText(y, label, help);
 
         float segY = y + (L.rowH - L.toggleH) * 0.5f;
@@ -382,10 +398,16 @@ void SettingsScreen::render(App& app) {
                       static_cast<float>(tempFPS_), 30.0f, 240.0f, std::to_string(tempFPS_));
         drawToggleRow(row1Y, "Display Mode", "Switch between fullscreen desktop and windowed mode.",
                       "Fullscreen", tempFullscreen_, "Windowed", !tempFullscreen_);
+        float row2Y = row1Y + L.rowH + L.rowGap;
+        float row3Y = row2Y + L.rowH + L.rowGap;
+        drawToggleRow(row2Y, "Ocean Detail", "Depth shading and coastal shallows on the world map.",
+                      "Enabled", tempOcean_, "Disabled", !tempOcean_);
+        drawToggleRow(row3Y, "Day / Night", "Sunlight cycle that follows the game clock across the map.",
+                      "Enabled", tempDayNight_, "Disabled", !tempDayNight_);
     } else if (activeTab_ == SettingsTab::GAMEPLAY) {
         drawToggleRow(row0Y, "Fog of War", "Show or hide strategic vision limits on the map.",
                       "Enabled", tempFog_, "Disabled", !tempFog_);
-        UIPrim::drawRoundedRect(r, Theme::surface2, rowX, row1Y, rowW, L.rowH, 5, Theme::hairline());
+        HOI4::plate(r, rowX, row1Y, rowW, L.rowH);
         float noteMax = rowW - L.innerPad * 1.1f;
         float ty = row1Y + std::round(L.innerPad * 0.7f);
         UIPrim::drawText(r, "Notes", L.bodyFs, rowX + L.innerPad * 0.55f, ty, "topleft", Theme::cream, false);

@@ -19,7 +19,21 @@ MapManager::~MapManager() {
     if (cultureMap_)         SDL_FreeSurface(cultureMap_);
     if (worldRegionsMap_)    SDL_FreeSurface(worldRegionsMap_);
     if (modifiedIndustryMap_) SDL_FreeSurface(modifiedIndustryMap_);
+    if (terrainMap_)         SDL_FreeSurface(terrainMap_);
     if (cachedTexture_)      SDL_DestroyTexture(cachedTexture_);
+}
+
+
+void MapManager::rebuildTerrain() {
+    if (!biomeMap_) return;
+    auto& eng = Engine::instance();
+    SDL_Surface* grain = eng.loadSurface(eng.assetsPath + "maps/terrain_grain.png");
+    SDL_Surface* fresh = MapFunc::buildTerrainSurface(biomeMap_, grain);
+    if (grain) SDL_FreeSurface(grain);
+    if (fresh) {
+        if (terrainMap_) SDL_FreeSurface(terrainMap_);
+        terrainMap_ = fresh;
+    }
 }
 
 
@@ -40,6 +54,7 @@ void MapManager::loadMaps(const std::string& scenarioPath) {
     freeSurf(cultureMap_);
     freeSurf(worldRegionsMap_);
     freeSurf(modifiedIndustryMap_);
+    freeSurf(terrainMap_);
 
 
     std::string startsDir = eng.assetsPath + "starts/" + scenarioPath + "/";
@@ -87,6 +102,13 @@ void MapManager::loadMaps(const std::string& scenarioPath) {
            politicalMap_ != nullptr, factionMap_ != nullptr, ideologyMap_ != nullptr,
            industryMap_ != nullptr, biomeMap_ != nullptr, regionsMap_ != nullptr);
     fflush(stdout);
+
+
+    if (biomeMap_) {
+        SDL_Surface* grain = eng.loadSurface(mapsDir + "terrain_grain.png");
+        terrainMap_ = MapFunc::buildTerrainSurface(biomeMap_, grain);
+        if (grain) SDL_FreeSurface(grain);
+    }
 
 
     if (!industryMap_ && politicalMap_) {
@@ -161,13 +183,17 @@ void MapManager::reloadIndustryMap(GameState& gs) {
     if (!industryMap_) return;
 
 
-    if (modifiedIndustryMap_) {
+    if (modifiedIndustryMap_ && (modifiedIndustryMap_->w != industryMap_->w ||
+                                 modifiedIndustryMap_->h != industryMap_->h)) {
         SDL_FreeSurface(modifiedIndustryMap_);
         modifiedIndustryMap_ = nullptr;
     }
-
-
-    modifiedIndustryMap_ = SDL_ConvertSurface(industryMap_, industryMap_->format, 0);
+    if (modifiedIndustryMap_) {
+        SDL_SetSurfaceBlendMode(industryMap_, SDL_BLENDMODE_NONE);
+        SDL_BlitSurface(industryMap_, nullptr, modifiedIndustryMap_, nullptr);
+    } else {
+        modifiedIndustryMap_ = SDL_ConvertSurface(industryMap_, industryMap_->format, 0);
+    }
     if (!modifiedIndustryMap_) return;
 
     SDL_LockSurface(modifiedIndustryMap_);
@@ -213,11 +239,17 @@ void MapManager::reloadIndustryMap(GameState& gs) {
 void MapManager::generateResourceMap(GameState& gs) {
     if (!industryMap_) return;
 
-    if (resourceMap_) {
+    if (resourceMap_ && (resourceMap_->w != industryMap_->w ||
+                         resourceMap_->h != industryMap_->h)) {
         SDL_FreeSurface(resourceMap_);
+        resourceMap_ = nullptr;
     }
-
-    resourceMap_ = SDL_ConvertSurface(industryMap_, industryMap_->format, 0);
+    if (resourceMap_) {
+        SDL_SetSurfaceBlendMode(industryMap_, SDL_BLENDMODE_NONE);
+        SDL_BlitSurface(industryMap_, nullptr, resourceMap_, nullptr);
+    } else {
+        resourceMap_ = SDL_ConvertSurface(industryMap_, industryMap_->format, 0);
+    }
     if (!resourceMap_) return;
 
 

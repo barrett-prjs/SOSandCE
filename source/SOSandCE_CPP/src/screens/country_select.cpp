@@ -1,9 +1,10 @@
-#include "screens/country_select.h"
+﻿#include "screens/country_select.h"
 #include "core/app.h"
 #include "core/engine.h"
 #include "core/input.h"
 #include "ui/primitives.h"
 #include "ui/theme.h"
+#include "ui/hoi4.h"
 #include "ui/ui_assets.h"
 #include "data/data_loader.h"
 #include "game/game_state.h"
@@ -215,20 +216,15 @@ void CountrySelectScreen::render(App& app) {
         SDL_Rect sh = {(int)L.winX - s/2, (int)L.winY + s, (int)L.winW + s, (int)L.winH};
         SDL_RenderFillRect(r, &sh);
     }
-    UIPrim::drawRoundedRect(r, {18, 20, 26}, L.winX, L.winY, L.winW, L.winH, 8);
-    SDL_Texture* windowTex = assets.panelBodyHeaded();
-    if (!windowTex) windowTex = assets.panelBodyHeadless();
-    if (windowTex) UIAssets::draw9Slice(r, windowTex, L.winX, L.winY, L.winW, L.winH, 28);
+    HOI4::panel(r, L.winX, L.winY, L.winW, L.winH);
 
-    SDL_Texture* headerTex2 = assets.panelHeader();
-    if (headerTex2) UIAssets::draw9Slice(r, headerTex2, L.winX + 3, L.winY + 3, L.winW - 6, L.headerH, 14);
+    UIPrim::drawGradientV(r, L.winX + 2, L.winY + 2, L.winW - 4, L.headerH, {54, 58, 52, 255}, {34, 37, 33, 255});
     int titleFs = std::max(16, (int)(L.headerH * 0.42f));
-    UIPrim::drawText(r, "SELECT COUNTRY", titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
-    UIPrim::drawHLine(r, Theme::gold, L.winX + 8, L.winX + L.winW - 8, L.winY + L.headerH + 2, 2);
-    UIPrim::drawOrnamentalFrame(r, L.winX, L.winY, L.winW, L.winH, 2);
+    UIPrim::drawText(r, HOI4::tracked("Select Country"), titleFs, L.winX + L.winW / 2, L.winY + L.headerH * 0.5f, "center", Theme::gold_bright, true);
+    HOI4::goldDivider(r, L.winX + 6, L.winX + L.winW - 6, L.winY + L.headerH + 2);
 
 
-    UIPrim::drawRoundedRect(r, {10, 12, 16}, L.searchX, L.searchY, L.searchW, L.searchH, 4, Theme::border);
+    HOI4::inset(r, L.searchX, L.searchY, L.searchW, L.searchH);
 
     std::string searchText = searchFilter_.empty() ? "Search..." : searchFilter_ + "_";
     Color searchColor = searchFilter_.empty() ? Theme::dark_grey : Theme::cream;
@@ -293,21 +289,14 @@ void CountrySelectScreen::render(App& app) {
     bool startHov = canStart && mx >= startBtnX && mx <= startBtnX + startBtnW &&
                     my >= L.btnY && my <= L.btnY + startBtnH;
 
-    SDL_Texture* panelTex = UIAssets::instance().panelBodyHeadless();
-    if (panelTex) {
-        uint8_t mod = !canStart ? 148 : (startHov ? 255 : 238);
-        SDL_SetTextureColorMod(panelTex, mod, mod, mod);
-        SDL_SetTextureAlphaMod(panelTex, canStart ? 255 : 190);
-        UIAssets::draw9Slice(r, panelTex, startBtnX, L.btnY, startBtnW, startBtnH, 18);
-        SDL_SetTextureColorMod(panelTex, 255, 255, 255);
-        SDL_SetTextureAlphaMod(panelTex, 255);
-    } else if (canStart) {
-        UIPrim::drawRoundedRect(r, startHov ? Color{55, 120, 70} : Theme::btn_confirm, startBtnX, L.btnY, startBtnW, startBtnH, 5, Theme::green);
+    if (canStart) {
+        Color sTop = startHov ? Color{62, 127, 74} : Color{52, 106, 62};
+        Color sBot = startHov ? Color{38, 86, 50} : Color{32, 72, 42};
+        UIPrim::drawGradientV(r, startBtnX, L.btnY, startBtnW, startBtnH, sTop, sBot);
+        HOI4::frame(r, startBtnX, L.btnY, startBtnW, startBtnH, startHov);
     } else {
-        UIPrim::drawRoundedRect(r, Theme::btn_disabled, startBtnX, L.btnY, startBtnW, startBtnH, 5, Theme::border);
+        HOI4::button(r, startBtnX, L.btnY, startBtnW, startBtnH, false, false, false);
     }
-    UIPrim::drawHLine(r, canStart && startHov ? Theme::gold_dim : Color{Theme::border.r, Theme::border.g, Theme::border.b, 90},
-                      startBtnX + 6, startBtnX + startBtnW - 6, L.btnY + startBtnH - 2, 1);
     Color startTc = canStart ? (startHov ? Theme::gold_bright : Theme::cream) : Theme::dark_grey;
     int btnFs = std::max(13, (int)(H / 78.0f));
     UIPrim::drawText(r, "Start", btnFs,
